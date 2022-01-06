@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.0EA",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "TPSOnline",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"TargetPlatforms": [
+		"Windows"
+	]
+}
