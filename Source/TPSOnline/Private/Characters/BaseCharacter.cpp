@@ -1,6 +1,6 @@
 // All Rights Reserved.
 
-#include "BaseCharacter.h"
+#include "Characters/BaseCharacter.h"
 
 ABaseCharacter::ABaseCharacter()
 {

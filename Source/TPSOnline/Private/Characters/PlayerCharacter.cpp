@@ -1,7 +1,8 @@
 // All Rights Reserved.
 
-#include "PlayerCharacter.h"
+#include "Characters/PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -9,6 +10,10 @@
 
 APlayerCharacter::APlayerCharacter()
 {
+	GetCapsuleComponent()->InitCapsuleSize(34.0f, 90.0f);
+
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
