@@ -24,6 +24,7 @@ protected:
 	/** Called to bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -42,7 +43,9 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
-private:
+	void StartSprint();
+	void StopSprint();
+	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float BaseTurnRate = 45.0f;
