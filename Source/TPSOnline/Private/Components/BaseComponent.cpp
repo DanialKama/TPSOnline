@@ -11,5 +11,5 @@ UBaseComponent::UBaseComponent()
 
 void UBaseComponent::Initialize()
 {
-	CompOwner = Cast<ABaseCharacter>(GetOwner());
+	ComponentOwner = Cast<ABaseCharacter>(GetOwner());
 }

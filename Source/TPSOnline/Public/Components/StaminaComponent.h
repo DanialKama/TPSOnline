@@ -15,32 +15,50 @@ class TPSONLINE_API UStaminaComponent : public UBaseComponent
 public:	
 	/** Sets default values for this component's properties */
 	UStaminaComponent();
-	virtual void BeginPlay() override;
+	
 	virtual void Initialize() override;
-
+	
 	void StartStaminaDrain(EMovementState MovementState);
 	void StopStaminaDrain();
+	
+	/** Decreased stamina when jumping */
+	void JumpDrainStamina();
 
 private:
-	void RunningDrainStamina();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStartStaminaDrain(EMovementState MovementState);
+	bool ServerStartStaminaDrain_Validate(EMovementState MovementState);
+	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStopStaminaDrain();
+	bool ServerStopStaminaDrain_Validate();
+	void ServerStopStaminaDrain_Implementation();
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerJumpDrainStamina();
+	bool ServerJumpDrainStamina_Validate();
+	void ServerJumpDrainStamina_Implementation();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRunningDrainStamina();
 	bool ServerRunningDrainStamina_Validate();
+	/** Decreased stamina when running */
+	UFUNCTION()
 	void ServerRunningDrainStamina_Implementation();
-
-	void SprintingDrainStamina();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSprintingDrainStamina();
 	bool ServerSprintingDrainStamina_Validate();
+	/** Decreased stamina when sprinting */
+	UFUNCTION()
 	void ServerSprintingDrainStamina_Implementation();
-
-	void RestoreStamina();
-
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRestoreStamina();
 	bool ServerRestoreStamina_Validate();
+	/** Restore stamina when the character stops or walks */
+	UFUNCTION()
 	void ServerRestoreStamina_Implementation();
 
 public:
@@ -57,6 +75,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float SprintingDrainAmount;
 
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float JumpingDrainAmount;
+	
 	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RestoreStaminaAmount;
 	

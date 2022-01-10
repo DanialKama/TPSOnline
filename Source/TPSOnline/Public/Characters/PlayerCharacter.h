@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
+#include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "PlayerCharacter.generated.h"
 
@@ -29,6 +30,10 @@ public:
 	/** For test */
 	UFUNCTION(BlueprintCallable, Category = "Test")
 	FORCEINLINE float GetStaminaLevel() const { return GetStaminaComponent()->CurrentStamina; }
+
+	/** For test */
+	UFUNCTION(BlueprintCallable, Category = "Test")
+	FORCEINLINE float GetHealthLevel() const { return GetHealthComponent()->CurrentHealth; }
 	
 protected:
 	/** Called to bind functionality to input */
@@ -57,6 +62,8 @@ private:
 
 	void StartSprint();
 	void StopSprint();
+
+	void AttemptJump();
 
 private:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */

@@ -14,4 +14,23 @@ class TPSONLINE_API UHealthComponent : public UBaseComponent
 public:	
 	/** Sets default values for this component's properties */
 	UHealthComponent();
+
+	virtual void Initialize() override;
+private:
+	UFUNCTION()
+	void TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+public:
+	UPROPERTY(Replicated)
+	float CurrentHealth;
+	
+private:
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float MaxHealth;
+
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float RestoreAmount;
+
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float RestoreDelay;
 };

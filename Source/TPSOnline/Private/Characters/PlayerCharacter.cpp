@@ -10,7 +10,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/WidgetInterface.h"
-#include "UI/PlayerHUD.h"
+#include "Kismet/GameplayStatics.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -26,7 +26,7 @@ APlayerCharacter::APlayerCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->MaxWalkSpeed = 240.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 150.f;
 	GetCharacterMovement()->JumpZVelocity = 300.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -60,7 +60,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::AttemptJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprint);
@@ -87,6 +87,9 @@ void APlayerCharacter::BeginPlay()
 	// }
 	
 	Super::BeginPlay();
+
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
 }
 
 void APlayerCharacter::TurnAtRate(float Rate)
@@ -130,31 +133,28 @@ void APlayerCharacter::MoveRight(float Value)
 	}
 }
 
+void APlayerCharacter::AttemptJump()
+{
+	if (GetStaminaComponent()->CurrentStamina > 0.0f && !GetCharacterMovement()->IsFalling())
+	{
+		GetStaminaComponent()->JumpDrainStamina();
+		Jump();
+	}
+}
+
 void APlayerCharacter::StartSprint()
 {
 	if (bDoOnceStopped)
 	{
 		GetStaminaComponent()->StartStaminaDrain(EMovementState::Sprint);
 	}
-	
-	if (GetStaminaComponent()->CurrentStamina > 0.0f)
-	{
-		MovementState = EMovementState::Sprint;
-		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-		GetCharacterMovement()->JumpZVelocity = 420.0f;
-	}
+
+	ServerToggleSprint_Implementation(EMovementState::Sprint);
 }
 
 void APlayerCharacter::StopSprint()
 {
-	if (bDoOnceStopped)
-	{
-		GetStaminaComponent()->StopStaminaDrain();
-	}
-	
-	MovementState = EMovementState::Walk;
-	GetCharacterMovement()->MaxWalkSpeed = 240.0f;
-	GetCharacterMovement()->JumpZVelocity = 300.0f;
+	ServerToggleSprint_Implementation(EMovementState::Walk);
 }
 
 void APlayerCharacter::SetStaminaLevel(float CurrentStamina)

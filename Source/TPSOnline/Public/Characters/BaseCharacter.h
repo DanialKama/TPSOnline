@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
+UENUM()
 enum class EMovementState : uint8
 {
 	Walk,
@@ -29,16 +30,24 @@ class TPSONLINE_API ABaseCharacter : public ACharacter
 public:
 	ABaseCharacter();
 
+	virtual void SetHealthLevel(float CurrentHealth);
 	virtual void SetStaminaLevel(float CurrentStamina);
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerToggleSprint(EMovementState NewMovementState);
+	bool ServerToggleSprint_Validate(EMovementState NewMovementState);
+	/** Change Movement State to Sprint or Walk based on previous Movement State */
+	void ServerToggleSprint_Implementation(EMovementState NewMovementState);
+	
 	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
-
+	
 protected:
+	UPROPERTY(Replicated)
 	EMovementState MovementState;
 	
 	/** To check only once if character is moving or not */

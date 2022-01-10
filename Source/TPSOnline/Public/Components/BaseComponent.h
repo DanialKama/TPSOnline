@@ -22,5 +22,5 @@ public:
 protected:
 	/** Owner of this component */
 	UPROPERTY()
-	ABaseCharacter* CompOwner;
+	ABaseCharacter* ComponentOwner;
 };
