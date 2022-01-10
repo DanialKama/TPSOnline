@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "BaseComponent.generated.h"
 
+class ABaseCharacter;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TPSONLINE_API UBaseComponent : public UActorComponent
 {
@@ -15,7 +17,10 @@ public:
 	/** Sets default values for this component's properties */
 	UBaseComponent();
 
+	virtual void Initialize();
+
 protected:
-	/** Called when the game starts */
-	virtual void BeginPlay() override;	
+	/** Owner of this component */
+	UPROPERTY()
+	ABaseCharacter* CompOwner;
 };

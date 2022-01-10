@@ -3,6 +3,7 @@
 #include "Characters/BaseCharacter.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -13,6 +14,14 @@ ABaseCharacter::ABaseCharacter()
 
 	bDoOnceMoving = true;
 	bDoOnceStopped = true;
+}
+
+void ABaseCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	HealthComponent->Initialize();
+	StaminaComponent->Initialize();
 }
 
 void ABaseCharacter::Tick(float DeltaSeconds)
@@ -43,5 +52,14 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 		{
 			StaminaComponent->StartStaminaDrain(MovementState);
 		}
+	}
+}
+
+void ABaseCharacter::SetStaminaLevel(float CurrentStamina)
+{
+	if (CurrentStamina <= 0.0f)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 240.0f;
+		GetCharacterMovement()->JumpZVelocity = 300.0f;
 	}
 }

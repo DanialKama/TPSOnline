@@ -5,8 +5,11 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StaminaComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Interfaces/WidgetInterface.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -31,13 +34,36 @@ APlayerCharacter::APlayerCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
 	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetComponentTickEnabled(false);
 	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	SpringArm->bEnableCameraLag = true;
 
 	// Create a follow camera
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	Camera->SetComponentTickEnabled(false);
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Info Bar"));
+	Widget->SetupAttachment(GetRootComponent());
+	Widget->SetComponentTickEnabled(false);
+	Widget->SetGenerateOverlapEvents(false);
+	Widget->CanCharacterStepUpOn = ECB_No;
+	Widget->SetWidgetSpace(EWidgetSpace::Screen);
+	
+	BaseTurnRate = 45.0f;
+	BaseLookUpRate = 45.0f;
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Widget->InitWidget();
+	if (Widget && Widget->GetWidget()->GetClass()->ImplementsInterface(UWidgetInterface::StaticClass()))
+	{
+		bWidgetInterface = true;
+	}
+	
+	Super::BeginPlay();
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -105,12 +131,33 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::StartSprint()
 {
-	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	GetCharacterMovement()->JumpZVelocity = 420.0f;
+	if (bDoOnceStopped)
+	{
+		GetStaminaComponent()->StartStaminaDrain(EMovementState::Sprint);
+	}
+	if (GetStaminaComponent()->CurrentStamina > 0.0f)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+		GetCharacterMovement()->JumpZVelocity = 420.0f;
+	}
 }
 
 void APlayerCharacter::StopSprint()
 {
+	if (bDoOnceStopped)
+	{
+		GetStaminaComponent()->StopStaminaDrain();
+	}
 	GetCharacterMovement()->MaxWalkSpeed = 240.0f;
 	GetCharacterMovement()->JumpZVelocity = 300.0f;
+}
+
+void APlayerCharacter::SetStaminaLevel(float CurrentStamina)
+{
+	Super::SetStaminaLevel(CurrentStamina);
+
+	if (bWidgetInterface)
+	{
+		IWidgetInterface::Execute_UpdateStaminaLevel(Widget->GetWidget(), CurrentStamina);
+	}
 }

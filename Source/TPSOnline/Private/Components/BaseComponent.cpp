@@ -1,16 +1,15 @@
 // All Rights Reserved.
 
 #include "Components/BaseComponent.h"
-#include "Net/UnrealNetwork.h"
 
-// Sets default values for this component's properties
+#include "Characters/BaseCharacter.h"
+
 UBaseComponent::UBaseComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicated(true);
 }
 
-void UBaseComponent::BeginPlay()
+void UBaseComponent::Initialize()
 {
-	Super::BeginPlay();
+	CompOwner = Cast<ABaseCharacter>(GetOwner());
 }

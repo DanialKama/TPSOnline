@@ -10,6 +10,9 @@ UCLASS()
 class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* Widget;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
@@ -19,8 +22,12 @@ class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 	
 public:
 	APlayerCharacter();
+
+	virtual void SetStaminaLevel(float CurrentStamina) override;
 	
 protected:
+	virtual void BeginPlay() override;
+	
 	/** Called to bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -45,12 +52,15 @@ private:
 
 	void StartSprint();
 	void StopSprint();
-	
+
+private:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	float BaseTurnRate = 45.0f;
+	float BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	float BaseLookUpRate = 45.0f;
+	float BaseLookUpRate;
+
+	uint8 bWidgetInterface : 1;
 };
