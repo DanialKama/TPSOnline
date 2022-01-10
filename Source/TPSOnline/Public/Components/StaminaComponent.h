@@ -15,7 +15,7 @@ class TPSONLINE_API UStaminaComponent : public UBaseComponent
 public:	
 	/** Sets default values for this component's properties */
 	UStaminaComponent();
-	
+	virtual void BeginPlay() override;
 	virtual void Initialize() override;
 
 	void StartStaminaDrain(EMovementState MovementState);
@@ -36,22 +36,32 @@ private:
 	bool ServerSprintingDrainStamina_Validate();
 	void ServerSprintingDrainStamina_Implementation();
 
+	void RestoreStamina();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRestoreStamina();
+	bool ServerRestoreStamina_Validate();
+	void ServerRestoreStamina_Implementation();
+
 public:
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float MaxStamina;
+	
 	UPROPERTY(Replicated)
 	float CurrentStamina;
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	float MaxStamina;
-	
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RunningDrainAmount;
 
 	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float SprintingDrainAmount;
+
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float RestoreStaminaAmount;
 	
 	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RestoreStaminaDelay;
 	
-	FTimerHandle DrainStaminaTimer;
+	FTimerHandle DrainStaminaTimer, RestoreStaminaTimer;
 };

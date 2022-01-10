@@ -7,12 +7,17 @@
 UStaminaComponent::UStaminaComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicated(true);
 
 	MaxStamina = 100.0f;
 	RunningDrainAmount = 1.5f;
 	SprintingDrainAmount = 3.0f;
+	RestoreStaminaAmount = 5.0f;
 	RestoreStaminaDelay = 2.0f;
+}
+void UStaminaComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	SetIsReplicated(true);
 }
 
 void UStaminaComponent::Initialize()
@@ -35,6 +40,7 @@ void UStaminaComponent::StartStaminaDrain(EMovementState MovementState)
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
+		GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
 		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 		
 		if (MovementState == EMovementState::Run)
@@ -45,14 +51,6 @@ void UStaminaComponent::StartStaminaDrain(EMovementState MovementState)
 		{
 			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::SprintingDrainStamina, 0.2f, true);
 		}
-	}
-}
-
-void UStaminaComponent::StopStaminaDrain()
-{
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 	}
 }
 
@@ -114,5 +112,53 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 	if (GetOwnerRole() == ROLE_Authority)
 	{
 		SprintingDrainStamina();
+	}
+}
+
+void UStaminaComponent::StopStaminaDrain()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
+
+		// If timer is invalid
+		if (!RestoreStaminaTimer.IsValid())
+		{
+			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::RestoreStamina, 0.2f, true, RestoreStaminaDelay);
+		}
+	}
+}
+
+void UStaminaComponent::RestoreStamina()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		if (CurrentStamina == MaxStamina)
+		{
+			GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
+		}
+		else
+		{
+			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
+		}
+	}
+	else
+	{
+		ServerRestoreStamina();
+	}
+
+	CompOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
+}
+
+bool UStaminaComponent::ServerRestoreStamina_Validate()
+{
+	return true;
+}
+
+void UStaminaComponent::ServerRestoreStamina_Implementation()
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		RestoreStamina();
 	}
 }

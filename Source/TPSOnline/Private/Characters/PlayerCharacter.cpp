@@ -10,6 +10,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Interfaces/WidgetInterface.h"
+#include "UI/PlayerHUD.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -55,17 +56,6 @@ APlayerCharacter::APlayerCharacter()
 	BaseLookUpRate = 45.0f;
 }
 
-void APlayerCharacter::BeginPlay()
-{
-	Widget->InitWidget();
-	if (Widget && Widget->GetWidget()->GetClass()->ImplementsInterface(UWidgetInterface::StaticClass()))
-	{
-		bWidgetInterface = true;
-	}
-	
-	Super::BeginPlay();
-}
-
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -86,6 +76,17 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+}
+
+void APlayerCharacter::BeginPlay()
+{
+	Widget->InitWidget();
+	// if (Widget->GetWidget()->GetClass()->ImplementsInterface(UWidgetInterface::StaticClass())) // TODO - Fix this
+	// {
+	// 	bWidgetInterface = true;
+	// }
+	
+	Super::BeginPlay();
 }
 
 void APlayerCharacter::TurnAtRate(float Rate)
@@ -135,8 +136,10 @@ void APlayerCharacter::StartSprint()
 	{
 		GetStaminaComponent()->StartStaminaDrain(EMovementState::Sprint);
 	}
+	
 	if (GetStaminaComponent()->CurrentStamina > 0.0f)
 	{
+		MovementState = EMovementState::Sprint;
 		GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 		GetCharacterMovement()->JumpZVelocity = 420.0f;
 	}
@@ -148,6 +151,8 @@ void APlayerCharacter::StopSprint()
 	{
 		GetStaminaComponent()->StopStaminaDrain();
 	}
+	
+	MovementState = EMovementState::Walk;
 	GetCharacterMovement()->MaxWalkSpeed = 240.0f;
 	GetCharacterMovement()->JumpZVelocity = 300.0f;
 }
@@ -158,6 +163,7 @@ void APlayerCharacter::SetStaminaLevel(float CurrentStamina)
 
 	if (bWidgetInterface)
 	{
-		IWidgetInterface::Execute_UpdateStaminaLevel(Widget->GetWidget(), CurrentStamina);
+		// Set stamina level on widget
+		IWidgetInterface::Execute_UpdateStamina(Widget->GetWidget(), CurrentStamina);
 	}
 }

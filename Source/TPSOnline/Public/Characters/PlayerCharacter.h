@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
+#include "Components/StaminaComponent.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -24,12 +25,16 @@ public:
 	APlayerCharacter();
 
 	virtual void SetStaminaLevel(float CurrentStamina) override;
+
+	/** For test */
+	UFUNCTION(BlueprintCallable, Category = "Test")
+	FORCEINLINE float GetStaminaLevel() const { return GetStaminaComponent()->CurrentStamina; }
 	
 protected:
-	virtual void BeginPlay() override;
-	
 	/** Called to bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void BeginPlay() override;
 
 private:
 	/** Called for forwards/backward input */
