@@ -49,6 +49,9 @@ protected:
 protected:
 	UPROPERTY(Replicated)
 	EMovementState MovementState;
+
+	UPROPERTY(Replicated)
+	float MovementScale;
 	
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;

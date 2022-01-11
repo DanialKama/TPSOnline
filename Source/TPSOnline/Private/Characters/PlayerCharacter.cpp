@@ -26,8 +26,7 @@ APlayerCharacter::APlayerCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
-	GetCharacterMovement()->MaxWalkSpeedCrouched = 150.f;
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 	GetCharacterMovement()->JumpZVelocity = 300.0f;
 	GetCharacterMovement()->AirControl = 0.2f;
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
@@ -106,7 +105,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if (Controller && Value != 0.0f)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -114,13 +113,13 @@ void APlayerCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, Value * MovementScale);
 	}
 }
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if (Controller && Value != 0.0f)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -129,7 +128,7 @@ void APlayerCharacter::MoveRight(float Value)
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, Value * MovementScale);
 	}
 }
 

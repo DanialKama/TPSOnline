@@ -15,6 +15,8 @@ ABaseCharacter::ABaseCharacter()
 
 	bDoOnceMoving = true;
 	bDoOnceStopped = true;
+	MovementState = EMovementState::Walk;
+	MovementScale = 1.0f;
 }
 
 void ABaseCharacter::BeginPlay()
@@ -62,6 +64,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 
 	// Replicate to everyone
 	DOREPLIFETIME(ABaseCharacter, MovementState);
+	DOREPLIFETIME(ABaseCharacter, MovementScale);
 }
 
 bool ABaseCharacter::ServerToggleSprint_Validate(EMovementState NewMovementState)
@@ -71,16 +74,15 @@ bool ABaseCharacter::ServerToggleSprint_Validate(EMovementState NewMovementState
 
 void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovementState)	// TODO - Fix stutter effect
 {
-	if (HasAuthority())
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		MovementState = NewMovementState;
 		switch (NewMovementState)
 		{
 		case 0:
 			// Walk
+			MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
 			StaminaComponent->StopStaminaDrain();
-			GetCharacterMovement()->MaxWalkSpeed = 150.0f;
-			GetCharacterMovement()->MaxWalkSpeedCrouched = 150.0f;
 			GetCharacterMovement()->JumpZVelocity = 300.0f;
 			break;
 		case 1:
@@ -88,8 +90,7 @@ void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovemen
 			if (StaminaComponent->CurrentStamina > 0.0f)
 			{
 				UnCrouch();
-				GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = 300.0f;
+				MovementScale = 0.5f;	// MaxWalkSpeed = 300.0f
 				GetCharacterMovement()->JumpZVelocity = 360.0f;
 			}
 			break;
@@ -98,8 +99,7 @@ void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovemen
 			if (StaminaComponent->CurrentStamina > 0.0f)
 			{
 				UnCrouch();
-				GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-				GetCharacterMovement()->MaxWalkSpeedCrouched = 600.0f;
+				MovementScale = 1.0f;	// MaxWalkSpeed = 600.0f
 				GetCharacterMovement()->JumpZVelocity = 420.0f;
 			}
 			break;
@@ -113,16 +113,15 @@ void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovemen
 			{
 				Crouch();
 			}
+			
+			MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
 			StaminaComponent->StopStaminaDrain();
-			GetCharacterMovement()->MaxWalkSpeed = 150.0f;
-			GetCharacterMovement()->MaxWalkSpeedCrouched = 150.0f;
 			GetCharacterMovement()->JumpZVelocity = 0.0f;
 			break;
 		case 4:
 			// Prone
+			MovementScale = 0.14f;	// MaxWalkSpeed = 84.0f
 			StaminaComponent->StopStaminaDrain();
-			GetCharacterMovement()->MaxWalkSpeed = 80.0f;
-			GetCharacterMovement()->MaxWalkSpeedCrouched = 80.0f;
 			GetCharacterMovement()->JumpZVelocity = 0.0f;
 			break;
 		}
