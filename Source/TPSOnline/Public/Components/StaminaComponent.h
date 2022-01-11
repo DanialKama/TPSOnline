@@ -18,70 +18,69 @@ public:
 	
 	virtual void Initialize() override;
 	
-	void StartStaminaDrain(EMovementState MovementState);
-	void StopStaminaDrain();
-	
-	/** Decreased stamina when jumping */
-	void JumpDrainStamina();
-
-private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerStartStaminaDrain(EMovementState MovementState);
-	bool ServerStartStaminaDrain_Validate(EMovementState MovementState);
-	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerStopStaminaDrain();
-	bool ServerStopStaminaDrain_Validate();
-	void ServerStopStaminaDrain_Implementation();
 	
+	/** Decreased stamina when jumping */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerJumpDrainStamina();
+
+private:
+	bool ServerStartStaminaDrain_Validate(EMovementState MovementState);
+	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
+	
+	bool ServerStopStaminaDrain_Validate();
+	void ServerStopStaminaDrain_Implementation();
+
 	bool ServerJumpDrainStamina_Validate();
 	void ServerJumpDrainStamina_Implementation();
-	
+
+	/** Decreased stamina when running */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRunningDrainStamina();
 	bool ServerRunningDrainStamina_Validate();
-	/** Decreased stamina when running */
-	UFUNCTION()
 	void ServerRunningDrainStamina_Implementation();
 	
+	/** Decreased stamina when sprinting */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSprintingDrainStamina();
 	bool ServerSprintingDrainStamina_Validate();
-	/** Decreased stamina when sprinting */
-	UFUNCTION()
 	void ServerSprintingDrainStamina_Implementation();
-	
+
+	/** Restore stamina when the character stops or walks */
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRestoreStamina();
 	bool ServerRestoreStamina_Validate();
-	/** Restore stamina when the character stops or walks */
-	UFUNCTION()
 	void ServerRestoreStamina_Implementation();
 
+	/** Update stamina level on player UI */
+	UFUNCTION(Client, Unreliable)
+	void ClientUpdateStamina();
+
 public:
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	float MaxStamina;
-	
 	UPROPERTY(Replicated)
 	float CurrentStamina;
 	
 private:
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float MaxStamina;
+	
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RunningDrainAmount;
 
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float SprintingDrainAmount;
 
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float JumpingDrainAmount;
 	
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RestoreStaminaAmount;
 	
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RestoreStaminaDelay;
 	
 	FTimerHandle DrainStaminaTimer, RestoreStaminaTimer;

@@ -31,11 +31,12 @@ void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 
 	// Replicate to everyone
 	DOREPLIFETIME(UStaminaComponent, CurrentStamina);
-}
-
-void UStaminaComponent::StartStaminaDrain(EMovementState MovementState)
-{
-	ServerStartStaminaDrain_Implementation(MovementState);
+	DOREPLIFETIME(UStaminaComponent, MaxStamina);
+	DOREPLIFETIME(UStaminaComponent, RunningDrainAmount);
+	DOREPLIFETIME(UStaminaComponent, SprintingDrainAmount);
+	DOREPLIFETIME(UStaminaComponent, JumpingDrainAmount);
+	DOREPLIFETIME(UStaminaComponent, RestoreStaminaAmount);
+	DOREPLIFETIME(UStaminaComponent, RestoreStaminaDelay);
 }
 
 bool UStaminaComponent::ServerStartStaminaDrain_Validate(EMovementState MovementState)
@@ -52,11 +53,11 @@ void UStaminaComponent::ServerStartStaminaDrain_Implementation(EMovementState Mo
 		
 		if (MovementState == EMovementState::Run)
 		{
-			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerRunningDrainStamina_Implementation, 0.2f, true);
+			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerRunningDrainStamina, 0.2f, true);
 		}
 		else if (MovementState == EMovementState::Sprint)
 		{
-			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerSprintingDrainStamina_Implementation, 0.2f, true);
+			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerSprintingDrainStamina, 0.2f, true);
 		}
 	}
 	else
@@ -83,7 +84,7 @@ void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
 		}
 	
-		ComponentOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
+		ClientUpdateStamina();
 	}
 	else
 	{
@@ -109,17 +110,12 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
 		}
 
-		ComponentOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
+		ClientUpdateStamina();
 	}
 	else
 	{
 		ServerSprintingDrainStamina();
 	}
-}
-
-void UStaminaComponent::StopStaminaDrain()
-{
-	ServerStopStaminaDrain_Implementation();
 }
 
 bool UStaminaComponent::ServerStopStaminaDrain_Validate()
@@ -136,7 +132,7 @@ void UStaminaComponent::ServerStopStaminaDrain_Implementation()
 		// If timer is invalid
 		if (!RestoreStaminaTimer.IsValid())
 		{
-			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina_Implementation, 0.2f, true, RestoreStaminaDelay);
+			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina, 0.2f, true, RestoreStaminaDelay);
 		}
 	}
 	else
@@ -163,17 +159,12 @@ void UStaminaComponent::ServerRestoreStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
 		}
 
-		ComponentOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
+		ClientUpdateStamina();
 	}
 	else
 	{
 		ServerRestoreStamina();
 	}
-}
-
-void UStaminaComponent::JumpDrainStamina()
-{
-	ServerJumpDrainStamina_Implementation();
 }
 
 bool UStaminaComponent::ServerJumpDrainStamina_Validate()
@@ -191,4 +182,9 @@ void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 	{
 		ServerJumpDrainStamina();
 	}
+}
+
+void UStaminaComponent::ClientUpdateStamina_Implementation()
+{
+	ComponentOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
 }

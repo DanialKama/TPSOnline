@@ -16,21 +16,26 @@ public:
 	UHealthComponent();
 
 	virtual void Initialize() override;
+	
 private:
 	UFUNCTION()
 	void TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
+	/** Update health level on player UI */
+	UFUNCTION(Client, Unreliable)
+	void ClientUpdateHealth();
 
 public:
 	UPROPERTY(Replicated)
 	float CurrentHealth;
 	
 private:
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float MaxHealth;
 
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RestoreAmount;
 
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float RestoreDelay;
 };

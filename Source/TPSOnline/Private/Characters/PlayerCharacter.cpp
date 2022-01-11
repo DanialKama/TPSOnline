@@ -1,6 +1,8 @@
 // All Rights Reserved.
 
 #include "Characters/PlayerCharacter.h"
+
+#include "Actors/PickupActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -65,9 +67,11 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprint);
 
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::Interact);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-
+	
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "TurnRate" is for devices that we choose to treat as a rate of change, such as an analog joystick
@@ -136,7 +140,7 @@ void APlayerCharacter::AttemptJump()
 {
 	if (GetStaminaComponent()->CurrentStamina > 0.0f && !GetCharacterMovement()->IsFalling())
 	{
-		GetStaminaComponent()->JumpDrainStamina();
+		GetStaminaComponent()->ServerJumpDrainStamina();
 		Jump();
 	}
 }
@@ -145,15 +149,34 @@ void APlayerCharacter::StartSprint()
 {
 	if (bDoOnceStopped)
 	{
-		GetStaminaComponent()->StartStaminaDrain(EMovementState::Sprint);
+		GetStaminaComponent()->ServerStartStaminaDrain(EMovementState::Sprint);
 	}
 
-	ServerToggleSprint_Implementation(EMovementState::Sprint);
+	ServerChangeMovementState(EMovementState::Sprint);
 }
 
 void APlayerCharacter::StopSprint()
 {
-	ServerToggleSprint_Implementation(EMovementState::Walk);
+	ServerChangeMovementState(EMovementState::Walk);
+}
+
+void APlayerCharacter::Interact()
+{
+	FHitResult HitResult;
+	const FVector End = GetActorLocation() + (GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
+	TArray<AActor*> Actors;
+	Actors.Add(this);
+	const EDrawDebugTrace::Type DrawDebug = bDrawDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
+	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(GetCapsuleComponent()->GetScaledCapsuleRadius()),
+		FRotator::ZeroRotator, TraceTypeQuery1, false, Actors, DrawDebug, HitResult, true);
+	if (bHit)
+	{
+		APickupActor* Pickup = Cast<APickupActor>(HitResult.GetActor());
+		if (Pickup)
+		{
+			ServerInteract(this);
+		}
+	}
 }
 
 void APlayerCharacter::SetStaminaLevel(float CurrentStamina)

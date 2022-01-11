@@ -36,15 +36,24 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
+
+	/** Change Movement State to Sprint or Walk based on previous Movement State */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerChangeMovementState(EMovementState NewMovementState);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerToggleSprint(EMovementState NewMovementState);
-	bool ServerToggleSprint_Validate(EMovementState NewMovementState);
-	/** Change Movement State to Sprint or Walk based on previous Movement State */
-	void ServerToggleSprint_Implementation(EMovementState NewMovementState);
+	void ServerInteract(ABaseCharacter* Self);
 	
 	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
+
+private:
+	bool ServerChangeMovementState_Validate(EMovementState NewMovementState);
+	void ServerChangeMovementState_Implementation(EMovementState NewMovementState);
+
+	bool ServerInteract_Validate(ABaseCharacter* Self);
+	void ServerInteract_Implementation(ABaseCharacter* Self);
 	
 protected:
 	UPROPERTY(Replicated)

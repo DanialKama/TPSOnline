@@ -28,6 +28,9 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 
 	// Replicate to everyone
 	DOREPLIFETIME(UHealthComponent, CurrentHealth);
+	DOREPLIFETIME(UHealthComponent, MaxHealth);
+	DOREPLIFETIME(UHealthComponent, RestoreAmount);
+	DOREPLIFETIME(UHealthComponent, RestoreDelay);
 }
 
 void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
@@ -37,5 +40,10 @@ void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const U
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 	}
 
+	ClientUpdateHealth();
+}
+
+void UHealthComponent::ClientUpdateHealth_Implementation()
+{
 	ComponentOwner->SetHealthLevel(CurrentHealth);
 }

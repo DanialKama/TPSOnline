@@ -1,9 +1,12 @@
 // All Rights Reserved.
 
 #include "Characters/BaseCharacter.h"
+#include "Components/CapsuleComponent.h"
+#include "Actors/PickupActor.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 ABaseCharacter::ABaseCharacter()
@@ -15,14 +18,13 @@ ABaseCharacter::ABaseCharacter()
 
 	bDoOnceMoving = true;
 	bDoOnceStopped = true;
-	MovementState = EMovementState::Walk;
-	MovementScale = 1.0f;
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	ServerChangeMovementState(EMovementState::Walk);
 	HealthComponent->Initialize();
 	StaminaComponent->Initialize();
 }
@@ -41,10 +43,9 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 
 			if (MovementState == EMovementState::Run || MovementState == EMovementState::Sprint)
 			{
-				StaminaComponent->StopStaminaDrain();
+				StaminaComponent->ServerStopStaminaDrain();
 			}
 		}
-
 	}
 	else if (bDoOnceMoving)
 	{
@@ -53,7 +54,7 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 
 		if (MovementState == EMovementState::Run || MovementState == EMovementState::Sprint)
 		{
-			StaminaComponent->StartStaminaDrain(MovementState);
+			StaminaComponent->ServerStartStaminaDrain(MovementState);
 		}
 	}
 }
@@ -67,12 +68,29 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
 }
 
-bool ABaseCharacter::ServerToggleSprint_Validate(EMovementState NewMovementState)
+void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
+{
+	// After the character landed start draining stamina if Movement State is Run or Sprint
+	if (PrevMovementMode == MOVE_Falling)
+	{
+		if (MovementState == EMovementState::Run || MovementState == EMovementState::Sprint)
+		{
+			StaminaComponent->ServerStartStaminaDrain(MovementState);
+		}
+	}
+	// Stop stamina drain if character jumped
+	else if (GetCharacterMovement()->MovementMode == MOVE_Falling)
+	{
+		StaminaComponent->ServerStopStaminaDrain();
+	}
+}
+
+bool ABaseCharacter::ServerChangeMovementState_Validate(EMovementState NewMovementState)
 {
 	return true;
 }
 
-void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovementState)	// TODO - Fix stutter effect
+void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState NewMovementState)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -82,7 +100,7 @@ void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovemen
 		case 0:
 			// Walk
 			MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
-			StaminaComponent->StopStaminaDrain();
+			StaminaComponent->ServerStopStaminaDrain();
 			GetCharacterMovement()->JumpZVelocity = 300.0f;
 			break;
 		case 1:
@@ -115,20 +133,54 @@ void ABaseCharacter::ServerToggleSprint_Implementation(EMovementState NewMovemen
 			}
 			
 			MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
-			StaminaComponent->StopStaminaDrain();
+			StaminaComponent->ServerStopStaminaDrain();
 			GetCharacterMovement()->JumpZVelocity = 0.0f;
 			break;
 		case 4:
 			// Prone
 			MovementScale = 0.14f;	// MaxWalkSpeed = 84.0f
-			StaminaComponent->StopStaminaDrain();
+			StaminaComponent->ServerStopStaminaDrain();
 			GetCharacterMovement()->JumpZVelocity = 0.0f;
 			break;
 		}
 	}
 	else
 	{
-		ServerToggleSprint(NewMovementState);
+		ServerChangeMovementState(NewMovementState);
+	}
+}
+
+bool ABaseCharacter::ServerInteract_Validate(ABaseCharacter* Self)
+{
+	if (Self)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerInteract_Implementation(ABaseCharacter* Self)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FHitResult HitResult;
+		const FVector End = Self->GetActorLocation() + (Self->GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
+		TArray<AActor*> Actors;
+		Actors.Add(Self);
+		const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(Self->GetCapsuleComponent()->GetScaledCapsuleRadius()),
+			FRotator::ZeroRotator, TraceTypeQuery1, false, Actors, EDrawDebugTrace::None, HitResult, true);
+		if (bHit)
+		{
+			APickupActor* Pickup = Cast<APickupActor>(HitResult.GetActor());
+			if (Pickup)
+			{
+				// TODO - Increase health
+			}
+		}
+	}
+	else
+	{
+		ServerInteract(Self);
 	}
 }
 
