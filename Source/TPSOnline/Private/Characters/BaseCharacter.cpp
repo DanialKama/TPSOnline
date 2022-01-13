@@ -198,7 +198,6 @@ void ABaseCharacter::SetStaminaLevel(float CurrentStamina)
 {
 	if (CurrentStamina <= 0.0f)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = 240.0f;
-		GetCharacterMovement()->JumpZVelocity = 300.0f;
+		ServerChangeMovementState(EMovementState::Walk);
 	}
 }

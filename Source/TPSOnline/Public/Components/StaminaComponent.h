@@ -57,7 +57,7 @@ private:
 	void ServerRestoreStamina_Implementation();
 
 	/** Update stamina level on player UI */
-	UFUNCTION(Client, Unreliable)
+	UFUNCTION(Client, Reliable)
 	void ClientUpdateStamina();
 
 public:
