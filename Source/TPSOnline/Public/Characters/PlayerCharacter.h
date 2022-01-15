@@ -79,7 +79,4 @@ private:
 	float BaseLookUpRate;
 
 	uint8 bWidgetInterface : 1;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Debug", meta = (AllowPrivateAccess = true))
-	uint8 bDrawDebug : 1;
 };

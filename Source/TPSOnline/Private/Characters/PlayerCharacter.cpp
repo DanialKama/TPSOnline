@@ -56,6 +56,7 @@ APlayerCharacter::APlayerCharacter()
 	// Initialize variables
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
+	bWidgetInterface = false;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -163,19 +164,26 @@ void APlayerCharacter::StopSprint()
 
 void APlayerCharacter::Interact()
 {
-	FHitResult HitResult;
-	const FVector End = GetActorLocation() + (GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
-	TArray<AActor*> Actors;
-	Actors.Add(this);
-	const EDrawDebugTrace::Type DrawDebug = bDrawDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
-	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(GetCapsuleComponent()->GetScaledCapsuleRadius()),
-		FRotator::ZeroRotator, TraceTypeQuery1, false, Actors, DrawDebug, HitResult, true);
-	if (bHit)
+	APickupActor* Pickup = FindPickup(this);
+	if (Pickup)
 	{
-		APickupActor* Pickup = Cast<APickupActor>(HitResult.GetActor());
-		if (Pickup)
+		switch (Pickup->PickupType)
 		{
-			ServerInteract(this);
+		case 0:
+			// Weapon
+			ServerInteractWithWeapon(this);
+			break;
+		case 1:
+			// Ammo
+			ServerInteractWithAmmo(this);
+			break;
+		case 2:
+			// Health, If Current Health is lower than Max Health
+			if (GetHealthComponent()->CurrentHealth < GetHealthComponent()->MaxHealth)
+			{
+				ServerInteractWithHealth(this);
+			}
+			break;
 		}
 	}
 }

@@ -34,13 +34,13 @@ private:
 
 // Variables
 public:
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
+	float MaxHealth;
+	
 	UPROPERTY(Replicated)
 	float CurrentHealth;
 	
 private:
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
-	float MaxHealth;
-
 	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RestoreAmount;
 

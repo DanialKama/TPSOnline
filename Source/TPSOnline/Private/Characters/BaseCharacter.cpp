@@ -151,7 +151,7 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 	}
 }
 
-bool ABaseCharacter::ServerInteract_Validate(ABaseCharacter* Self)
+bool ABaseCharacter::ServerInteractWithWeapon_Validate(ABaseCharacter* Self)
 {
 	if (Self)
 	{
@@ -160,36 +160,48 @@ bool ABaseCharacter::ServerInteract_Validate(ABaseCharacter* Self)
 	return false;
 }
 
-void ABaseCharacter::ServerInteract_Implementation(ABaseCharacter* Self)
+void ABaseCharacter::ServerInteractWithWeapon_Implementation(ABaseCharacter* Self)
+{
+	// TODO
+}
+
+bool ABaseCharacter::ServerInteractWithAmmo_Validate(ABaseCharacter* Self)
+{
+	if (Self)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerInteractWithAmmo_Implementation(ABaseCharacter* Self)
+{
+	// TODO
+}
+
+bool ABaseCharacter::ServerInteractWithHealth_Validate(ABaseCharacter* Self)
+{
+	if (Self && Self->GetHealthComponent()->CurrentHealth < Self->GetHealthComponent()->MaxHealth)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerInteractWithHealth_Implementation(ABaseCharacter* Self)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		APickupActor* Pickup = FindPickup(Self);
-		if (Pickup)
+		AHealthPickupActor* HealthPickup = Cast<AHealthPickupActor>(FindPickup(Self));
+		if (HealthPickup && HealthPickup->PickupType == EPickupType::Health && Self->GetHealthComponent()->CurrentHealth < Self->GetHealthComponent()->MaxHealth)
 		{
-			switch (Pickup->PickupType)
-			{
-			case 0:
-				// Weapon
-				break;
-			case 1:
-				// Ammo
-				break;
-			case 2:
-				// Health
-				AHealthPickupActor* HealthPickup = Cast<AHealthPickupActor>(Pickup);
-				if (HealthPickup)
-				{
-					Self->GetHealthComponent()->ServerIncreaseHealth(HealthPickup->IncreaseAmount);
-					HealthPickup->MulticastUpdatePickupState(HealthPickup, EPickupState::Used);
-				}
-				break;
-			}
+			Self->GetHealthComponent()->ServerIncreaseHealth(HealthPickup->IncreaseAmount);
+			HealthPickup->MulticastUpdatePickupState(HealthPickup, EPickupState::Used);
 		}
 	}
 	else
 	{
-		ServerInteract(Self);
+		ServerInteractWithHealth(Self);
 	}
 }
 

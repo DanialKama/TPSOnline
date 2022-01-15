@@ -32,6 +32,9 @@ class TPSONLINE_API ABaseCharacter : public ACharacter
 public:
 	ABaseCharacter();
 
+	/** Use a single trace to find if the hit actor is a pickup */
+	APickupActor* FindPickup(ABaseCharacter* Self) const;
+	
 	virtual void SetHealthLevel(float CurrentHealth);
 	virtual void SetStaminaLevel(float CurrentStamina);
 
@@ -45,7 +48,13 @@ protected:
 	void ServerChangeMovementState(EMovementState NewMovementState);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerInteract(ABaseCharacter* Self);
+	void ServerInteractWithWeapon(ABaseCharacter* Self);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerInteractWithAmmo(ABaseCharacter* Self);
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerInteractWithHealth(ABaseCharacter* Self);
 	
 	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
@@ -54,10 +63,14 @@ private:
 	bool ServerChangeMovementState_Validate(EMovementState NewMovementState);
 	void ServerChangeMovementState_Implementation(EMovementState NewMovementState);
 
-	bool ServerInteract_Validate(ABaseCharacter* Self);
-	void ServerInteract_Implementation(ABaseCharacter* Self);
+	bool ServerInteractWithWeapon_Validate(ABaseCharacter* Self);
+	void ServerInteractWithWeapon_Implementation(ABaseCharacter* Self);
 
-	APickupActor* FindPickup(ABaseCharacter* Self) const;
+	bool ServerInteractWithAmmo_Validate(ABaseCharacter* Self);
+	void ServerInteractWithAmmo_Implementation(ABaseCharacter* Self);
+
+	bool ServerInteractWithHealth_Validate(ABaseCharacter* Self);
+	void ServerInteractWithHealth_Implementation(ABaseCharacter* Self);
 
 // Variables
 protected:

@@ -5,6 +5,7 @@
 APickupActor::APickupActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	SetReplicates(true);
 }
 
 bool APickupActor::MulticastUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState)
