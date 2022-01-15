@@ -5,10 +5,19 @@
 APickupActor::APickupActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	SetReplicates(true);
 }
 
-bool APickupActor::MulticastUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState)
+void APickupActor::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		SetReplicates(true);
+	}
+}
+
+bool APickupActor::ServerUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState)
 {
 	if (Self)
 	{
@@ -17,6 +26,6 @@ bool APickupActor::MulticastUpdatePickupState_Validate(APickupActor* Self, EPick
 	return false;
 }
 
-void APickupActor::MulticastUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
+void APickupActor::ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
 {
 }

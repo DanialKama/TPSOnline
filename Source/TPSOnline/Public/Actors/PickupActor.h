@@ -32,11 +32,14 @@ public:
 	/** Sets default values for this actor's properties */
 	APickupActor();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	virtual void MulticastUpdatePickupState(APickupActor* Self, EPickupState NewState);
-	virtual bool MulticastUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState);
-	virtual void MulticastUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerUpdatePickupState(APickupActor* Self, EPickupState NewState);
+	bool ServerUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState);
+	virtual void ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState);
 
+protected:
+	virtual void BeginPlay() override;
+	
 // Variables
 public:
 	EPickupType PickupType;

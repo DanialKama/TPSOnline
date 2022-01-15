@@ -7,7 +7,6 @@
 UStaminaComponent::UStaminaComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicated(true);
 	
 	MaxStamina = 100.0f;
 	RunningDrainAmount = 1.5f;

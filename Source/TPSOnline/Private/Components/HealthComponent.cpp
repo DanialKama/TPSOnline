@@ -7,7 +7,6 @@
 UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicated(true);
 
 	MaxHealth = 100.0f;
 	RestoreAmount = 5.0f;

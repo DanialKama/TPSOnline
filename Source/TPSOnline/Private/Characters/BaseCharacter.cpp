@@ -196,7 +196,7 @@ void ABaseCharacter::ServerInteractWithHealth_Implementation(ABaseCharacter* Sel
 		if (HealthPickup && HealthPickup->PickupType == EPickupType::Health && Self->GetHealthComponent()->CurrentHealth < Self->GetHealthComponent()->MaxHealth)
 		{
 			Self->GetHealthComponent()->ServerIncreaseHealth(HealthPickup->IncreaseAmount);
-			HealthPickup->MulticastUpdatePickupState(HealthPickup, EPickupState::Used);
+			HealthPickup->ServerUpdatePickupState(HealthPickup, EPickupState::Used);
 		}
 	}
 	else

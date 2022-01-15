@@ -1,7 +1,6 @@
 // All Rights Reserved.
 
 #include "Characters/PlayerCharacter.h"
-
 #include "Actors/PickupActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -49,9 +48,11 @@ APlayerCharacter::APlayerCharacter()
 	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Info Bar"));
 	Widget->SetupAttachment(GetRootComponent());
 	Widget->SetComponentTickEnabled(false);
+	Widget->SetTickMode(ETickMode::Disabled);
 	Widget->SetGenerateOverlapEvents(false);
 	Widget->CanCharacterStepUpOn = ECB_No;
 	Widget->SetWidgetSpace(EWidgetSpace::Screen);
+	Widget->InitWidget();
 
 	// Initialize variables
 	BaseTurnRate = 45.0f;
@@ -75,7 +76,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
+	// "Turn" handles devices that provide an absolute delta, such as a mouse.
 	// "TurnRate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
@@ -85,14 +86,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void APlayerCharacter::BeginPlay()
 {
-	Widget->InitWidget();
-	// if (Widget->GetWidget()->GetClass()->ImplementsInterface(UWidgetInterface::StaticClass())) // TODO - Fix this
-	// {
-	// 	bWidgetInterface = true;
-	// }
-	
 	Super::BeginPlay();
-
+	
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 	UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
 }
@@ -197,4 +192,11 @@ void APlayerCharacter::SetStaminaLevel(float CurrentStamina)
 		// Set stamina level on widget
 		IWidgetInterface::Execute_UpdateStamina(Widget->GetWidget(), CurrentStamina);
 	}
+	// else if (Widget->GetWidget()->GetClass()->ImplementsInterface(UWidgetInterface::StaticClass())) // TODO - Fix this
+	// {
+	// 	bWidgetInterface = true;
+	// 	IWidgetInterface::Execute_UpdateStamina(Widget->GetWidget(), CurrentStamina);
+	// }
+	UE_LOG(LogTemp, Warning, TEXT("Result = %s"), IsValid(Widget->GetWidget()) ? TEXT("True") : TEXT("False"));
+	// UE_LOG(LogTemp, Warning, TEXT("Widget %s"), *Widget->GetWidget()->GetName());
 }

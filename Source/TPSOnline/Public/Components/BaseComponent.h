@@ -20,6 +20,9 @@ public:
 
 	virtual void Initialize();
 
+protected:
+	virtual void BeginPlay() override;
+
 // Variables
 protected:
 	/** Owner of this component */
