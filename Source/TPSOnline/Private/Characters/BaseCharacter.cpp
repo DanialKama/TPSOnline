@@ -3,6 +3,7 @@
 #include "Characters/BaseCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Actors/PickupActor.h"
+#include "Actors/HealthPickupActor.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -163,18 +164,26 @@ void ABaseCharacter::ServerInteract_Implementation(ABaseCharacter* Self)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		FHitResult HitResult;
-		const FVector End = Self->GetActorLocation() + (Self->GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
-		TArray<AActor*> Actors;
-		Actors.Add(Self);
-		const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(Self->GetCapsuleComponent()->GetScaledCapsuleRadius()),
-			FRotator::ZeroRotator, TraceTypeQuery1, false, Actors, EDrawDebugTrace::None, HitResult, true);
-		if (bHit)
+		APickupActor* Pickup = FindPickup(Self);
+		if (Pickup)
 		{
-			APickupActor* Pickup = Cast<APickupActor>(HitResult.GetActor());
-			if (Pickup)
+			switch (Pickup->PickupType)
 			{
-				// TODO - Increase health
+			case 0:
+				// Weapon
+				break;
+			case 1:
+				// Ammo
+				break;
+			case 2:
+				// Health
+				AHealthPickupActor* HealthPickup = Cast<AHealthPickupActor>(Pickup);
+				if (HealthPickup)
+				{
+					Self->GetHealthComponent()->ServerIncreaseHealth(HealthPickup->IncreaseAmount);
+					HealthPickup->MulticastUpdatePickupState(HealthPickup, EPickupState::Used);
+				}
+				break;
 			}
 		}
 	}
@@ -182,6 +191,23 @@ void ABaseCharacter::ServerInteract_Implementation(ABaseCharacter* Self)
 	{
 		ServerInteract(Self);
 	}
+}
+
+APickupActor* ABaseCharacter::FindPickup(ABaseCharacter* Self) const
+{
+	APickupActor* Pickup = nullptr;
+	FHitResult HitResult;
+	const FVector End = Self->GetActorLocation() + (Self->GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
+	TArray<AActor*> Actors;
+	Actors.Add(Self);
+	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), Self->GetActorLocation(), End, FVector(Self->GetCapsuleComponent()->GetScaledCapsuleRadius()),
+		FRotator::ZeroRotator, TraceTypeQuery1, false, Actors, EDrawDebugTrace::None, HitResult, true);
+	if (bHit)
+	{
+		Pickup = Cast<APickupActor>(HitResult.GetActor());
+	}
+	
+	return Pickup;
 }
 
 void ABaseCharacter::SetHealthLevel(float CurrentHealth)

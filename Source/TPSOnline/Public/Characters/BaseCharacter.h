@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actors/PickupActor.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -27,6 +28,7 @@ class TPSONLINE_API ABaseCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStaminaComponent* StaminaComponent;
 
+// Functions
 public:
 	ABaseCharacter();
 
@@ -54,7 +56,10 @@ private:
 
 	bool ServerInteract_Validate(ABaseCharacter* Self);
 	void ServerInteract_Implementation(ABaseCharacter* Self);
-	
+
+	APickupActor* FindPickup(ABaseCharacter* Self) const;
+
+// Variables
 protected:
 	UPROPERTY(Replicated)
 	EMovementState MovementState;

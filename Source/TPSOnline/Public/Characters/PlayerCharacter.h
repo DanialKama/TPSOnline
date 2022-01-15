@@ -21,7 +21,8 @@ class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
-	
+
+// Functions
 public:
 	APlayerCharacter();
 
@@ -67,6 +68,7 @@ private:
 
 	void Interact();
 
+// Variables
 private:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))

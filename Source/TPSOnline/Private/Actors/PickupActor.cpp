@@ -7,6 +7,15 @@ APickupActor::APickupActor()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void APickupActor::UpdatePickupState(EPickupState NewState)
+bool APickupActor::MulticastUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState)
+{
+	if (Self)
+	{
+		return true;
+	}
+	return false;
+}
+
+void APickupActor::MulticastUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
 {
 }

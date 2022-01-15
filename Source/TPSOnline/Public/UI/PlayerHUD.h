@@ -11,6 +11,7 @@ class TPSONLINE_API APlayerHUD : public AHUD
 {
 	GENERATED_BODY()
 
+// Functions
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
 	void UpdateStamina(float CurrentStamina);

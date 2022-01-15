@@ -12,6 +12,7 @@ class TPSONLINE_API UStaminaComponent : public UBaseComponent
 {
 	GENERATED_BODY()
 
+// Functions
 public:	
 	/** Sets default values for this component's properties */
 	UStaminaComponent();
@@ -58,29 +59,30 @@ private:
 
 	/** Update stamina level on player UI */
 	UFUNCTION(Client, Reliable)
-	void ClientUpdateStamina();
+	void ClientUpdateStamina(float NewStamina);
 
+// Variables
 public:
 	UPROPERTY(Replicated)
 	float CurrentStamina;
 	
 private:
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float MaxStamina;
 	
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RunningDrainAmount;
 
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float SprintingDrainAmount;
 
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float JumpingDrainAmount;
 	
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RestoreStaminaAmount;
 	
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RestoreStaminaDelay;
 	
 	FTimerHandle DrainStaminaTimer, RestoreStaminaTimer;

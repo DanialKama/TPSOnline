@@ -52,7 +52,8 @@ APlayerCharacter::APlayerCharacter()
 	Widget->SetGenerateOverlapEvents(false);
 	Widget->CanCharacterStepUpOn = ECB_No;
 	Widget->SetWidgetSpace(EWidgetSpace::Screen);
-	
+
+	// Initialize variables
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
 }

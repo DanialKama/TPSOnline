@@ -84,7 +84,7 @@ void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
 		}
 	
-		ClientUpdateStamina();
+		ClientUpdateStamina(CurrentStamina / MaxStamina);
 	}
 	else
 	{
@@ -110,7 +110,7 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
 		}
 
-		ClientUpdateStamina();
+		ClientUpdateStamina(CurrentStamina / MaxStamina);
 	}
 	else
 	{
@@ -159,7 +159,7 @@ void UStaminaComponent::ServerRestoreStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
 		}
 
-		ClientUpdateStamina();
+		ClientUpdateStamina(CurrentStamina / MaxStamina);
 	}
 	else
 	{
@@ -184,7 +184,7 @@ void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 	}
 }
 
-void UStaminaComponent::ClientUpdateStamina_Implementation()
+void UStaminaComponent::ClientUpdateStamina_Implementation(float NewStamina)
 {
-	ComponentOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
+	ComponentOwner->SetStaminaLevel(NewStamina);
 }

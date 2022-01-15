@@ -38,12 +38,33 @@ void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const U
 	if (Damage > 0.0f)
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
+		ClientUpdateHealth(CurrentHealth / MaxHealth);
 	}
-
-	ClientUpdateHealth();
 }
 
-void UHealthComponent::ClientUpdateHealth_Implementation()
+bool UHealthComponent::ServerIncreaseHealth_Validate(float IncreaseAmount)
 {
-	ComponentOwner->SetHealthLevel(CurrentHealth);
+	if (IncreaseAmount > 0.0f)
+	{
+		return true;
+	}
+	return false;
+}
+
+void UHealthComponent::ServerIncreaseHealth_Implementation(float IncreaseAmount)
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		CurrentHealth = FMath::Clamp(CurrentHealth + IncreaseAmount, 0.0f, MaxHealth);
+		ClientUpdateHealth(CurrentHealth / MaxHealth);
+	}
+	else
+	{
+		ServerIncreaseHealth(IncreaseAmount);
+	}
+}
+
+void UHealthComponent::ClientUpdateHealth_Implementation(float NewHealth)
+{
+	ComponentOwner->SetHealthLevel(NewHealth);
 }
