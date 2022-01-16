@@ -2,10 +2,19 @@
 
 #include "Components/BaseComponent.h"
 #include "Characters/BaseCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 UBaseComponent::UBaseComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UBaseComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to everyone
+	DOREPLIFETIME(UBaseComponent, ComponentOwner);
 }
 
 void UBaseComponent::BeginPlay()
@@ -18,7 +27,19 @@ void UBaseComponent::BeginPlay()
 	}
 }
 
-void UBaseComponent::Initialize()
+bool UBaseComponent::ServerInitialize_Validate(UBaseComponent* Self)
 {
-	ComponentOwner = Cast<ABaseCharacter>(GetOwner());
+	if (Self)
+	{
+		return true;
+	}
+	return false;
+}
+
+void UBaseComponent::ServerInitialize_Implementation(UBaseComponent* Self)
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		ComponentOwner = Cast<ABaseCharacter>(Self->GetOwner());
+	}
 }

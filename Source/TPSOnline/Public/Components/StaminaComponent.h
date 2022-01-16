@@ -17,49 +17,39 @@ public:
 	/** Sets default values for this component's properties */
 	UStaminaComponent();
 	
-	virtual void Initialize() override;
-	
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerStartStaminaDrain(EMovementState MovementState);
 	
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerStopStaminaDrain();
 	
 	/** Decreased stamina when jumping */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerJumpDrainStamina();
 
 private:
-	bool ServerStartStaminaDrain_Validate(EMovementState MovementState);
+	virtual void ServerInitialize_Implementation(UBaseComponent* Self) override;
+
 	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
 	
-	bool ServerStopStaminaDrain_Validate();
 	void ServerStopStaminaDrain_Implementation();
 
-	bool ServerJumpDrainStamina_Validate();
 	void ServerJumpDrainStamina_Implementation();
-
+	
 	/** Decreased stamina when running */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerRunningDrainStamina();
-	bool ServerRunningDrainStamina_Validate();
 	void ServerRunningDrainStamina_Implementation();
 	
 	/** Decreased stamina when sprinting */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerSprintingDrainStamina();
-	bool ServerSprintingDrainStamina_Validate();
 	void ServerSprintingDrainStamina_Implementation();
 
 	/** Restore stamina when the character stops or walks */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerRestoreStamina();
-	bool ServerRestoreStamina_Validate();
 	void ServerRestoreStamina_Implementation();
-
-	/** Update stamina level on player UI */
-	UFUNCTION(Client, Reliable)
-	void ClientUpdateStamina(float NewStamina);
 
 // Variables
 public:

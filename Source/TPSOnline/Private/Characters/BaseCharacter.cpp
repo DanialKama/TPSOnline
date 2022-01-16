@@ -17,17 +17,30 @@ ABaseCharacter::ABaseCharacter()
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(TEXT("Stamina Component"));
 
+	// Initialize variables
 	bDoOnceMoving = true;
 	bDoOnceStopped = true;
+}
+
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to everyone
+	DOREPLIFETIME(ABaseCharacter, MovementState);
+	DOREPLIFETIME(ABaseCharacter, MovementScale);
 }
 
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	ServerChangeMovementState(EMovementState::Walk);
-	HealthComponent->Initialize();
-	StaminaComponent->Initialize();
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		ServerChangeMovementState(EMovementState::Walk);
+		HealthComponent->ServerInitialize(HealthComponent);
+		StaminaComponent->ServerInitialize(StaminaComponent);
+	}
 }
 
 void ABaseCharacter::Tick(float DeltaSeconds)
@@ -35,7 +48,7 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Check if character stopped or moving
-	if (GetVelocity().Size() == 0.0f)
+	if (GetVelocity().Size() == 0.0f) // TODO - Find another way and do not use Tick
 	{
 		if (bDoOnceStopped)
 		{
@@ -60,15 +73,6 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 	}
 }
 
-void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// Replicate to everyone
-	DOREPLIFETIME(ABaseCharacter, MovementState);
-	DOREPLIFETIME(ABaseCharacter, MovementScale);
-}
-
 void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
 	// After the character landed start draining stamina if Movement State is Run or Sprint
@@ -88,7 +92,11 @@ void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8
 
 bool ABaseCharacter::ServerChangeMovementState_Validate(EMovementState NewMovementState)
 {
-	return true;
+	if (NewMovementState != MovementState)
+	{
+		return true;
+	}
+	return false;
 }
 
 void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState NewMovementState)
@@ -222,20 +230,38 @@ APickupActor* ABaseCharacter::FindPickup(ABaseCharacter* Self) const
 	return Pickup;
 }
 
-void ABaseCharacter::SetHealthLevel(float CurrentHealth)
+void ABaseCharacter::ServerSetHealthLevel_Implementation(float CurrentHealth)
 {
-	if (CurrentHealth <= 0.0f)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		GetCharacterMovement()->DisableMovement();
-		GetMesh()->SetCollisionProfileName(FName("Ragdoll"), true);
-		GetMesh()->SetSimulatePhysics(true);
+		if (CurrentHealth <= 0.0f)	// TODO - Multicast
+		{
+			GetCharacterMovement()->DisableMovement();
+			GetMesh()->SetCollisionProfileName(FName("Ragdoll"), true);
+			GetMesh()->SetSimulatePhysics(true);
+		}
+
+		ClientUpdateHealth(CurrentHealth);
 	}
 }
 
-void ABaseCharacter::SetStaminaLevel(float CurrentStamina)
+void ABaseCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
-	if (CurrentStamina <= 0.0f)
+}
+
+void ABaseCharacter::ServerSetStaminaLevel_Implementation(float CurrentStamina)
+{
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		ServerChangeMovementState(EMovementState::Walk);
+		if (CurrentStamina <= 0.0f)
+		{
+			ServerChangeMovementState(EMovementState::Walk);
+		}
+
+		ClientUpdateStamina(CurrentStamina);
 	}
+}
+
+void ABaseCharacter::ClientUpdateStamina_Implementation(float NewStamina)
+{
 }

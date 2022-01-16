@@ -34,11 +34,12 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerUpdatePickupState(APickupActor* Self, EPickupState NewState);
-	bool ServerUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState);
-	virtual void ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState);
 
 protected:
 	virtual void BeginPlay() override;
+
+	bool ServerUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState);
+	virtual void ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState);
 	
 // Variables
 public:

@@ -15,22 +15,18 @@ class TPSONLINE_API UHealthComponent : public UBaseComponent
 public:	
 	/** Sets default values for this component's properties */
 	UHealthComponent();
-
-	virtual void Initialize() override;
-
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerIncreaseHealth(float IncreaseAmount);
 	
 private:
+	virtual void ServerInitialize_Implementation(UBaseComponent* Self) override;
+
 	UFUNCTION()
 	void TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
-
+	
 	bool ServerIncreaseHealth_Validate(float IncreaseAmount);
 	void ServerIncreaseHealth_Implementation(float IncreaseAmount);
-	
-	/** Update health level on player UI */
-	UFUNCTION(Client, Reliable)
-	void ClientUpdateHealth(float NewHealth);
 
 // Variables
 public:

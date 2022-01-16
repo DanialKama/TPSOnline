@@ -18,6 +18,7 @@ class TPSONLINE_API AHealthPickupActor : public APickupActor
 public:
 	AHealthPickupActor();
 
+private:
 	virtual void ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState) override;
 
 // Variables

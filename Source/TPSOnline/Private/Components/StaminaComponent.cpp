@@ -7,21 +7,14 @@
 UStaminaComponent::UStaminaComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	
+
+	// Initialize variables
 	MaxStamina = 100.0f;
 	RunningDrainAmount = 1.5f;
 	SprintingDrainAmount = 3.0f;
 	JumpingDrainAmount = 10.0f;
 	RestoreStaminaAmount = 5.0f;
 	RestoreStaminaDelay = 2.0f;
-}
-
-void UStaminaComponent::Initialize()
-{
-	Super::Initialize();
-	
-	CurrentStamina = MaxStamina;
-	ComponentOwner->SetStaminaLevel(CurrentStamina / MaxStamina);
 }
 
 void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -38,9 +31,15 @@ void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 	DOREPLIFETIME(UStaminaComponent, RestoreStaminaDelay);
 }
 
-bool UStaminaComponent::ServerStartStaminaDrain_Validate(EMovementState MovementState)
+void UStaminaComponent::ServerInitialize_Implementation(UBaseComponent* Self)
 {
-	return true;
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		Super::ServerInitialize_Implementation(Self);
+
+		CurrentStamina = MaxStamina;
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
+	}
 }
 
 void UStaminaComponent::ServerStartStaminaDrain_Implementation(EMovementState MovementState)
@@ -59,15 +58,6 @@ void UStaminaComponent::ServerStartStaminaDrain_Implementation(EMovementState Mo
 			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerSprintingDrainStamina, 0.2f, true);
 		}
 	}
-	else
-	{
-		ServerStartStaminaDrain(MovementState);
-	}
-}
-
-bool UStaminaComponent::ServerRunningDrainStamina_Validate()
-{
-	return true;
 }
 
 void UStaminaComponent::ServerRunningDrainStamina_Implementation()
@@ -82,18 +72,9 @@ void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
 		}
-	
-		ClientUpdateStamina(CurrentStamina / MaxStamina);
-	}
-	else
-	{
-		ServerRunningDrainStamina();
-	}
-}
 
-bool UStaminaComponent::ServerSprintingDrainStamina_Validate()
-{
-	return true;
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
+	}
 }
 
 void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
@@ -109,17 +90,8 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
 		}
 
-		ClientUpdateStamina(CurrentStamina / MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
 	}
-	else
-	{
-		ServerSprintingDrainStamina();
-	}
-}
-
-bool UStaminaComponent::ServerStopStaminaDrain_Validate()
-{
-	return true;
 }
 
 void UStaminaComponent::ServerStopStaminaDrain_Implementation()
@@ -134,15 +106,6 @@ void UStaminaComponent::ServerStopStaminaDrain_Implementation()
 			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina, 0.2f, true, RestoreStaminaDelay);
 		}
 	}
-	else
-	{
-		ServerStopStaminaDrain();
-	}
-}
-
-bool UStaminaComponent::ServerRestoreStamina_Validate()
-{
-	return true;
 }
 
 void UStaminaComponent::ServerRestoreStamina_Implementation()
@@ -158,17 +121,8 @@ void UStaminaComponent::ServerRestoreStamina_Implementation()
 			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
 		}
 
-		ClientUpdateStamina(CurrentStamina / MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
 	}
-	else
-	{
-		ServerRestoreStamina();
-	}
-}
-
-bool UStaminaComponent::ServerJumpDrainStamina_Validate()
-{
-	return true;
 }
 
 void UStaminaComponent::ServerJumpDrainStamina_Implementation()
@@ -176,14 +130,6 @@ void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 	if (GetOwnerRole() == ROLE_Authority)
 	{
 		CurrentStamina = FMath::Clamp(CurrentStamina - JumpingDrainAmount, 0.0f, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
 	}
-	else
-	{
-		ServerJumpDrainStamina();
-	}
-}
-
-void UStaminaComponent::ClientUpdateStamina_Implementation(float NewStamina)
-{
-	ComponentOwner->SetStaminaLevel(NewStamina);
 }

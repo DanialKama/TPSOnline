@@ -34,9 +34,12 @@ public:
 
 	/** Use a single trace to find if the hit actor is a pickup */
 	APickupActor* FindPickup(ABaseCharacter* Self) const;
-	
-	virtual void SetHealthLevel(float CurrentHealth);
-	virtual void SetStaminaLevel(float CurrentStamina);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetHealthLevel(float CurrentHealth);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetStaminaLevel(float CurrentStamina);
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,6 +59,9 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerInteractWithHealth(ABaseCharacter* Self);
 	
+	virtual void ClientUpdateHealth_Implementation(float NewHealth);
+	virtual void ClientUpdateStamina_Implementation(float NewStamina);
+
 	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
@@ -71,6 +77,17 @@ private:
 
 	bool ServerInteractWithHealth_Validate(ABaseCharacter* Self);
 	void ServerInteractWithHealth_Implementation(ABaseCharacter* Self);
+
+	void ServerSetHealthLevel_Implementation(float CurrentHealth);
+	void ServerSetStaminaLevel_Implementation(float CurrentStamina);
+	
+	/** Update health on player UI */
+	UFUNCTION(Client, Unreliable)
+	void ClientUpdateHealth(float NewHealth);
+	
+	/** Update stamina on player UI */
+	UFUNCTION(Client, Unreliable)
+	void ClientUpdateStamina(float NewStamina);
 
 // Variables
 protected:

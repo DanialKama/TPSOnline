@@ -8,17 +8,10 @@ UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	// Initialize variables
 	MaxHealth = 100.0f;
 	RestoreAmount = 5.0f;
 	RestoreDelay = 2.0f;
-}
-
-void UHealthComponent::Initialize()
-{
-	Super::Initialize();
-
-	CurrentHealth = MaxHealth;
-	ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeAnyDamage);
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -32,12 +25,23 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 	DOREPLIFETIME(UHealthComponent, RestoreDelay);
 }
 
+void UHealthComponent::ServerInitialize_Implementation(UBaseComponent* Self)
+{
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		Super::ServerInitialize_Implementation(Self);
+
+		CurrentHealth = MaxHealth;
+		ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeAnyDamage);
+	}
+}
+
 void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Damage > 0.0f)
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
-		ClientUpdateHealth(CurrentHealth / MaxHealth);
+		ComponentOwner->ServerSetHealthLevel(CurrentHealth / MaxHealth);
 	}
 }
 
@@ -55,15 +59,6 @@ void UHealthComponent::ServerIncreaseHealth_Implementation(float IncreaseAmount)
 	if (GetOwnerRole() == ROLE_Authority)
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth + IncreaseAmount, 0.0f, MaxHealth);
-		ClientUpdateHealth(CurrentHealth / MaxHealth);
+		ComponentOwner->ServerSetHealthLevel(CurrentHealth / MaxHealth);
 	}
-	else
-	{
-		ServerIncreaseHealth(IncreaseAmount);
-	}
-}
-
-void UHealthComponent::ClientUpdateHealth_Implementation(float NewHealth)
-{
-	ComponentOwner->SetHealthLevel(NewHealth);
 }

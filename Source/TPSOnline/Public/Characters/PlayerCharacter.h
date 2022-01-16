@@ -25,9 +25,7 @@ class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 // Functions
 public:
 	APlayerCharacter();
-
-	virtual void SetStaminaLevel(float CurrentStamina) override;
-
+	
 	/** For test */
 	UFUNCTION(BlueprintCallable, Category = "Test")
 	FORCEINLINE float GetStaminaLevel() const { return GetStaminaComponent()->CurrentStamina; }
@@ -68,6 +66,9 @@ private:
 
 	void Interact();
 
+	virtual void ClientUpdateHealth_Implementation(float NewHealth) override;
+	virtual void ClientUpdateStamina_Implementation(float NewStamina) override;
+	
 // Variables
 private:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
