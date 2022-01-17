@@ -7,11 +7,10 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaminaComponent.h"
-#include "Components/WidgetComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Interfaces/WidgetInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/PlayerHUD.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -45,18 +44,9 @@ APlayerCharacter::APlayerCharacter()
 	Camera->SetComponentTickEnabled(false);
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Info Bar"));	// TODO - Replace it with player HUD
-	Widget->SetupAttachment(GetRootComponent());
-	Widget->SetComponentTickEnabled(false);
-	Widget->SetTickMode(ETickMode::Disabled);
-	Widget->SetGenerateOverlapEvents(false);
-	Widget->CanCharacterStepUpOn = ECB_No;
-	Widget->SetWidgetSpace(EWidgetSpace::Screen);
-
 	// Initialize variables
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
-	bWidgetInterface = false;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -89,7 +79,8 @@ void APlayerCharacter::BeginPlay()
 
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		Widget->InitWidget();
+		PlayerController = Cast<APlayerController>(GetController());
+		PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
 		
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
@@ -189,22 +180,16 @@ void APlayerCharacter::Interact()
 
 void APlayerCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
-	// TODO
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		PlayerHUD->UpdateHealth(NewHealth);
+	}
 }
 
 void APlayerCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		if (bWidgetInterface)
-		{
-			// Update stamina level on widget
-			IWidgetInterface::Execute_UpdateStamina(Widget->GetWidget(), NewStamina);
-		}
-		else if (Widget->GetWidget()->GetClass()->ImplementsInterface(UWidgetInterface::StaticClass()))
-		{
-			bWidgetInterface = true;
-			IWidgetInterface::Execute_UpdateStamina(Widget->GetWidget(), NewStamina);
-		}
+		PlayerHUD->UpdateStamina(NewStamina);
 	}
 }

@@ -47,7 +47,7 @@ protected:
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
 	/** Change Movement State to Sprint or Walk based on previous Movement State */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerChangeMovementState(EMovementState NewMovementState);
 
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -66,7 +66,6 @@ protected:
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 private:
-	bool ServerChangeMovementState_Validate(EMovementState NewMovementState);
 	void ServerChangeMovementState_Implementation(EMovementState NewMovementState);
 
 	bool ServerInteractWithWeapon_Validate(ABaseCharacter* Self);

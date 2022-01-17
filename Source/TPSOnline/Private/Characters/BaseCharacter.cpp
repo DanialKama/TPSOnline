@@ -48,7 +48,7 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	// Check if character stopped or moving
-	if (GetVelocity().Size() == 0.0f) // TODO - Find another way and do not use Tick
+	if (GetVelocity().Size() == 0.0f)
 	{
 		if (bDoOnceStopped)
 		{
@@ -88,15 +88,6 @@ void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8
 	{
 		StaminaComponent->ServerStopStaminaDrain();
 	}
-}
-
-bool ABaseCharacter::ServerChangeMovementState_Validate(EMovementState NewMovementState)
-{
-	if (NewMovementState != MovementState)
-	{
-		return true;
-	}
-	return false;
 }
 
 void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState NewMovementState)

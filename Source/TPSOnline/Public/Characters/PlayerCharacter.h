@@ -12,9 +12,6 @@ UCLASS()
 class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UWidgetComponent* Widget;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* SpringArm;
@@ -79,5 +76,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float BaseLookUpRate;
 
-	uint8 bWidgetInterface : 1;
+	UPROPERTY()
+	APlayerController* PlayerController;
+
+	UPROPERTY()
+	class APlayerHUD* PlayerHUD;
 };
