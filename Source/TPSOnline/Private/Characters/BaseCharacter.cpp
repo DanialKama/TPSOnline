@@ -57,7 +57,7 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 
 			if (MovementState == EMovementState::Run || MovementState == EMovementState::Sprint)
 			{
-				StaminaComponent->ServerStopStaminaDrain();
+				StaminaComponent->ServerStopStaminaDrain(true);
 			}
 		}
 	}
@@ -75,18 +75,30 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 
 void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
+	if (GetLocalRole() < ROLE_Authority)
+	{
+		ServerCheckMovementMode(this, PrevMovementMode);
+	}
+}
+
+void ABaseCharacter::ServerCheckMovementMode_Implementation(ABaseCharacter* Self, EMovementMode PrevMovementMode)
+{
 	// After the character landed start draining stamina if Movement State is Run or Sprint
 	if (PrevMovementMode == MOVE_Falling)
 	{
-		if (MovementState == EMovementState::Run || MovementState == EMovementState::Sprint)
+		if (Self->MovementState == EMovementState::Run || Self->MovementState == EMovementState::Sprint)
 		{
-			StaminaComponent->ServerStartStaminaDrain(MovementState);
+			Self->StaminaComponent->ServerStartStaminaDrain(MovementState);
+		}
+		else
+		{
+			Self->StaminaComponent->ServerStopStaminaDrain(true);
 		}
 	}
 	// Stop stamina drain if character jumped
-	else if (GetCharacterMovement()->MovementMode == MOVE_Falling)
+	else if (Self->GetCharacterMovement()->MovementMode == MOVE_Falling)
 	{
-		StaminaComponent->ServerStopStaminaDrain();
+		Self->StaminaComponent->ServerStopStaminaDrain(false);
 	}
 }
 
@@ -100,7 +112,7 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 		case 0:
 			// Walk
 			MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
-			StaminaComponent->ServerStopStaminaDrain();
+			StaminaComponent->ServerStopStaminaDrain(true);
 			GetCharacterMovement()->JumpZVelocity = 300.0f;
 			break;
 		case 1:
@@ -133,13 +145,13 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 			}
 			
 			MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
-			StaminaComponent->ServerStopStaminaDrain();
+			StaminaComponent->ServerStopStaminaDrain(true);
 			GetCharacterMovement()->JumpZVelocity = 0.0f;
 			break;
 		case 4:
 			// Prone
 			MovementScale = 0.14f;	// MaxWalkSpeed = 84.0f
-			StaminaComponent->ServerStopStaminaDrain();
+			StaminaComponent->ServerStopStaminaDrain(true);
 			GetCharacterMovement()->JumpZVelocity = 0.0f;
 			break;
 		}
@@ -152,7 +164,7 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 
 bool ABaseCharacter::ServerInteractWithWeapon_Validate(ABaseCharacter* Self)
 {
-	if (Self)
+	if (Self)	// TODO
 	{
 		return true;
 	}
@@ -166,7 +178,7 @@ void ABaseCharacter::ServerInteractWithWeapon_Implementation(ABaseCharacter* Sel
 
 bool ABaseCharacter::ServerInteractWithAmmo_Validate(ABaseCharacter* Self)
 {
-	if (Self)
+	if (Self)	// TODO
 	{
 		return true;
 	}
@@ -240,7 +252,7 @@ void ABaseCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
 }
 
-void ABaseCharacter::ServerSetStaminaLevel_Implementation(float CurrentStamina)
+void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{

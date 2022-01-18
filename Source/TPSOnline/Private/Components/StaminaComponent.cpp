@@ -2,6 +2,7 @@
 
 #include "Components/StaminaComponent.h"
 #include "Components/HealthComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UStaminaComponent::UStaminaComponent()
@@ -38,7 +39,7 @@ void UStaminaComponent::ServerInitialize_Implementation(UBaseComponent* Self)
 		Super::ServerInitialize_Implementation(Self);
 
 		CurrentStamina = MaxStamina;
-		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
 	}
 }
 
@@ -60,6 +61,16 @@ void UStaminaComponent::ServerStartStaminaDrain_Implementation(EMovementState Mo
 	}
 }
 
+bool UStaminaComponent::ServerRunningDrainStamina_Validate()
+{
+	if (ComponentOwner->GetCharacterMovement()->MovementMode == MOVE_Falling || ComponentOwner->GetVelocity().Size() == 0.0f)
+	{
+		ServerStopStaminaDrain(false);
+		return false;
+	}
+	return true;
+}
+
 void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
@@ -71,10 +82,19 @@ void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 		else
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
+			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
 		}
-
-		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
 	}
+}
+
+bool UStaminaComponent::ServerSprintingDrainStamina_Validate()
+{
+	if (ComponentOwner->GetCharacterMovement()->MovementMode == MOVE_Falling || ComponentOwner->GetVelocity().Size() == 0.0f)
+	{
+		ServerStopStaminaDrain(false);
+		return false;
+	}
+	return true;
 }
 
 void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
@@ -88,20 +108,19 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 		else
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
+			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
 		}
-
-		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
 	}
 }
 
-void UStaminaComponent::ServerStopStaminaDrain_Implementation()
+void UStaminaComponent::ServerStopStaminaDrain_Implementation(bool bStartRestore)
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 
-		// If timer is invalid
-		if (!RestoreStaminaTimer.IsValid())
+		// If stamina is currently not restoring
+		if (bStartRestore && !RestoreStaminaTimer.IsValid())
 		{
 			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina, 0.2f, true, RestoreStaminaDelay);
 		}
@@ -112,16 +131,15 @@ void UStaminaComponent::ServerRestoreStamina_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		if (CurrentStamina == MaxStamina)
+		if (CurrentStamina >= MaxStamina)
 		{
 			GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
 		}
 		else
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
+			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
 		}
-
-		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
 	}
 }
 
@@ -129,7 +147,9 @@ void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
+		GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
+		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 		CurrentStamina = FMath::Clamp(CurrentStamina - JumpingDrainAmount, 0.0f, MaxStamina);
-		ComponentOwner->ServerSetStaminaLevel(CurrentStamina / MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
 	}
 }

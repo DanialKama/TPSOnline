@@ -40,6 +40,7 @@ void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const U
 {
 	if (Damage > 0.0f)
 	{
+		GetWorld()->GetTimerManager().ClearTimer(RestoreHealth);
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 		ComponentOwner->ServerSetHealthLevel(CurrentHealth / MaxHealth);
 	}

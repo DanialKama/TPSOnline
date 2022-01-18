@@ -39,7 +39,7 @@ public:
 	void ServerSetHealthLevel(float CurrentHealth);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetStaminaLevel(float CurrentStamina);
+	void ServerSetStaminaLevel(ABaseCharacter* ComponentOwner, float CurrentStamina);
 
 protected:
 	virtual void BeginPlay() override;
@@ -66,6 +66,10 @@ protected:
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 private:
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMovementMode(ABaseCharacter* Self, EMovementMode PrevMovementMode);
+	void ServerCheckMovementMode_Implementation(ABaseCharacter* Self, EMovementMode PrevMovementMode);
+	
 	void ServerChangeMovementState_Implementation(EMovementState NewMovementState);
 
 	bool ServerInteractWithWeapon_Validate(ABaseCharacter* Self);
@@ -78,7 +82,7 @@ private:
 	void ServerInteractWithHealth_Implementation(ABaseCharacter* Self);
 
 	void ServerSetHealthLevel_Implementation(float CurrentHealth);
-	void ServerSetStaminaLevel_Implementation(float CurrentStamina);
+	void ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina);
 	
 	/** Update health on player UI */
 	UFUNCTION(Client, Unreliable)

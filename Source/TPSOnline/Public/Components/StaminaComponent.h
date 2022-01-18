@@ -21,7 +21,7 @@ public:
 	void ServerStartStaminaDrain(EMovementState MovementState);
 	
 	UFUNCTION(Server, Reliable)
-	void ServerStopStaminaDrain();
+	void ServerStopStaminaDrain(bool bStartRestore);
 	
 	/** Decreased stamina when jumping */
 	UFUNCTION(Server, Reliable)
@@ -32,18 +32,20 @@ private:
 
 	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
 	
-	void ServerStopStaminaDrain_Implementation();
+	void ServerStopStaminaDrain_Implementation(bool bStartRestore);
 
 	void ServerJumpDrainStamina_Implementation();
 	
 	/** Decreased stamina when running */
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRunningDrainStamina();
+	bool ServerRunningDrainStamina_Validate();
 	void ServerRunningDrainStamina_Implementation();
 	
 	/** Decreased stamina when sprinting */
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSprintingDrainStamina();
+	bool ServerSprintingDrainStamina_Validate();
 	void ServerSprintingDrainStamina_Implementation();
 
 	/** Restore stamina when the character stops or walks */

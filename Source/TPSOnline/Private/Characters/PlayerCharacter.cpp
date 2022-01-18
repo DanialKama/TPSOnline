@@ -80,7 +80,6 @@ void APlayerCharacter::BeginPlay()
 	if (GetLocalRole() < ROLE_Authority)
 	{
 		PlayerController = Cast<APlayerController>(GetController());
-		PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
 		
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
@@ -182,7 +181,18 @@ void APlayerCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		PlayerHUD->UpdateHealth(NewHealth);
+		if (PlayerHUD)
+		{
+			PlayerHUD->UpdateHealth(NewHealth);
+		}
+		else
+		{
+			PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			if (PlayerHUD)
+			{
+				PlayerHUD->UpdateHealth(NewHealth);
+			}
+		}
 	}
 }
 
@@ -190,6 +200,17 @@ void APlayerCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 {
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		PlayerHUD->UpdateStamina(NewStamina);
+		if (PlayerHUD)
+		{
+			PlayerHUD->UpdateStamina(NewStamina);
+		}
+		else
+		{
+			PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			if (PlayerHUD)
+			{
+				PlayerHUD->UpdateStamina(NewStamina);
+			}
+		}
 	}
 }

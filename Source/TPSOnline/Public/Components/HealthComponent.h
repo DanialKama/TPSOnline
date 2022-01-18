@@ -42,4 +42,6 @@ private:
 
 	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RestoreDelay;
+
+	FTimerHandle RestoreHealth;
 };
