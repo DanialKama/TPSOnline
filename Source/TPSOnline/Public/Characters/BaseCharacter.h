@@ -83,11 +83,11 @@ private:
 	/** Update health on player UI */
 	UFUNCTION(Client, Unreliable)
 	void ClientUpdateHealth(float NewHealth);
-	
+
 	/** Update stamina on player UI */
 	UFUNCTION(Client, Unreliable)
 	void ClientUpdateStamina(float NewStamina);
-
+	
 // Variables
 protected:
 	UPROPERTY(Replicated)

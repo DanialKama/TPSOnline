@@ -225,7 +225,7 @@ void ABaseCharacter::ServerSetHealthLevel_Implementation(float CurrentHealth)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		if (CurrentHealth <= 0.0f)	// TODO - Multicast
+		if (CurrentHealth <= 0.0f)	// TODO - Improve
 		{
 			GetCharacterMovement()->DisableMovement();
 			GetMesh()->SetCollisionProfileName(FName("Ragdoll"), true);
@@ -248,7 +248,7 @@ void ABaseCharacter::ServerSetStaminaLevel_Implementation(float CurrentStamina)
 		{
 			ServerChangeMovementState(EMovementState::Walk);
 		}
-
+		
 		ClientUpdateStamina(CurrentStamina);
 	}
 }

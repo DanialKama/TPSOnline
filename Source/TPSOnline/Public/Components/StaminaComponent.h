@@ -53,13 +53,13 @@ private:
 
 // Variables
 public:
+	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
+	float MaxStamina;
+	
 	UPROPERTY(Replicated)
 	float CurrentStamina;
 	
 private:
-	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
-	float MaxStamina;
-	
 	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RunningDrainAmount;
 
