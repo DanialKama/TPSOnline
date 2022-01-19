@@ -36,10 +36,13 @@ public:
 	APickupActor* FindPickup(ABaseCharacter* Self) const;
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetHealthLevel(float CurrentHealth);
+	void ServerSetHealthLevel(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetStaminaLevel(ABaseCharacter* ComponentOwner, float CurrentStamina);
+	void ServerSetStaminaLevel(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
+
+	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
+	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -62,9 +65,6 @@ protected:
 	virtual void ClientUpdateHealth_Implementation(float NewHealth);
 	virtual void ClientUpdateStamina_Implementation(float NewStamina);
 
-	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
-	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
-
 private:
 	UFUNCTION(Server, Reliable)
 	void ServerCheckMovementMode(ABaseCharacter* Self, EMovementMode PrevMovementMode);
@@ -81,8 +81,8 @@ private:
 	bool ServerInteractWithHealth_Validate(ABaseCharacter* Self);
 	void ServerInteractWithHealth_Implementation(ABaseCharacter* Self);
 
-	void ServerSetHealthLevel_Implementation(float CurrentHealth);
-	void ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina);
+	void ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
+	void ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
 	
 	/** Update health on player UI */
 	UFUNCTION(Client, Unreliable)

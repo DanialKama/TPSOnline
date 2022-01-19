@@ -16,8 +16,15 @@ public:
 	/** Sets default values for this component's properties */
 	UHealthComponent();
 	
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerIncreaseHealth(float IncreaseAmount);
+
+	UFUNCTION(Server, Reliable)
+	void ServerStartRestoreHealth();
+
+	UFUNCTION(Server, Reliable)
+	void ServerStopRestoreHealth();
+	void ServerStopRestoreHealth_Implementation();
 	
 private:
 	virtual void ServerInitialize_Implementation(UBaseComponent* Self) override;
@@ -25,8 +32,14 @@ private:
 	UFUNCTION()
 	void TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	
-	bool ServerIncreaseHealth_Validate(float IncreaseAmount);
 	void ServerIncreaseHealth_Implementation(float IncreaseAmount);
+
+	void ServerStartRestoreHealth_Implementation();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRestoreHealth();
+	bool ServerRestoreHealth_Validate();
+	void ServerRestoreHealth_Implementation();
 
 // Variables
 public:
@@ -43,5 +56,5 @@ private:
 	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RestoreDelay;
 
-	FTimerHandle RestoreHealth;
+	FTimerHandle RestoreHealthTimer;
 };

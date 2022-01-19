@@ -233,18 +233,22 @@ APickupActor* ABaseCharacter::FindPickup(ABaseCharacter* Self) const
 	return Pickup;
 }
 
-void ABaseCharacter::ServerSetHealthLevel_Implementation(float CurrentHealth)
+void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
+		if (CurrentHealth > 0.0f && CurrentHealth < MaxHealth)
+		{
+			ComponentOwner->HealthComponent->ServerStartRestoreHealth();
+		}
 		if (CurrentHealth <= 0.0f)	// TODO - Improve
 		{
-			GetCharacterMovement()->DisableMovement();
-			GetMesh()->SetCollisionProfileName(FName("Ragdoll"), true);
-			GetMesh()->SetSimulatePhysics(true);
+			ComponentOwner->GetCharacterMovement()->DisableMovement();
+			ComponentOwner->GetMesh()->SetCollisionProfileName(FName("Ragdoll"), true);
+			ComponentOwner->GetMesh()->SetSimulatePhysics(true);
 		}
-
-		ClientUpdateHealth(CurrentHealth);
+		
+		ClientUpdateHealth(CurrentHealth / MaxHealth);
 	}
 }
 
@@ -252,16 +256,24 @@ void ABaseCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
 }
 
-void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina)
+void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		if (CurrentStamina <= 0.0f)
+		if (CurrentStamina >= MaxStamina && ComponentOwner->HealthComponent->CurrentHealth < ComponentOwner->HealthComponent->MaxHealth)
+		{
+			ComponentOwner->HealthComponent->ServerStartRestoreHealth();
+		}
+		else if (CurrentStamina > 0.0f && CurrentStamina < MaxStamina)
+		{
+			ComponentOwner->HealthComponent->ServerStopRestoreHealth();
+		}
+		else if (CurrentStamina <= 0.0f)
 		{
 			ServerChangeMovementState(EMovementState::Walk);
 		}
 		
-		ClientUpdateStamina(CurrentStamina);
+		ClientUpdateStamina(CurrentStamina / MaxStamina);
 	}
 }
 

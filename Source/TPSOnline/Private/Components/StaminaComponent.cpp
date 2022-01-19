@@ -10,7 +10,7 @@ UStaminaComponent::UStaminaComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// Initialize variables
-	MaxStamina = 100.0f;
+	CurrentStamina = MaxStamina = 100.0f;
 	RunningDrainAmount = 1.5f;
 	SprintingDrainAmount = 3.0f;
 	JumpingDrainAmount = 10.0f;
@@ -39,7 +39,7 @@ void UStaminaComponent::ServerInitialize_Implementation(UBaseComponent* Self)
 		Super::ServerInitialize_Implementation(Self);
 
 		CurrentStamina = MaxStamina;
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 	}
 }
 
@@ -82,7 +82,7 @@ void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 		else
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
-			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
+			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 		}
 	}
 }
@@ -108,7 +108,7 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 		else
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
-			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
+			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 		}
 	}
 }
@@ -138,7 +138,7 @@ void UStaminaComponent::ServerRestoreStamina_Implementation()
 		else
 		{
 			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
-			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
+			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 		}
 	}
 }
@@ -150,6 +150,6 @@ void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 		GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
 		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 		CurrentStamina = FMath::Clamp(CurrentStamina - JumpingDrainAmount, 0.0f, MaxStamina);
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina / MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 	}
 }

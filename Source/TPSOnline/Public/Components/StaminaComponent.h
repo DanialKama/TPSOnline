@@ -19,7 +19,8 @@ public:
 	
 	UFUNCTION(Server, Reliable)
 	void ServerStartStaminaDrain(EMovementState MovementState);
-	
+
+	/** Stop stamina drain and start to restore it */
 	UFUNCTION(Server, Reliable)
 	void ServerStopStaminaDrain(bool bStartRestore);
 	
@@ -31,7 +32,7 @@ private:
 	virtual void ServerInitialize_Implementation(UBaseComponent* Self) override;
 
 	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
-	
+
 	void ServerStopStaminaDrain_Implementation(bool bStartRestore);
 
 	void ServerJumpDrainStamina_Implementation();
