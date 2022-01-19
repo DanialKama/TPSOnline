@@ -241,11 +241,9 @@ void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* Compone
 		{
 			ComponentOwner->HealthComponent->ServerStartRestoreHealth();
 		}
-		if (CurrentHealth <= 0.0f)	// TODO - Improve
+		if (CurrentHealth <= 0.0f)
 		{
-			ComponentOwner->GetCharacterMovement()->DisableMovement();
-			ComponentOwner->GetMesh()->SetCollisionProfileName(FName("Ragdoll"), true);
-			ComponentOwner->GetMesh()->SetSimulatePhysics(true);
+			MulticastDeath();
 		}
 		
 		ClientUpdateHealth(CurrentHealth / MaxHealth);
@@ -279,4 +277,15 @@ void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* Compon
 
 void ABaseCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 {
+}
+
+void ABaseCharacter::MulticastDeath_Implementation()
+{
+	GetCharacterMovement()->DisableMovement();
+	GetMesh()->SetConstraintProfileForAll(FName("Ragdoll"), true);
+	GetMesh()->SetCollisionProfileName(FName("Ragdoll"));
+	GetMesh()->SetSimulatePhysics(true);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HealthComponent->DestroyComponent();
+	StaminaComponent->DestroyComponent();
 }

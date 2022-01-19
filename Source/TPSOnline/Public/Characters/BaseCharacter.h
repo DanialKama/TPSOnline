@@ -91,6 +91,10 @@ private:
 	/** Update stamina on player UI */
 	UFUNCTION(Client, Unreliable)
 	void ClientUpdateStamina(float NewStamina);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDeath();
+	void MulticastDeath_Implementation();
 	
 // Variables
 protected:

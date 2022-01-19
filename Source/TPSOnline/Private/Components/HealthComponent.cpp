@@ -40,7 +40,7 @@ void UHealthComponent::ServerInitialize_Implementation(UBaseComponent* Self)
 
 void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage > 0.0f)
+	if (GetOwnerRole() == ROLE_Authority && Damage > 0.0f)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(RestoreHealthTimer);
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
