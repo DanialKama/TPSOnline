@@ -23,19 +23,12 @@ class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 public:
 	APlayerCharacter();
 	
-	/** For test */
-	UFUNCTION(BlueprintCallable, Category = "Test")
-	FORCEINLINE float GetStaminaLevel() const { return GetStaminaComponent()->CurrentStamina; }
-
-	/** For test */
-	UFUNCTION(BlueprintCallable, Category = "Test")
-	FORCEINLINE float GetHealthLevel() const { return GetHealthComponent()->CurrentHealth; }
-	
 protected:
 	/** Called to bind functionality to input */
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	virtual void BeginPlay() override;
+	virtual void Destroyed() override;
 
 private:
 	/** Called for forwards/backward input */
@@ -65,7 +58,7 @@ private:
 
 	virtual void ClientUpdateHealth_Implementation(float NewHealth) override;
 	virtual void ClientUpdateStamina_Implementation(float NewStamina) override;
-	
+
 // Variables
 private:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -78,6 +71,10 @@ private:
 
 	UPROPERTY()
 	APlayerController* PlayerController;
+
+	/** The controller that possesses the player after respawn */
+	UPROPERTY()
+	AController* RespawnController;
 
 	UPROPERTY()
 	class APlayerHUD* PlayerHUD;

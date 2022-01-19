@@ -18,6 +18,7 @@ ABaseCharacter::ABaseCharacter()
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(TEXT("Stamina Component"));
 
 	// Initialize variables
+	RespawnDelay = 5.0f;
 	bDoOnceMoving = true;
 	bDoOnceStopped = true;
 }
@@ -29,6 +30,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	// Replicate to everyone
 	DOREPLIFETIME(ABaseCharacter, MovementState);
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
+	DOREPLIFETIME(ABaseCharacter, RespawnDelay);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -75,7 +77,7 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 
 void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
-	if (GetLocalRole() < ROLE_Authority)
+	if (GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		ServerCheckMovementMode(this, PrevMovementMode);
 	}
@@ -83,22 +85,25 @@ void ABaseCharacter::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8
 
 void ABaseCharacter::ServerCheckMovementMode_Implementation(ABaseCharacter* Self, EMovementMode PrevMovementMode)
 {
-	// After the character landed start draining stamina if Movement State is Run or Sprint
-	if (PrevMovementMode == MOVE_Falling)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		if (Self->MovementState == EMovementState::Run || Self->MovementState == EMovementState::Sprint)
+		// After the character landed start draining stamina if Movement State is Run or Sprint
+		if (PrevMovementMode == MOVE_Falling)
 		{
-			Self->StaminaComponent->ServerStartStaminaDrain(MovementState);
+			if (Self->MovementState == EMovementState::Run || Self->MovementState == EMovementState::Sprint)
+			{
+				Self->StaminaComponent->ServerStartStaminaDrain(MovementState);
+			}
+			else
+			{
+				Self->StaminaComponent->ServerStopStaminaDrain(true);
+			}
 		}
-		else
+		// Stop stamina drain if character jumped
+		else if (Self->GetCharacterMovement()->MovementMode == MOVE_Falling)
 		{
-			Self->StaminaComponent->ServerStopStaminaDrain(true);
+			Self->StaminaComponent->ServerStopStaminaDrain(false);
 		}
-	}
-	// Stop stamina drain if character jumped
-	else if (Self->GetCharacterMovement()->MovementMode == MOVE_Falling)
-	{
-		Self->StaminaComponent->ServerStopStaminaDrain(false);
 	}
 }
 
@@ -244,6 +249,9 @@ void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* Compone
 		if (CurrentHealth <= 0.0f)
 		{
 			MulticastDeath();
+
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ABaseCharacter::ServerStartDestroy, RespawnDelay);
 		}
 		
 		ClientUpdateHealth(CurrentHealth / MaxHealth);
@@ -288,4 +296,12 @@ void ABaseCharacter::MulticastDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HealthComponent->DestroyComponent();
 	StaminaComponent->DestroyComponent();
+}
+
+void ABaseCharacter::ServerStartDestroy_Implementation()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		Destroy();
+	}
 }

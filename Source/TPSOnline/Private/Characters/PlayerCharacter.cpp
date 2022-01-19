@@ -7,6 +7,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/StaminaComponent.h"
+#include "Core/DeathmatchGameMode.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -190,6 +191,7 @@ void APlayerCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 			PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
 			if (PlayerHUD)
 			{
+				PlayerHUD->Initialize();
 				PlayerHUD->UpdateHealth(NewHealth);
 			}
 		}
@@ -209,8 +211,27 @@ void APlayerCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 			PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
 			if (PlayerHUD)
 			{
+				PlayerHUD->Initialize();
 				PlayerHUD->UpdateStamina(NewStamina);
 			}
+		}
+	}
+}
+
+void APlayerCharacter::Destroyed()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// Get player controller reference before destroying the player
+		RespawnController = GetController();
+	
+		Super::Destroyed();
+
+		// Get the World and GameMode in the world to invoke its restart player function.
+		ADeathmatchGameMode* GameMode = Cast<ADeathmatchGameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->ServerStartRespawn(RespawnController);
 		}
 	}
 }

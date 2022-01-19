@@ -95,6 +95,10 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastDeath();
 	void MulticastDeath_Implementation();
+
+	UFUNCTION(Server, Reliable)
+	void ServerStartDestroy();
+	void ServerStartDestroy_Implementation();
 	
 // Variables
 protected:
@@ -106,4 +110,8 @@ protected:
 	
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;
+
+private:
+	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
+	float RespawnDelay;
 };

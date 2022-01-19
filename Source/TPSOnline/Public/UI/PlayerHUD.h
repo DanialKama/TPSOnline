@@ -13,6 +13,9 @@ class TPSONLINE_API APlayerHUD : public AHUD
 
 // Functions
 public:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
+	void Initialize();
+	
 	/** Update health level on player UI */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
 	void UpdateHealth(float NewHealth);
