@@ -16,6 +16,7 @@ class TPSONLINE_API AHealthPickupActor : public APickupActor
 
 // Functions
 public:
+	/** Sets default values for this actor's properties */
 	AHealthPickupActor();
 
 private:

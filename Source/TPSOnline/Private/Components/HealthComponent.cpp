@@ -11,7 +11,7 @@ UHealthComponent::UHealthComponent()
 
 	// Initialize variables
 	CurrentHealth = MaxHealth = 100.0f;
-	RestoreAmount = 5.0f;
+	RestoreAmount = 10.0f;
 	RestoreDelay = 2.0f;
 }
 

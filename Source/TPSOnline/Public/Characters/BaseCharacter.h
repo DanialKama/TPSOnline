@@ -28,6 +28,9 @@ class TPSONLINE_API ABaseCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStaminaComponent* StaminaComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UInventoryComponent* InventoryComponent;
+
 // Functions
 public:
 	ABaseCharacter();

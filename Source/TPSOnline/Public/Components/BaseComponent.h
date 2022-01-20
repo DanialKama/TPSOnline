@@ -19,13 +19,12 @@ public:
 	UBaseComponent();
 
 	/** Initialize this component */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerInitialize(UBaseComponent* Self);
 
 protected:
 	virtual void BeginPlay() override;
 
-	bool ServerInitialize_Validate(UBaseComponent* Self);
 	virtual void ServerInitialize_Implementation(UBaseComponent* Self);
 
 // Variables

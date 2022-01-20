@@ -27,15 +27,6 @@ void UBaseComponent::BeginPlay()
 	}
 }
 
-bool UBaseComponent::ServerInitialize_Validate(UBaseComponent* Self)
-{
-	if (Self)
-	{
-		return true;
-	}
-	return false;
-}
-
 void UBaseComponent::ServerInitialize_Implementation(UBaseComponent* Self)
 {
 	if (GetOwnerRole() == ROLE_Authority)

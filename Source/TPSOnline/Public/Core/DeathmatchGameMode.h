@@ -23,9 +23,8 @@ protected:
 private:
 	void ServerStartRespawn_Implementation(AController* Controller);
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerRespawn();
-	bool ServerRespawn_Validate();
 	void ServerRespawn_Implementation();
 
 // Variables

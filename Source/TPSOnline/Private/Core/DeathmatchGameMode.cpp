@@ -15,16 +15,7 @@ void ADeathmatchGameMode::ServerStartRespawn_Implementation(AController* Control
 	}
 }
 
-bool ADeathmatchGameMode::ServerRespawn_Validate()
-{
-	if (ControllersToRespawn.Num() > 0)
-	{
-		return true;
-	}
-	return false;
-}
-
-void ADeathmatchGameMode::ServerRespawn_Implementation()	// TODO - Test loops
+void ADeathmatchGameMode::ServerRespawn_Implementation()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -41,11 +32,13 @@ void ADeathmatchGameMode::ServerRespawn_Implementation()	// TODO - Test loops
 						ControllersToRespawn.RemoveAt(i);
 					}
 
+					ExitedControllers[j]->Destroy();
 					ExitedControllers.RemoveAt(j);
 				}
 			}
 		}
 
+		// Respawn players
 		if (ControllersToRespawn.Num() > 0)
 		{
 			for (uint8 k = 0; k < ControllersToRespawn.Num(); ++k)

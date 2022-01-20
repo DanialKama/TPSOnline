@@ -5,6 +5,7 @@
 #include "Actors/PickupActor.h"
 #include "Actors/HealthPickupActor.h"
 #include "Components/HealthComponent.h"
+#include "Components/InventoryComponent.h"
 #include "Components/StaminaComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -16,6 +17,7 @@ ABaseCharacter::ABaseCharacter()
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(TEXT("Stamina Component"));
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory Component"));
 
 	// Initialize variables
 	RespawnDelay = 5.0f;
@@ -178,7 +180,10 @@ bool ABaseCharacter::ServerInteractWithWeapon_Validate(ABaseCharacter* Self)
 
 void ABaseCharacter::ServerInteractWithWeapon_Implementation(ABaseCharacter* Self)
 {
-	// TODO
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// TODO
+	}
 }
 
 bool ABaseCharacter::ServerInteractWithAmmo_Validate(ABaseCharacter* Self)
@@ -192,7 +197,10 @@ bool ABaseCharacter::ServerInteractWithAmmo_Validate(ABaseCharacter* Self)
 
 void ABaseCharacter::ServerInteractWithAmmo_Implementation(ABaseCharacter* Self)
 {
-	// TODO
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		// TODO
+	}
 }
 
 bool ABaseCharacter::ServerInteractWithHealth_Validate(ABaseCharacter* Self)
