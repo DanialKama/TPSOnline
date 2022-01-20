@@ -48,6 +48,9 @@ public:
 	
 	UPROPERTY(Replicated)
 	float CurrentHealth;
+
+	UPROPERTY(Replicated)
+	uint8 bRestoreHealth : 1;
 	
 private:
 	UPROPERTY(Replicated, EditAnywhere, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))

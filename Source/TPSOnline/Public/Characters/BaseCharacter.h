@@ -10,14 +10,14 @@
 
 class AWeaponPickupActor;
 
-UENUM()
+UENUM(BlueprintType)
 enum class EMovementState : uint8
 {
-	Walk,
-	Run,
-	Sprint,
-	Crouch,
-	Prone
+	Walk	UMETA(DisplayName = "Walking"),
+	Run		UMETA(DisplayName = "Running"),
+	Sprint	UMETA(DisplayName = "Sprinting"),
+	Crouch	UMETA(DisplayName = "Crouch"),
+	Prone	UMETA(DisplayName = "Prone")
 };
 
 UCLASS()

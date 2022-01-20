@@ -16,4 +16,5 @@ void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &
 	DOREPLIFETIME(UInventoryComponent, PrimaryWeapon);
 	DOREPLIFETIME(UInventoryComponent, SecondaryWeapon);
 	DOREPLIFETIME(UInventoryComponent, SidearmWeapon);
+	DOREPLIFETIME(UInventoryComponent, CurrentWeapon);
 }

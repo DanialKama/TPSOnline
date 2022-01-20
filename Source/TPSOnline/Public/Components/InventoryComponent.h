@@ -7,6 +7,14 @@
 #include "Components/BaseComponent.h"
 #include "InventoryComponent.generated.h"
 
+enum class EWeaponToDo : uint8
+{
+	NoWeapon,
+	Primary,
+	Secondary,
+	Sidearm
+};
+
 UCLASS()
 class TPSONLINE_API UInventoryComponent : public UBaseComponent
 {
@@ -18,7 +26,7 @@ public:
 	UInventoryComponent();
 
 // Variables
-private:
+public:
 	UPROPERTY(Replicated)
 	AWeaponPickupActor* PrimaryWeapon;
 
@@ -27,4 +35,7 @@ private:
 
 	UPROPERTY(Replicated)
 	AWeaponPickupActor* SidearmWeapon;
+
+	UPROPERTY(Replicated)
+	AWeaponPickupActor* CurrentWeapon;
 };

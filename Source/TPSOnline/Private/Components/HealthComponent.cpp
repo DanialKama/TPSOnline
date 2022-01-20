@@ -11,8 +11,9 @@ UHealthComponent::UHealthComponent()
 
 	// Initialize variables
 	CurrentHealth = MaxHealth = 100.0f;
-	RestoreAmount = 10.0f;
+	RestoreAmount = 5.0f;
 	RestoreDelay = 2.0f;
+	bRestoreHealth = false;
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -24,6 +25,7 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 	DOREPLIFETIME(UHealthComponent, MaxHealth);
 	DOREPLIFETIME(UHealthComponent, RestoreAmount);
 	DOREPLIFETIME(UHealthComponent, RestoreDelay);
+	DOREPLIFETIME(UHealthComponent, bRestoreHealth);
 }
 
 void UHealthComponent::ServerInitialize_Implementation(UBaseComponent* Self)
@@ -79,6 +81,8 @@ void UHealthComponent::ServerRestoreHealth_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
+		bRestoreHealth = true;
+		
 		if (CurrentHealth >= MaxHealth)
 		{
 			ServerStopRestoreHealth();
@@ -95,6 +99,7 @@ void UHealthComponent::ServerStopRestoreHealth_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
+		bRestoreHealth = false;
 		GetWorld()->GetTimerManager().ClearTimer(RestoreHealthTimer);
 	}	
 }

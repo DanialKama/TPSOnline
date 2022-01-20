@@ -5,7 +5,6 @@
 #include "Actors/PickupActor.h"
 #include "Actors/HealthPickupActor.h"
 #include "Components/HealthComponent.h"
-#include "Components/InventoryComponent.h"
 #include "Components/StaminaComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -127,7 +126,7 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 			if (StaminaComponent->CurrentStamina > 0.0f)
 			{
 				UnCrouch();
-				MovementScale = 0.5f;	// MaxWalkSpeed = 300.0f
+				MovementScale = 0.75f;	// MaxWalkSpeed = 300.0f
 				GetCharacterMovement()->JumpZVelocity = 360.0f;
 			}
 			break;
@@ -182,7 +181,82 @@ void ABaseCharacter::ServerInteractWithWeapon_Implementation(ABaseCharacter* Sel
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		// TODO
+		AWeaponPickupActor* NewWeapon = Cast<AWeaponPickupActor>(FindPickup(Self));
+		if (NewWeapon)
+		{
+			ServerAddWeapon(NewWeapon);
+		}
+	}
+}
+
+void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapon)
+{
+	if (GetLocalRole() == ROLE_Authority && NewWeapon)
+	{
+		NewWeapon->ServerUpdatePickupState(NewWeapon, EPickupState::PickedUp);
+
+		const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepRelative, false);
+		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
+		switch (NewWeapon->WeaponType)
+		{
+		case 0: case 1:
+			// Pistol, SMG - Sidearm weapons
+			if (InventoryComponent->SidearmWeapon)
+			{
+				InventoryComponent->SidearmWeapon->DetachFromActor(DetachmentRules);
+				InventoryComponent->SidearmWeapon->ServerUpdatePickupState(InventoryComponent->SidearmWeapon, EPickupState::Dropped);
+
+				// If currently holding this weapon
+				if (InventoryComponent->CurrentWeapon == InventoryComponent->SidearmWeapon)
+				{
+					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
+					InventoryComponent->CurrentWeapon = NewWeapon;
+				}
+				else
+				{
+					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("SidearmWeaponSocket"));
+				}
+			}
+			else
+			{
+				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("SidearmWeaponSocket"));
+			}
+				
+			InventoryComponent->SidearmWeapon = NewWeapon;
+			break;
+		case 2: case 3: case 4: case 5: case 6:
+			// Rifle, LMG, Shotgun, Sniper, Launcher - Primary and secondary weapons
+			// Add the new weapon as a primary weapon if currently there is no primary weapon
+			if (InventoryComponent->PrimaryWeapon == nullptr)
+			{
+				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("PrimaryWeaponSocket"));
+				InventoryComponent->PrimaryWeapon = NewWeapon;
+			}
+			// Add the new weapon as a secondary weapon if currently there is no secondary weapon
+			else if (InventoryComponent->SecondaryWeapon == nullptr)
+			{
+				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("SecondaryWeaponSocket"));
+				InventoryComponent->SecondaryWeapon = NewWeapon;
+			}
+			// Replace the new weapon with the current weapon if both primary and secondary weapon slots are not free
+			else if (InventoryComponent->CurrentWeapon == InventoryComponent->PrimaryWeapon)
+			{
+				InventoryComponent->CurrentWeapon->DetachFromActor(DetachmentRules);
+				InventoryComponent->CurrentWeapon->ServerUpdatePickupState(InventoryComponent->CurrentWeapon, EPickupState::Dropped);
+				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
+				InventoryComponent->PrimaryWeapon = NewWeapon;
+				InventoryComponent->CurrentWeapon = NewWeapon;
+			}
+			else
+			{
+				InventoryComponent->SecondaryWeapon->DetachFromActor(DetachmentRules);
+				InventoryComponent->SecondaryWeapon->ServerUpdatePickupState(InventoryComponent->SecondaryWeapon, EPickupState::Dropped);
+				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
+				InventoryComponent->SecondaryWeapon = NewWeapon;
+				InventoryComponent->CurrentWeapon = NewWeapon;
+			}
+			break;
+		}
 	}
 }
 
@@ -250,7 +324,8 @@ void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* Compone
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		if (CurrentHealth > 0.0f && CurrentHealth < MaxHealth)
+		// Start restoring health if 0 < Current Health < Max Health and restoring health is not started yet.
+		if (CurrentHealth > 0.0f && CurrentHealth < MaxHealth && HealthComponent->bRestoreHealth != true)
 		{
 			ComponentOwner->HealthComponent->ServerStartRestoreHealth();
 		}

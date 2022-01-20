@@ -6,15 +6,17 @@
 AWeaponPickupActor::AWeaponPickupActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
-}
 
-// void AWeaponPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
-// {
-// 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-// 	// Replicate to everyone
-// 	DOREPLIFETIME(AWeaponPickupActor, IncreaseAmount);
-// }
+	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeletal Mesh"));
+	SetRootComponent(SkeletalMesh);
+	SkeletalMesh->SetComponentTickEnabled(false);
+	SkeletalMesh->bApplyImpulseOnDamage = false;
+	SkeletalMesh->CanCharacterStepUpOn = ECB_No;
+	SkeletalMesh->SetCollisionProfileName("Pickup");
+
+	// Initialize variables
+	WeaponType = EWeaponType::Pistol;
+}
 
 void AWeaponPickupActor::ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
 {
@@ -24,10 +26,12 @@ void AWeaponPickupActor::ServerUpdatePickupState_Implementation(APickupActor* Se
 		{
 		case 0:
 			// Picked Up
+			SkeletalMesh->SetCollisionProfileName("Weapon");
 			SetLifeSpan(0.0f);
 			break;
 		case 1:
 			// Dropped
+			SkeletalMesh->SetCollisionProfileName("Pickup");
 			SetLifeSpan(10.0f);
 			break;
 		case 2:
