@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Actors/PickupActor.h"
+#include "Components/InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
+
+class AWeaponPickupActor;
 
 UENUM()
 enum class EMovementState : uint8
@@ -83,6 +86,10 @@ private:
 
 	bool ServerInteractWithHealth_Validate(ABaseCharacter* Self);
 	void ServerInteractWithHealth_Implementation(ABaseCharacter* Self);
+
+	UFUNCTION(Server, Reliable)
+	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
+	void ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapon);
 
 	void ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
 	void ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
