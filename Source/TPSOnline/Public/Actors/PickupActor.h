@@ -32,14 +32,13 @@ public:
 	/** Sets default values for this actor's properties */
 	APickupActor();
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerUpdatePickupState(APickupActor* Self, EPickupState NewState);
+	UFUNCTION(Server, Reliable)
+	void ServerUpdatePickupState(EPickupState NewState);
 
 protected:
 	virtual void BeginPlay() override;
 
-	bool ServerUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState);
-	virtual void ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState);
+	virtual void ServerUpdatePickupState_Implementation(EPickupState NewState);
 	
 // Variables
 public:

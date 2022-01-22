@@ -32,7 +32,7 @@ public:
 	AWeaponPickupActor();
 	
 private:
-	virtual void ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState) override;
+	virtual void ServerUpdatePickupState_Implementation(EPickupState NewState) override;
 
 // Variables
 public:

@@ -32,11 +32,11 @@ void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 	DOREPLIFETIME(UStaminaComponent, RestoreStaminaDelay);
 }
 
-void UStaminaComponent::ServerInitialize_Implementation(UBaseComponent* Self)
+void UStaminaComponent::ServerInitialize_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		Super::ServerInitialize_Implementation(Self);
+		Super::ServerInitialize_Implementation();
 
 		CurrentStamina = MaxStamina;
 		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
@@ -120,7 +120,7 @@ void UStaminaComponent::ServerStopStaminaDrain_Implementation(bool bStartRestore
 		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 
 		// If stamina is currently not restoring
-		if (bStartRestore && !RestoreStaminaTimer.IsValid())
+		if (bStartRestore && RestoreStaminaTimer.IsValid() == false)
 		{
 			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina, 0.2f, true, RestoreStaminaDelay);
 		}

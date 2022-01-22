@@ -20,12 +20,12 @@ public:
 
 	/** Initialize this component */
 	UFUNCTION(Server, Reliable)
-	void ServerInitialize(UBaseComponent* Self);
+	void ServerInitialize();
 
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void ServerInitialize_Implementation(UBaseComponent* Self);
+	virtual void ServerInitialize_Implementation();
 
 // Variables
 protected:

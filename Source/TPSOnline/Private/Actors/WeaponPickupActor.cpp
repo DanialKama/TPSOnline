@@ -18,7 +18,7 @@ AWeaponPickupActor::AWeaponPickupActor()
 	WeaponType = EWeaponType::Pistol;
 }
 
-void AWeaponPickupActor::ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
+void AWeaponPickupActor::ServerUpdatePickupState_Implementation(EPickupState NewState)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -31,12 +31,12 @@ void AWeaponPickupActor::ServerUpdatePickupState_Implementation(APickupActor* Se
 			break;
 		case 1:
 			// Dropped
+			SetOwner(nullptr);
 			SkeletalMesh->SetCollisionProfileName("Pickup");
-			SetLifeSpan(10.0f);
-			break;
+			SetLifeSpan(FMath::FRandRange(10.0f, 15.0f));
 		case 2:
 			// Used
-			Self->Destroy();
+			Destroy();
 			break;
 		}
 	}

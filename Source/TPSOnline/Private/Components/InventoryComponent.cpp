@@ -6,6 +6,10 @@
 UInventoryComponent::UInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	// Initialize variables
+	PrimaryWeapon = SecondaryWeapon = SidearmWeapon = CurrentWeapon = nullptr;
+	CurrentWeaponSlot = EWeaponToDo::NoWeapon;
 }
 
 void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -17,4 +21,5 @@ void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &
 	DOREPLIFETIME(UInventoryComponent, SecondaryWeapon);
 	DOREPLIFETIME(UInventoryComponent, SidearmWeapon);
 	DOREPLIFETIME(UInventoryComponent, CurrentWeapon);
+	DOREPLIFETIME(UInventoryComponent, CurrentWeaponSlot);
 }

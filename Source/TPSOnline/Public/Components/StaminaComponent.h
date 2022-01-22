@@ -29,7 +29,7 @@ public:
 	void ServerJumpDrainStamina();
 
 private:
-	virtual void ServerInitialize_Implementation(UBaseComponent* Self) override;
+	virtual void ServerInitialize_Implementation() override;
 
 	void ServerStartStaminaDrain_Implementation(EMovementState MovementState);
 

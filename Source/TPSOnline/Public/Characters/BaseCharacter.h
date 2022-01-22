@@ -39,7 +39,7 @@ public:
 	ABaseCharacter();
 
 	/** Use a single trace to find if the hit actor is a pickup */
-	APickupActor* FindPickup(ABaseCharacter* Self) const;
+	APickupActor* FindPickup() const;
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetHealthLevel(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
@@ -59,33 +59,32 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerChangeMovementState(EMovementState NewMovementState);
 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerInteractWithWeapon(ABaseCharacter* Self);
+	UFUNCTION(Server, Reliable)
+	void ServerInteractWithWeapon();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerInteractWithAmmo(ABaseCharacter* Self);
+	void ServerInteractWithAmmo();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerInteractWithHealth(ABaseCharacter* Self);
+	void ServerInteractWithHealth();
 	
 	virtual void ClientUpdateHealth_Implementation(float NewHealth);
 	virtual void ClientUpdateStamina_Implementation(float NewStamina);
 
 private:
 	UFUNCTION(Server, Reliable)
-	void ServerCheckMovementMode(ABaseCharacter* Self, EMovementMode PrevMovementMode);
-	void ServerCheckMovementMode_Implementation(ABaseCharacter* Self, EMovementMode PrevMovementMode);
+	void ServerCheckMovementMode(EMovementMode PrevMovementMode);
+	void ServerCheckMovementMode_Implementation(EMovementMode PrevMovementMode);
 	
 	void ServerChangeMovementState_Implementation(EMovementState NewMovementState);
 
-	bool ServerInteractWithWeapon_Validate(ABaseCharacter* Self);
-	void ServerInteractWithWeapon_Implementation(ABaseCharacter* Self);
+	void ServerInteractWithWeapon_Implementation();
 
-	bool ServerInteractWithAmmo_Validate(ABaseCharacter* Self);
-	void ServerInteractWithAmmo_Implementation(ABaseCharacter* Self);
+	bool ServerInteractWithAmmo_Validate();
+	void ServerInteractWithAmmo_Implementation();
 
-	bool ServerInteractWithHealth_Validate(ABaseCharacter* Self);
-	void ServerInteractWithHealth_Implementation(ABaseCharacter* Self);
+	bool ServerInteractWithHealth_Validate();
+	void ServerInteractWithHealth_Implementation();
 
 	UFUNCTION(Server, Reliable)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);

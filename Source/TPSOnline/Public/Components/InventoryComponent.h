@@ -7,6 +7,7 @@
 #include "Components/BaseComponent.h"
 #include "InventoryComponent.generated.h"
 
+UENUM()
 enum class EWeaponToDo : uint8
 {
 	NoWeapon,
@@ -36,6 +37,10 @@ public:
 	UPROPERTY(Replicated)
 	AWeaponPickupActor* SidearmWeapon;
 
+	/** The weapon that is currently in the player's hand */
 	UPROPERTY(Replicated)
 	AWeaponPickupActor* CurrentWeapon;
+
+	UPROPERTY(Replicated)
+	EWeaponToDo CurrentWeaponSlot;
 };

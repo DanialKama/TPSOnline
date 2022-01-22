@@ -27,7 +27,7 @@ void AHealthPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &O
 	DOREPLIFETIME(AHealthPickupActor, IncreaseAmount);
 }
 
-void AHealthPickupActor::ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
+void AHealthPickupActor::ServerUpdatePickupState_Implementation(EPickupState NewState)
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
@@ -41,7 +41,7 @@ void AHealthPickupActor::ServerUpdatePickupState_Implementation(APickupActor* Se
 			break;
 		case 2:
 			// Used
-			Self->Destroy();
+			Destroy();
 			break;
 		}
 	}

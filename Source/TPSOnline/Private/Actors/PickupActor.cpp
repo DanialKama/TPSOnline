@@ -17,15 +17,6 @@ void APickupActor::BeginPlay()
 	}
 }
 
-bool APickupActor::ServerUpdatePickupState_Validate(APickupActor* Self, EPickupState NewState)
-{
-	if (Self)
-	{
-		return true;
-	}
-	return false;
-}
-
-void APickupActor::ServerUpdatePickupState_Implementation(APickupActor* Self, EPickupState NewState)
+void APickupActor::ServerUpdatePickupState_Implementation(EPickupState NewState)
 {
 }

@@ -130,7 +130,7 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::AttemptJump()
 {
-	if (GetStaminaComponent()->CurrentStamina > 0.0f && !GetCharacterMovement()->IsFalling())
+	if (GetStaminaComponent()->CurrentStamina > 0.0f && GetCharacterMovement()->IsFalling() == false)
 	{
 		GetStaminaComponent()->ServerJumpDrainStamina();
 		Jump();
@@ -154,24 +154,24 @@ void APlayerCharacter::StopSprint()
 
 void APlayerCharacter::Interact()
 {
-	APickupActor* Pickup = FindPickup(this);
+	APickupActor* Pickup = FindPickup();
 	if (Pickup)
 	{
 		switch (Pickup->PickupType)
 		{
 		case 0:
 			// Weapon
-			ServerInteractWithWeapon(this);
+			ServerInteractWithWeapon();
 			break;
 		case 1:
 			// Ammo
-			ServerInteractWithAmmo(this);
+			ServerInteractWithAmmo();
 			break;
 		case 2:
 			// Health, If Current Health is lower than Max Health
 			if (GetHealthComponent()->CurrentHealth < GetHealthComponent()->MaxHealth)
 			{
-				ServerInteractWithHealth(this);
+				ServerInteractWithHealth();
 			}
 			break;
 		}

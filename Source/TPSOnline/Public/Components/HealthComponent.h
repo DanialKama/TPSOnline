@@ -27,7 +27,7 @@ public:
 	void ServerStopRestoreHealth_Implementation();
 	
 private:
-	virtual void ServerInitialize_Implementation(UBaseComponent* Self) override;
+	virtual void ServerInitialize_Implementation() override;
 
 	UFUNCTION()
 	void TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);

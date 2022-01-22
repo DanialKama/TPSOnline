@@ -28,11 +28,11 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 	DOREPLIFETIME(UHealthComponent, bRestoreHealth);
 }
 
-void UHealthComponent::ServerInitialize_Implementation(UBaseComponent* Self)
+void UHealthComponent::ServerInitialize_Implementation()
 {
 	if (GetOwnerRole() == ROLE_Authority)
 	{
-		Super::ServerInitialize_Implementation(Self);
+		Super::ServerInitialize_Implementation();
 
 		CurrentHealth = MaxHealth;
 		ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
