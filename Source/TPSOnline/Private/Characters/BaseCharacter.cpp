@@ -183,37 +183,21 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 		// Update state of the new weapon
 		NewWeapon->SetOwner(this);
 		NewWeapon->ServerUpdatePickupState(EPickupState::PickedUp);
-
-		const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepRelative, false);
+		
 		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 		switch (NewWeapon->WeaponType)
 		{
 		case 0: case 1:
-			// Pistol, SMG - Sidearm weapons
+			// Pistol, SMG = Sidearm weapons
 			// Drop the previous sidearm
-			if (InventoryComponent->SidearmWeapon)
-			{
-				InventoryComponent->SidearmWeapon->DetachFromActor(DetachmentRules);
-				InventoryComponent->SidearmWeapon->ServerUpdatePickupState(EPickupState::Dropped);
-
-				// Update Current Weapon if sidearm weapon was in the character's hand
-				if (InventoryComponent->CurrentWeapon == InventoryComponent->SidearmWeapon && InventoryComponent->CurrentWeaponSlot == EWeaponToDo::Sidearm)
-				{
-					InventoryComponent->CurrentWeapon = nullptr;
-					InventoryComponent->CurrentWeaponSlot = EWeaponToDo::NoWeapon;
-				}
-			}
-
-			InventoryComponent->SidearmWeapon = NewWeapon;
+			ServerDropWeapon(EWeaponToDo::Sidearm);
 			
 			// If the character's hand is currently empty
 			if (InventoryComponent->CurrentWeapon == nullptr && InventoryComponent->CurrentWeaponSlot == EWeaponToDo::NoWeapon)
 			{
-				// Attach new sidearm weapon to the character's hand
-				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
 				// Set Current Weapon to the new sidearm weapon
-				InventoryComponent->CurrentWeapon = NewWeapon;
-				InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Primary;
+				NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
+				ServerUpdateCurrentWeapon(NewWeapon, EWeaponToDo::Sidearm);
 			}
 			else if (InventoryComponent->CurrentWeapon != nullptr && InventoryComponent->CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 			{
@@ -222,7 +206,7 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 			}
 			break;
 		case 2: case 3: case 4: case 5: case 6:
-			// Rifle, LMG, Shotgun, Sniper, Launcher - Primary and secondary weapons
+			// Rifle, LMG, Shotgun, Sniper, Launcher = Primary and secondary weapons
 			// If the character's hand is currently empty
 			if (InventoryComponent->CurrentWeapon == nullptr && InventoryComponent->CurrentWeaponSlot == EWeaponToDo::NoWeapon)
 			{
@@ -231,28 +215,21 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 				{
 					// Attach the primary weapon to the character's hand
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
-					InventoryComponent->PrimaryWeapon = NewWeapon;
-					InventoryComponent->CurrentWeapon = NewWeapon;
-					InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Primary;
+					ServerUpdateCurrentWeapon(NewWeapon, EWeaponToDo::Primary);
 				}
 				// Add the new weapon as a secondary weapon if currently there is no secondary weapon
 				else if (InventoryComponent->SecondaryWeapon == nullptr)
 				{
 					// Attach the secondary weapon to the character's hand
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
-					InventoryComponent->SecondaryWeapon = NewWeapon;
-					InventoryComponent->CurrentWeapon = NewWeapon;
-					InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Secondary;
+					ServerUpdateCurrentWeapon(NewWeapon, EWeaponToDo::Secondary);
 				}
 				else
 				{
 					// Drop the previous secondary weapon and attach new weapon to character's hand
-					InventoryComponent->SecondaryWeapon->DetachFromActor(DetachmentRules);
-					InventoryComponent->SecondaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+					ServerDropWeapon(EWeaponToDo::Secondary);
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
-					InventoryComponent->SecondaryWeapon = NewWeapon;
-					InventoryComponent->CurrentWeapon = NewWeapon;
-					InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Secondary;
+					ServerUpdateCurrentWeapon(NewWeapon, EWeaponToDo::Secondary);
 				}
 			}
 			// Replace the new weapon with the current weapon if both primary and secondary weapon slots are not free
@@ -261,38 +238,32 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 				// Add the new weapon as a primary weapon if currently there is no primary weapon
 				if (InventoryComponent->PrimaryWeapon == nullptr)
 				{
-					// Attach the primary weapon to the Primary Weapon Socket
+					// Attach the primary weapon to its socket
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("PrimaryWeaponSocket"));
 					InventoryComponent->PrimaryWeapon = NewWeapon;
 				}
 				// Add the new weapon as a secondary weapon if currently there is no secondary weapon
 				else if (InventoryComponent->SecondaryWeapon == nullptr)
 				{
-					// Attach the secondary weapon to the Secondary Weapon Socket
+					// Attach the secondary weapon to its socket
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("SecondaryWeaponSocket"));
 					InventoryComponent->SecondaryWeapon = NewWeapon;
 				}
 				// If character currently holding the primary weapon
 				else if (InventoryComponent->CurrentWeapon == InventoryComponent->PrimaryWeapon && InventoryComponent->CurrentWeaponSlot == EWeaponToDo::Primary)
 				{
-					// Replace the primary weapon and update the current weapon
-					InventoryComponent->PrimaryWeapon->DetachFromActor(DetachmentRules);
-					InventoryComponent->PrimaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+					// Replace the primary weapon
+					ServerDropWeapon(EWeaponToDo::Primary);
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
-					InventoryComponent->PrimaryWeapon = NewWeapon;
-					InventoryComponent->CurrentWeapon = NewWeapon;
-					InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Primary;
+					ServerUpdateCurrentWeapon(NewWeapon, EWeaponToDo::Primary);
 				}
 				// If character currently holding the secondary weapon
 				else if (InventoryComponent->CurrentWeapon == InventoryComponent->SecondaryWeapon && InventoryComponent->CurrentWeaponSlot == EWeaponToDo::Secondary)
 				{
-					// Replace the secondary weapon and update the current weapon
-					InventoryComponent->SecondaryWeapon->DetachFromActor(DetachmentRules);
-					InventoryComponent->SecondaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+					// Replace the secondary weapon
+					ServerDropWeapon(EWeaponToDo::Secondary);
 					NewWeapon->AttachToComponent(GetMesh(), AttachmentRules, FName("RightHandSocket"));
-					InventoryComponent->SecondaryWeapon = NewWeapon;
-					InventoryComponent->CurrentWeapon = NewWeapon;
-					InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Secondary;
+					ServerUpdateCurrentWeapon(NewWeapon, EWeaponToDo::Secondary);
 				}
 			}
 			break;
@@ -300,9 +271,90 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 	}
 }
 
+void ABaseCharacter::ServerUpdateCurrentWeapon_Implementation(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		InventoryComponent->CurrentWeapon = NewWeapon;
+		switch (WeaponToEquip)
+		{
+		case 0:
+			// No Weapon = Nothing to equip
+			break;
+		case 1:
+			// Primary weapon
+			InventoryComponent->PrimaryWeapon = NewWeapon;
+			InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Primary;
+			break;
+		case 2:
+			// Secondary weapon
+			InventoryComponent->SecondaryWeapon = NewWeapon;
+			InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Secondary;
+			break;
+		case 3:
+			// Sidearm weapon
+			InventoryComponent->SidearmWeapon = NewWeapon;
+			InventoryComponent->CurrentWeaponSlot = EWeaponToDo::Sidearm;
+			break;
+		}
+	}
+}
+
+void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		AWeaponPickupActor* DroppedWeapon = nullptr;
+		const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepRelative, false);
+		switch (WeaponToDrop)
+		{
+		case 0:
+			// No Weapon - Nothing to drop
+			break;
+		case 1:
+			// Primary weapon
+			if (InventoryComponent->PrimaryWeapon)
+			{
+				InventoryComponent->PrimaryWeapon->DetachFromActor(DetachmentRules);
+				InventoryComponent->PrimaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+				DroppedWeapon = InventoryComponent->PrimaryWeapon;
+				InventoryComponent->PrimaryWeapon = nullptr;
+			}
+			break;
+		case 2:
+			// Secondary weapon
+			if (InventoryComponent->SecondaryWeapon)
+			{
+				InventoryComponent->SecondaryWeapon->DetachFromActor(DetachmentRules);
+				InventoryComponent->SecondaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+				DroppedWeapon = InventoryComponent->SecondaryWeapon;
+				InventoryComponent->SecondaryWeapon = nullptr;
+			}
+			break;
+		case 3:
+			// Sidearm weapon
+			if (InventoryComponent->SidearmWeapon)
+			{
+				InventoryComponent->SidearmWeapon->DetachFromActor(DetachmentRules);
+				InventoryComponent->SidearmWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+				DroppedWeapon = InventoryComponent->SidearmWeapon;
+				InventoryComponent->SidearmWeapon = nullptr;
+			}
+			break;
+		}
+
+		// If the dropped weapon was the current weapon, update the current weapon
+		if (DroppedWeapon == InventoryComponent->CurrentWeapon && WeaponToDrop == InventoryComponent->CurrentWeaponSlot)
+		{
+			InventoryComponent->CurrentWeapon = nullptr;
+			InventoryComponent->CurrentWeaponSlot = EWeaponToDo::NoWeapon;
+		}
+	}
+}
+
 bool ABaseCharacter::ServerInteractWithAmmo_Validate()
 {
-	return true;	// TODO - only add ammo if there is enough space in inventory
+	return true;	// TODO - only add ammo if there is enough space in the inventory
 }
 
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()
@@ -342,7 +394,7 @@ APickupActor* ABaseCharacter::FindPickup() const
 	const FVector End = GetActorLocation() + (GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
 	const TArray<AActor*> Actors;
 	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(GetCapsuleComponent()->GetScaledCapsuleRadius()),
-		FRotator::ZeroRotator, TraceTypeQuery3, false, Actors, EDrawDebugTrace::ForDuration, HitResult, true);
+		FRotator::ZeroRotator, TraceTypeQuery3, false, Actors, EDrawDebugTrace::None, HitResult, true);
 	if (bHit)
 	{
 		Pickup = Cast<APickupActor>(HitResult.GetActor());

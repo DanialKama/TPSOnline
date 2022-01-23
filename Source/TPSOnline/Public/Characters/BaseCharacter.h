@@ -90,6 +90,14 @@ private:
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
 	void ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapon);
 
+	UFUNCTION(Server, Reliable)
+	void ServerUpdateCurrentWeapon(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip);
+	void ServerUpdateCurrentWeapon_Implementation(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
+	void ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop);
+	
 	void ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
 	void ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
 	
