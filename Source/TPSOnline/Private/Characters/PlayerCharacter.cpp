@@ -50,7 +50,7 @@ APlayerCharacter::APlayerCharacter()
 	BaseLookUpRate = 45.0f;
 }
 
-void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
@@ -87,27 +87,13 @@ void APlayerCharacter::BeginPlay()
 	}
 }
 
-void APlayerCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void APlayerCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-}
-
 void APlayerCharacter::MoveForward(float Value)
 {
 	if (Controller && Value != 0.0f)
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get forward vector
+		// Zero out pitch and roll, only move on plane, find out which way is forward
+		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
+		// Get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value * MovementScale);
 	}
@@ -117,15 +103,25 @@ void APlayerCharacter::MoveRight(float Value)
 {
 	if (Controller && Value != 0.0f)
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
-		// get right vector 
+		// Zero out pitch and roll, only move on plane, find out which way is right
+		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
+		// Get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
+		// Add movement in that direction
 		AddMovementInput(Direction, Value * MovementScale);
 	}
+}
+
+void APlayerCharacter::TurnAtRate(float Rate)
+{
+	// Calculate delta for this frame from the rate information
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void APlayerCharacter::LookUpAtRate(float Rate)
+{
+	// Calculate delta for this frame from the rate information
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::AttemptJump()
