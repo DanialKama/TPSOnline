@@ -32,15 +32,16 @@ public:
 	/** Sets default values for this actor's properties */
 	APickupActor();
 
-	UFUNCTION(Server, Reliable)
-	void ServerUpdatePickupState(EPickupState NewState);
+	UFUNCTION()
+	virtual void OnRep_UpdatePickupState();
 
 protected:
 	virtual void BeginPlay() override;
-
-	virtual void ServerUpdatePickupState_Implementation(EPickupState NewState);
 	
 // Variables
 public:
 	EPickupType PickupType;
+
+	UPROPERTY(ReplicatedUsing = OnRep_UpdatePickupState)
+	EPickupState PickupState;
 };

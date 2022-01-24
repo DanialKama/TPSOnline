@@ -19,9 +19,8 @@ public:
 	/** Sets default values for this actor's properties */
 	AHealthPickupActor();
 
-private:
-	virtual void ServerUpdatePickupState_Implementation(EPickupState NewState) override;
-
+	virtual void OnRep_UpdatePickupState() override;
+	
 // Variables
 public:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0"))

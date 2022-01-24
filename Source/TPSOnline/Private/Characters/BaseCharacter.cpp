@@ -182,7 +182,8 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 	{
 		// Update state of the new weapon
 		NewWeapon->SetOwner(this);
-		NewWeapon->ServerUpdatePickupState(EPickupState::PickedUp);
+		NewWeapon->PickupState = EPickupState::PickedUp;
+		NewWeapon->OnRep_UpdatePickupState();
 		
 		const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 		switch (NewWeapon->WeaponType)
@@ -316,7 +317,8 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 			if (InventoryComponent->PrimaryWeapon)
 			{
 				InventoryComponent->PrimaryWeapon->DetachFromActor(DetachmentRules);
-				InventoryComponent->PrimaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+				InventoryComponent->PrimaryWeapon->PickupState = EPickupState::Dropped;
+				InventoryComponent->PrimaryWeapon->OnRep_UpdatePickupState();
 				DroppedWeapon = InventoryComponent->PrimaryWeapon;
 				InventoryComponent->PrimaryWeapon = nullptr;
 			}
@@ -326,7 +328,8 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 			if (InventoryComponent->SecondaryWeapon)
 			{
 				InventoryComponent->SecondaryWeapon->DetachFromActor(DetachmentRules);
-				InventoryComponent->SecondaryWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+				InventoryComponent->SecondaryWeapon->PickupState = EPickupState::Dropped;
+				InventoryComponent->SecondaryWeapon->OnRep_UpdatePickupState();
 				DroppedWeapon = InventoryComponent->SecondaryWeapon;
 				InventoryComponent->SecondaryWeapon = nullptr;
 			}
@@ -336,7 +339,8 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 			if (InventoryComponent->SidearmWeapon)
 			{
 				InventoryComponent->SidearmWeapon->DetachFromActor(DetachmentRules);
-				InventoryComponent->SidearmWeapon->ServerUpdatePickupState(EPickupState::Dropped);
+				InventoryComponent->SidearmWeapon->PickupState = EPickupState::Dropped;
+				InventoryComponent->SidearmWeapon->OnRep_UpdatePickupState();
 				DroppedWeapon = InventoryComponent->SidearmWeapon;
 				InventoryComponent->SidearmWeapon = nullptr;
 			}
@@ -382,7 +386,8 @@ void ABaseCharacter::ServerInteractWithHealth_Implementation()
 		if (HealthPickup && HealthPickup->PickupType == EPickupType::Health && HealthComponent->CurrentHealth < HealthComponent->MaxHealth)
 		{
 			HealthComponent->ServerIncreaseHealth(HealthPickup->IncreaseAmount);
-			HealthPickup->ServerUpdatePickupState(EPickupState::Used);
+			HealthPickup->PickupState = EPickupState::Used;
+			HealthPickup->OnRep_UpdatePickupState();
 		}
 	}
 }

@@ -30,10 +30,9 @@ class TPSONLINE_API AWeaponPickupActor : public APickupActor
 public:
 	/** Sets default values for this actor's properties */
 	AWeaponPickupActor();
-	
-private:
-	virtual void ServerUpdatePickupState_Implementation(EPickupState NewState) override;
 
+	virtual void OnRep_UpdatePickupState() override;
+	
 // Variables
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
