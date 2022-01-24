@@ -2,6 +2,7 @@
 
 #include "Core/DeathmatchGameMode.h"
 #include "Characters/PlayerCharacter.h"
+#include "Core/CustomPlayerController.h"
 
 void ADeathmatchGameMode::ServerStartRespawn_Implementation(AController* Controller)
 {
@@ -17,51 +18,50 @@ void ADeathmatchGameMode::ServerStartRespawn_Implementation(AController* Control
 
 void ADeathmatchGameMode::ServerRespawn_Implementation()
 {
-	if (GetLocalRole() == ROLE_Authority)
+	// Check if the player is still in the session
+	if (ExitedControllers.Num() > 0)
 	{
-		// Check if the player is still in the session
-		if (ExitedControllers.Num() > 0)
+		for (uint8 i = 0; i < ControllersToRespawn.Num(); ++i)
 		{
-			for (uint8 i = 0; i < ControllersToRespawn.Num(); ++i)
+			for (uint8 j = 0; j < ExitedControllers.Num(); ++j)
 			{
-				for (uint8 j = 0; j < ExitedControllers.Num(); ++j)
+				// Exited players will be removed from the controllers to respawn and will not get respawned
+				if (ControllersToRespawn[i] == ExitedControllers[j])
 				{
-					// Exited players will be removed from the controllers to respawn and will not get respawned
-					if (ControllersToRespawn[i] == ExitedControllers[j])
-					{
-						ControllersToRespawn.RemoveAt(i);
-					}
-
-					ExitedControllers[j]->Destroy();
-					ExitedControllers.RemoveAt(j);
+					ControllersToRespawn.RemoveAt(i);
 				}
+
+				ExitedControllers[j]->Destroy();
+				ExitedControllers.RemoveAt(j);
 			}
 		}
+	}
 
-		// Respawn players
-		if (ControllersToRespawn.Num() > 0)
+	// Respawn players
+	if (ControllersToRespawn.Num() > 0)
+	{
+		for (uint8 k = 0; k < ControllersToRespawn.Num(); ++k)
 		{
-			for (uint8 k = 0; k < ControllersToRespawn.Num(); ++k)
+			const AActor* RespawnActor = ChoosePlayerStart(ControllersToRespawn[k]);
+			const FVector Location = RespawnActor->GetActorLocation();
+			const FRotator Rotation = RespawnActor->GetActorRotation();
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			APawn* Player = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, Location, Rotation, SpawnParameters);
+			if (Player)
 			{
-				const AActor* RespawnActor = ChoosePlayerStart(ControllersToRespawn[k]);
-				const FVector Location = RespawnActor->GetActorLocation();
-				const FRotator Rotation = RespawnActor->GetActorRotation();
-				FActorSpawnParameters SpawnParameters;
-				SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				APawn* Player = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, Location, Rotation, SpawnParameters);
-				if (Player)
-				{
-					ControllersToRespawn[k]->Possess(Player);
-				}
-
-				ControllersToRespawn.RemoveAt(k);
+				ControllersToRespawn[k]->Possess(Player);
 			}
+
+			ControllersToRespawn.RemoveAt(k);
 		}
 	}
 }
 
 void ADeathmatchGameMode::Logout(AController* Exiting)
 {
+	// TODO - Drop inventory items
+	
 	Super::Logout(Exiting);
 
 	ExitedControllers.Add(Exiting);

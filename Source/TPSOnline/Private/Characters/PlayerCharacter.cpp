@@ -6,11 +6,14 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
+#include "Core/CustomPlayerController.h"
 #include "Core/DeathmatchGameMode.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "UI/PlayerHUD.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -50,6 +53,14 @@ APlayerCharacter::APlayerCharacter()
 	BaseLookUpRate = 45.0f;
 }
 
+void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to everyone
+	DOREPLIFETIME(APlayerCharacter, PlayerControllerRef);
+}
+
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
@@ -80,11 +91,16 @@ void APlayerCharacter::BeginPlay()
 
 	if (GetLocalRole() < ROLE_Authority)
 	{
-		PlayerController = Cast<APlayerController>(GetController());
-		
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
 	}
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	PlayerControllerRef = Cast<APlayerController>(NewController);
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -184,7 +200,7 @@ void APlayerCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 		}
 		else
 		{
-			PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			PlayerHUD = Cast<APlayerHUD>(PlayerControllerRef->GetHUD());
 			if (PlayerHUD)
 			{
 				PlayerHUD->Initialize();
@@ -204,7 +220,7 @@ void APlayerCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 		}
 		else
 		{
-			PlayerHUD = Cast<APlayerHUD>(PlayerController->GetHUD());
+			PlayerHUD = Cast<APlayerHUD>(PlayerControllerRef->GetHUD());
 			if (PlayerHUD)
 			{
 				PlayerHUD->Initialize();
@@ -219,7 +235,7 @@ void APlayerCharacter::Destroyed()
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		// Get player controller reference before destroying the player
-		RespawnController = GetController();
+		AController* RespawnController = GetController();
 	
 		Super::Destroyed();
 

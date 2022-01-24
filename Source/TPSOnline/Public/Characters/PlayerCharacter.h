@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
-#include "Components/HealthComponent.h"
-#include "Components/StaminaComponent.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -28,6 +26,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
 	virtual void Destroyed() override;
 
 private:
@@ -69,12 +68,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float BaseLookUpRate;
 
-	UPROPERTY()
-	APlayerController* PlayerController;
-
-	/** The controller that possesses the player after respawn */
-	UPROPERTY()
-	AController* RespawnController;
+	UPROPERTY(Replicated)
+	APlayerController* PlayerControllerRef;
 
 	UPROPERTY()
 	class APlayerHUD* PlayerHUD;

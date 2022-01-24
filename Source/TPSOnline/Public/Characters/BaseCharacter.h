@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Actors/PickupActor.h"
-#include "Components/InventoryComponent.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -20,6 +19,15 @@ enum class EMovementState : uint8
 	Prone	UMETA(DisplayName = "Prone")
 };
 
+UENUM()
+enum class EWeaponToDo : uint8
+{
+	NoWeapon,
+	Primary,
+	Secondary,
+	Sidearm
+};
+
 UCLASS()
 class TPSONLINE_API ABaseCharacter : public ACharacter
 {
@@ -30,9 +38,6 @@ class TPSONLINE_API ABaseCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStaminaComponent* StaminaComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UInventoryComponent* InventoryComponent;
 
 // Functions
 public:
@@ -52,6 +57,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode) override;
 
@@ -86,16 +92,18 @@ private:
 	bool ServerInteractWithHealth_Validate();
 	void ServerInteractWithHealth_Implementation();
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
+	bool ServerAddWeapon_Validate(AWeaponPickupActor* NewWeapon);
 	void ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapon);
 
 	UFUNCTION(Server, Reliable)
 	void ServerUpdateCurrentWeapon(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip);
 	void ServerUpdateCurrentWeapon_Implementation(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip);
 	
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
+	bool ServerDropWeapon_Validate(EWeaponToDo WeaponToDrop);
 	void ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop);
 	
 	void ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
@@ -131,4 +139,14 @@ protected:
 private:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RespawnDelay;
+	
+	/** The weapon that is currently in the player's hand */
+	UPROPERTY(Replicated)
+	AWeaponPickupActor* CurrentWeapon;
+
+	UPROPERTY(Replicated)
+	EWeaponToDo CurrentWeaponSlot;
+
+	UPROPERTY()
+	class ACustomPlayerState* PlayerStateRef;
 };

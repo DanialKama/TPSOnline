@@ -30,14 +30,11 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 
 void UHealthComponent::ServerInitialize_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		Super::ServerInitialize_Implementation();
+	Super::ServerInitialize_Implementation();
 
-		CurrentHealth = MaxHealth;
-		ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
-		ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeAnyDamage);
-	}
+	CurrentHealth = MaxHealth;
+	ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
+	ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeAnyDamage);
 }
 
 void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
@@ -52,19 +49,13 @@ void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const U
 
 void UHealthComponent::ServerIncreaseHealth_Implementation(float IncreaseAmount)
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		CurrentHealth = FMath::Clamp(CurrentHealth + IncreaseAmount, 0.0f, MaxHealth);
-		ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
-	}
+	CurrentHealth = FMath::Clamp(CurrentHealth + IncreaseAmount, 0.0f, MaxHealth);
+	ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
 }
 
 void UHealthComponent::ServerStartRestoreHealth_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		GetWorld()->GetTimerManager().SetTimer(RestoreHealthTimer, this, &UHealthComponent::ServerRestoreHealth, 0.2f, true, RestoreDelay);
-	}
+	GetWorld()->GetTimerManager().SetTimer(RestoreHealthTimer, this, &UHealthComponent::ServerRestoreHealth, 0.2f, true, RestoreDelay);
 }
 
 bool UHealthComponent::ServerRestoreHealth_Validate()
@@ -79,27 +70,21 @@ bool UHealthComponent::ServerRestoreHealth_Validate()
 
 void UHealthComponent::ServerRestoreHealth_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		bRestoreHealth = true;
+	bRestoreHealth = true;
 		
-		if (CurrentHealth >= MaxHealth)
-		{
-			ServerStopRestoreHealth();
-		}
-		else
-		{
-			CurrentHealth = FMath::Clamp(CurrentHealth + RestoreAmount, 0.0f, MaxHealth);
-			ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
-		}
+	if (CurrentHealth >= MaxHealth)
+	{
+		ServerStopRestoreHealth();
+	}
+	else
+	{
+		CurrentHealth = FMath::Clamp(CurrentHealth + RestoreAmount, 0.0f, MaxHealth);
+		ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
 	}
 }
 
 void UHealthComponent::ServerStopRestoreHealth_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		bRestoreHealth = false;
-		GetWorld()->GetTimerManager().ClearTimer(RestoreHealthTimer);
-	}	
+	bRestoreHealth = false;
+	GetWorld()->GetTimerManager().ClearTimer(RestoreHealthTimer);
 }

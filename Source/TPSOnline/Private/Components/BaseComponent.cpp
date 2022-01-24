@@ -29,8 +29,5 @@ void UBaseComponent::BeginPlay()
 
 void UBaseComponent::ServerInitialize_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		ComponentOwner = Cast<ABaseCharacter>(GetOwner());
-	}
+	ComponentOwner = Cast<ABaseCharacter>(GetOwner());
 }

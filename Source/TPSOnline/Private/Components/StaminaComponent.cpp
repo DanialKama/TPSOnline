@@ -34,30 +34,24 @@ void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 
 void UStaminaComponent::ServerInitialize_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		Super::ServerInitialize_Implementation();
+	Super::ServerInitialize_Implementation();
 
-		CurrentStamina = MaxStamina;
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
-	}
+	CurrentStamina = MaxStamina;
+	ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 }
 
 void UStaminaComponent::ServerStartStaminaDrain_Implementation(EMovementState MovementState)
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
-		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
+	GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
+	GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 		
-		if (MovementState == EMovementState::Run)
-		{
-			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerRunningDrainStamina, 0.2f, true);
-		}
-		else if (MovementState == EMovementState::Sprint)
-		{
-			GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerSprintingDrainStamina, 0.2f, true);
-		}
+	if (MovementState == EMovementState::Run)
+	{
+		GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerRunningDrainStamina, 0.2f, true);
+	}
+	else if (MovementState == EMovementState::Sprint)
+	{
+		GetWorld()->GetTimerManager().SetTimer(DrainStaminaTimer, this, &UStaminaComponent::ServerSprintingDrainStamina, 0.2f, true);
 	}
 }
 
@@ -73,17 +67,14 @@ bool UStaminaComponent::ServerRunningDrainStamina_Validate()
 
 void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
+	if (CurrentStamina <= 0.0f)
 	{
-		if (CurrentStamina <= 0.0f)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
-		}
-		else
-		{
-			CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
-			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
-		}
+		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
+	}
+	else
+	{
+		CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 	}
 }
 
@@ -99,57 +90,45 @@ bool UStaminaComponent::ServerSprintingDrainStamina_Validate()
 
 void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
+	if (CurrentStamina <= 0.0f)
 	{
-		if (CurrentStamina <= 0.0f)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
-		}
-		else
-		{
-			CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
-			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
-		}
+		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
+	}
+	else
+	{
+		CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 	}
 }
 
 void UStaminaComponent::ServerStopStaminaDrain_Implementation(bool bStartRestore)
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
+	GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 
-		// If stamina is currently not restoring
-		if (bStartRestore && RestoreStaminaTimer.IsValid() == false)
-		{
-			GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina, 0.2f, true, RestoreStaminaDelay);
-		}
+	// If stamina is currently not restoring
+	if (bStartRestore && RestoreStaminaTimer.IsValid() == false)
+	{
+		GetWorld()->GetTimerManager().SetTimer(RestoreStaminaTimer, this, &UStaminaComponent::ServerRestoreStamina, 0.2f, true, RestoreStaminaDelay);
 	}
 }
 
 void UStaminaComponent::ServerRestoreStamina_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
+	if (CurrentStamina >= MaxStamina)
 	{
-		if (CurrentStamina >= MaxStamina)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
-		}
-		else
-		{
-			CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
-			ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
-		}
+		GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
+	}
+	else
+	{
+		CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 	}
 }
 
 void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 {
-	if (GetOwnerRole() == ROLE_Authority)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
-		GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
-		CurrentStamina = FMath::Clamp(CurrentStamina - JumpingDrainAmount, 0.0f, MaxStamina);
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
-	}
+	GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
+	GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
+	CurrentStamina = FMath::Clamp(CurrentStamina - JumpingDrainAmount, 0.0f, MaxStamina);
+	ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
 }
