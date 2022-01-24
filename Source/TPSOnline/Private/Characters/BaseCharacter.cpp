@@ -21,10 +21,12 @@ ABaseCharacter::ABaseCharacter()
 
 	// Initialize variables
 	CurrentWeapon = nullptr;
+	PlayerStateRef = nullptr;
 	CurrentWeaponSlot = EWeaponToDo::NoWeapon;	
 	RespawnDelay = 5.0f;
 	bDoOnceMoving = true;
 	bDoOnceStopped = true;
+	bDoOnceDeath = true;
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -32,11 +34,13 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// Replicate to everyone
+	DOREPLIFETIME(ABaseCharacter, PlayerStateRef);
 	DOREPLIFETIME(ABaseCharacter, MovementState);
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
 	DOREPLIFETIME(ABaseCharacter, RespawnDelay);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
+	DOREPLIFETIME(ABaseCharacter, bDoOnceDeath);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -423,8 +427,9 @@ void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* Compone
 	{
 		ComponentOwner->HealthComponent->ServerStartRestoreHealth();
 	}
-	if (CurrentHealth <= 0.0f)
+	if (CurrentHealth <= 0.0f && bDoOnceDeath)
 	{
+		bDoOnceDeath = false;
 		MulticastDeath();
 
 		FTimerHandle TimerHandle;
@@ -462,6 +467,11 @@ void ABaseCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 
 void ABaseCharacter::MulticastDeath_Implementation()
 {
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		PlayerStateRef->ServerPlayerDied();
+	}
+	
 	GetCharacterMovement()->DisableMovement();
 	GetMesh()->SetConstraintProfileForAll(FName("Ragdoll"), true);
 	GetMesh()->SetCollisionProfileName(FName("Ragdoll"));

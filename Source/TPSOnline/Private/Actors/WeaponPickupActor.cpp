@@ -32,6 +32,7 @@ void AWeaponPickupActor::OnRep_UpdatePickupState()
 		SetOwner(nullptr);
 		SkeletalMesh->SetCollisionProfileName("Pickup");
 		SetLifeSpan(FMath::FRandRange(10.0f, 15.0f));
+		break;
 	case 2:
 		// Used
 		Destroy();

@@ -20,24 +20,30 @@ void ACustomPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &O
 	DOREPLIFETIME(ACustomPlayerState, SidearmWeapon);
 }
 
-void ACustomPlayerState::ServerPlayerLeftSession_Implementation()
+void ACustomPlayerState::ServerPlayerDied_Implementation()
 {
 	const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepRelative, false);
 	if (PrimaryWeapon)
 	{
 		PrimaryWeapon->DetachFromActor(DetachmentRules);
 		PrimaryWeapon->PickupState = EPickupState::Dropped;
+		PrimaryWeapon->OnRep_UpdatePickupState();
+		PrimaryWeapon = nullptr;
 	}
 
 	if (SecondaryWeapon)
 	{
 		SecondaryWeapon->DetachFromActor(DetachmentRules);
 		SecondaryWeapon->PickupState = EPickupState::Dropped;
+		SecondaryWeapon->OnRep_UpdatePickupState();
+		SecondaryWeapon = nullptr;
 	}
 
 	if (SidearmWeapon)
 	{
 		SidearmWeapon->DetachFromActor(DetachmentRules);
 		SidearmWeapon->PickupState = EPickupState::Dropped;
+		SidearmWeapon->OnRep_UpdatePickupState();
+		SidearmWeapon = nullptr;
 	}
 }

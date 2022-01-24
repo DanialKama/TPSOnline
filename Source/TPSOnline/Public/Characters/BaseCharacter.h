@@ -132,6 +132,13 @@ protected:
 
 	UPROPERTY(Replicated)
 	float MovementScale;
+
+	UPROPERTY(Replicated)
+	class ACustomPlayerState* PlayerStateRef;
+
+	/** To call Multicast Death only once */
+	UPROPERTY(Replicated)
+	uint8 bDoOnceDeath : 1;
 	
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;
@@ -146,7 +153,4 @@ private:
 
 	UPROPERTY(Replicated)
 	EWeaponToDo CurrentWeaponSlot;
-
-	UPROPERTY()
-	class ACustomPlayerState* PlayerStateRef;
 };

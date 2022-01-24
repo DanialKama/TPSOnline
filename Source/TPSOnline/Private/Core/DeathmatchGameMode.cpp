@@ -2,11 +2,10 @@
 
 #include "Core/DeathmatchGameMode.h"
 #include "Characters/PlayerCharacter.h"
-#include "Core/CustomPlayerController.h"
 
 void ADeathmatchGameMode::ServerStartRespawn_Implementation(AController* Controller)
 {
-	if (GetLocalRole() == ROLE_Authority && Controller)
+	if (Controller)
 	{
 		ControllersToRespawn.Add(Controller);
 
@@ -60,8 +59,6 @@ void ADeathmatchGameMode::ServerRespawn_Implementation()
 
 void ADeathmatchGameMode::Logout(AController* Exiting)
 {
-	// TODO - Drop inventory items
-	
 	Super::Logout(Exiting);
 
 	ExitedControllers.Add(Exiting);

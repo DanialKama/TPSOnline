@@ -9,6 +9,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Core/CustomPlayerController.h"
+#include "Core/CustomPlayerState.h"
 #include "Core/DeathmatchGameMode.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -234,8 +235,15 @@ void APlayerCharacter::Destroyed()
 {
 	if (GetLocalRole() == ROLE_Authority)
 	{
+		// In case of player leave the session without getting killed
+		if (bDoOnceDeath && PlayerStateRef)
+		{
+			bDoOnceDeath = false;
+			PlayerStateRef->ServerPlayerDied();
+		}
+
 		// Get player controller reference before destroying the player
-		AController* RespawnController = GetController();
+		AController* RespawnControllerRef = GetController();
 	
 		Super::Destroyed();
 
@@ -243,7 +251,7 @@ void APlayerCharacter::Destroyed()
 		ADeathmatchGameMode* GameMode = Cast<ADeathmatchGameMode>(GetWorld()->GetAuthGameMode());
 		if (GameMode)
 		{
-			GameMode->ServerStartRespawn(RespawnController);
+			GameMode->ServerStartRespawn(RespawnControllerRef);
 		}
 	}
 }

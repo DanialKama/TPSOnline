@@ -19,8 +19,8 @@ public:
 
 	/** When the player left the session */
 	UFUNCTION(Server, Reliable)
-	void ServerPlayerLeftSession();
-	void ServerPlayerLeftSession_Implementation();
+	void ServerPlayerDied();
+	void ServerPlayerDied_Implementation();
 	
 // Variables
 public:
