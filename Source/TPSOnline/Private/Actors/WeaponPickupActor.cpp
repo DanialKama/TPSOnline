@@ -10,6 +10,7 @@ AWeaponPickupActor::AWeaponPickupActor()
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeletal Mesh"));
 	SetRootComponent(SkeletalMesh);
 	SkeletalMesh->SetComponentTickEnabled(false);
+	SkeletalMesh->SetSimulatePhysics(true);
 	SkeletalMesh->bApplyImpulseOnDamage = false;
 	SkeletalMesh->CanCharacterStepUpOn = ECB_No;
 	SkeletalMesh->SetCollisionProfileName("Pickup");
@@ -24,12 +25,14 @@ void AWeaponPickupActor::OnRep_UpdatePickupState()
 	{
 	case 0:
 		// Picked up
+		SkeletalMesh->SetSimulatePhysics(false);
 		SkeletalMesh->SetCollisionProfileName("Weapon");
 		SetLifeSpan(0.0f);
 		break;
 	case 1:
 		// Dropped
 		SetOwner(nullptr);
+		SkeletalMesh->SetSimulatePhysics(true);
 		SkeletalMesh->SetCollisionProfileName("Pickup");
 		SetLifeSpan(FMath::FRandRange(10.0f, 15.0f));
 		break;
