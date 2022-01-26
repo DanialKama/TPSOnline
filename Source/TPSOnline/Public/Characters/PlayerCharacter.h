@@ -60,6 +60,11 @@ private:
 
 	void Interact();
 
+	void AttemptAim();
+
+	void StartFireWeapon();
+	void StopFireWeapon();
+
 	/** Attempt to drop the current weapon */
 	void DropCurrentWeapon();
 

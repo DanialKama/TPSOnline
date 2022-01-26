@@ -4,28 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "Actors/PickupActor.h"
-#include "WeaponPickupActor.generated.h"
+#include "AmmoPickupActor.generated.h"
 
 UCLASS()
-class TPSONLINE_API AWeaponPickupActor : public APickupActor
+class TPSONLINE_API AAmmoPickupActor : public APickupActor
 {
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* SkeletalMesh;
-	
+	UStaticMeshComponent* MeshComponent;
+
 // Functions
 public:
 	/** Sets default values for this actor's properties */
-	AWeaponPickupActor();
+	AAmmoPickupActor();
 
 	virtual void OnRep_PickupState() override;
-	
+
 // Variables
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
-	EWeaponType WeaponType;
+	EAmmoType AmmoType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
-	EAmmoType AmmoType;
+	int32 Amount;
 };

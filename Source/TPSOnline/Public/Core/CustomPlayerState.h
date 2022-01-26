@@ -32,4 +32,13 @@ public:
 
 	UPROPERTY(Replicated)
 	AWeaponPickupActor* SidearmWeapon;
+
+	UPROPERTY(Replicated)
+	int32 FiveFiveSixAmmo;
+
+	UPROPERTY(Replicated)
+	int32 SevenSixTwoAmmo;
+
+	UPROPERTY(Replicated)
+	int32 FortyFiveAmmo;
 };

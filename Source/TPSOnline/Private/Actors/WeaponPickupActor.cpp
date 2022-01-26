@@ -16,6 +16,7 @@ AWeaponPickupActor::AWeaponPickupActor()
 
 	// Initialize variables
 	WeaponType = EWeaponType::Pistol;
+	AmmoType = EAmmoType::FortyFive;
 }
 
 void AWeaponPickupActor::OnRep_PickupState()

@@ -4,23 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Enumerations/PickupEnums.h"
 #include "PickupActor.generated.h"
-
-UENUM()
-enum class EPickupType : uint8
-{
-	Weapon,
-	Ammo,
-	Health
-};
-
-UENUM()
-enum class EPickupState : uint8
-{
-	PickedUp,
-	Dropped,
-	Used
-};
 
 UCLASS()
 class TPSONLINE_API APickupActor : public AActor

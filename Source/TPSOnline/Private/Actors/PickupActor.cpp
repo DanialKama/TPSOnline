@@ -6,6 +6,9 @@
 APickupActor::APickupActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	// Initialize variables
+	PickupState = EPickupState::Dropped;
 }
 
 void APickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const

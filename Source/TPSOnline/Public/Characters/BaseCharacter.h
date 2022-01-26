@@ -3,29 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actors/PickupActor.h"
-#include "Actors/WeaponPickupActor.h"
+#include "Enumerations/CharacterEnums.h"
+#include "Enumerations/PickupEnums.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class EMovementState : uint8
-{
-	Walk	UMETA(DisplayName = "Walking"),
-	Run		UMETA(DisplayName = "Running"),
-	Sprint	UMETA(DisplayName = "Sprinting"),
-	Crouch	UMETA(DisplayName = "Crouch"),
-	Prone	UMETA(DisplayName = "Prone")
-};
-
-UENUM()
-enum class EWeaponToDo : uint8
-{
-	NoWeapon,
-	Primary,
-	Secondary,
-	Sidearm
-};
+class APickupActor;
+class AWeaponPickupActor;
 
 UCLASS()
 class TPSONLINE_API ABaseCharacter : public ACharacter
@@ -67,7 +51,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerInteractWithWeapon();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void ServerInteractWithAmmo();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -91,7 +75,6 @@ private:
 	
 	void ServerInteractWithWeapon_Implementation();
 
-	bool ServerInteractWithAmmo_Validate();
 	void ServerInteractWithAmmo_Implementation();
 
 	bool ServerInteractWithHealth_Validate();

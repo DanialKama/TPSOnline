@@ -8,6 +8,7 @@ ACustomPlayerState::ACustomPlayerState()
 {
 	// Initialize variables
 	PrimaryWeapon = SecondaryWeapon = SidearmWeapon = nullptr;
+	FortyFiveAmmo = SevenSixTwoAmmo = FiveFiveSixAmmo = 0;
 }
 
 void ACustomPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -18,6 +19,9 @@ void ACustomPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &O
 	DOREPLIFETIME(ACustomPlayerState, PrimaryWeapon);
 	DOREPLIFETIME(ACustomPlayerState, SecondaryWeapon);
 	DOREPLIFETIME(ACustomPlayerState, SidearmWeapon);
+	DOREPLIFETIME(ACustomPlayerState, FiveFiveSixAmmo);
+	DOREPLIFETIME(ACustomPlayerState, SevenSixTwoAmmo);
+	DOREPLIFETIME(ACustomPlayerState, FortyFiveAmmo);
 }
 
 void ACustomPlayerState::ServerPlayerDied_Implementation()

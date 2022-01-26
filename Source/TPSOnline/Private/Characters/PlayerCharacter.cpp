@@ -1,6 +1,7 @@
 // All Rights Reserved.
 
 #include "Characters/PlayerCharacter.h"
+#include "Actors/AmmoPickupActor.h"
 #include "Actors/PickupActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -28,6 +29,7 @@ APlayerCharacter::APlayerCharacter()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->SetComponentTickEnabled(false);
+	SpringArm->ProbeSize = 5.0;
 	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	SpringArm->bEnableCameraLag = true;
 
@@ -69,6 +71,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APlayerCharacter::DropCurrentWeapon);
 
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AttemptAim);
+	
+	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &APlayerCharacter::StartFireWeapon);
+	PlayerInputComponent->BindAction("FireWeapon", IE_Released, this, &APlayerCharacter::StopFireWeapon);
+	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	
@@ -218,7 +225,36 @@ void APlayerCharacter::Interact()
 			break;
 		case 1:
 			// Ammo
-			ServerInteractWithAmmo();
+			{
+				AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(Pickup);
+				if (AmmoPickup)
+				{
+					switch (AmmoPickup->AmmoType)
+					{
+					case 0:
+						// 5.56
+						if (PlayerStateRef->FiveFiveSixAmmo < 120)
+						{
+							ServerInteractWithAmmo();
+						}
+						break;
+					case 1:
+						// 7.62
+						if (PlayerStateRef->SevenSixTwoAmmo < 120)
+						{
+							ServerInteractWithAmmo();
+						}
+						break;
+					case 2:
+						// .45
+						if (PlayerStateRef->FortyFiveAmmo < 90)
+						{
+							ServerInteractWithAmmo();
+						}
+						break;
+					}
+				}
+			}
 			break;
 		case 2:
 			// Health, If Current Health is lower than Max Health
@@ -228,6 +264,30 @@ void APlayerCharacter::Interact()
 			}
 			break;
 		}
+	}
+}
+
+void APlayerCharacter::AttemptAim()
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		// TODO
+	}
+}
+
+void APlayerCharacter::StartFireWeapon()
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		// TODO
+	}
+}
+
+void APlayerCharacter::StopFireWeapon()
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		// TODO
 	}
 }
 

@@ -1,13 +1,16 @@
 // All Rights Reserved.
 
 #include "Characters/BaseCharacter.h"
+
+#include "Actors/AmmoPickupActor.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Core/CustomPlayerState.h"
 #include "Actors/PickupActor.h"
 #include "Actors/HealthPickupActor.h"
+#include "ACtors/WeaponPickupActor.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
-#include "Core/CustomPlayerState.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
@@ -402,14 +405,45 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 	}
 }
 
-bool ABaseCharacter::ServerInteractWithAmmo_Validate()
-{
-	return true;	// TODO - only add ammo if there is enough space in the inventory
-}
-
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 {
-	// TODO
+	AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(FindPickup());
+	if (AmmoPickup)
+	{
+		switch (AmmoPickup->AmmoType)
+		{
+		case 0:
+			// 5.56
+			if (PlayerStateRef->FiveFiveSixAmmo < 120)
+			{
+				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->FiveFiveSixAmmo);
+				PlayerStateRef->FiveFiveSixAmmo += AddedAmount;
+				AmmoPickup->Amount -= AddedAmount;
+			}
+			break;
+		case 1:
+			// 7.62
+			if (PlayerStateRef->SevenSixTwoAmmo < 120)
+			{
+				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->SevenSixTwoAmmo);
+				PlayerStateRef->SevenSixTwoAmmo += AddedAmount;
+				AmmoPickup->Amount -= AddedAmount;
+			}
+			break;
+		case 2:
+			// .45
+			if (PlayerStateRef->FortyFiveAmmo < 90)
+			{
+				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->FortyFiveAmmo);
+				PlayerStateRef->FortyFiveAmmo += AddedAmount;
+				AmmoPickup->Amount -= AddedAmount;
+			}
+			break;
+		}
+		
+		AmmoPickup->PickupState = EPickupState::Used;
+		AmmoPickup->OnRep_PickupState();
+	}
 }
 
 bool ABaseCharacter::ServerInteractWithHealth_Validate()
