@@ -3,7 +3,6 @@
 #include "Characters/PlayerCharacter.h"
 #include "Actors/PickupActor.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/HealthComponent.h"
@@ -20,22 +19,10 @@
 
 APlayerCharacter::APlayerCharacter()
 {
-	GetCapsuleComponent()->InitCapsuleSize(34.0f, 90.0f);
-
-	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
-	
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	GetCharacterMovement()->JumpZVelocity = 300.0f;
-	GetCharacterMovement()->AirControl = 0.2f;
-	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
@@ -54,6 +41,7 @@ APlayerCharacter::APlayerCharacter()
 	LookUpPitch = 0.0f;
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
+	bDoOnceCrouch = true;
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -75,6 +63,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::StartSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::StopSprint);
 
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::ToggleCrouch);
+
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::Interact);
 
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APlayerCharacter::DropCurrentWeapon);
@@ -87,7 +77,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// "TurnRate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddLookUp);
+	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::UpdateControllerPitch);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 }
 
@@ -134,7 +124,7 @@ void APlayerCharacter::MoveRight(float Value)
 	}
 }
 
-void APlayerCharacter::AddLookUp(float Value)
+void APlayerCharacter::UpdateControllerPitch(float Value)
 {
 	AddControllerPitchInput(Value);
 	if (Value != 0.0f)
@@ -188,6 +178,31 @@ void APlayerCharacter::StartSprint()
 void APlayerCharacter::StopSprint()
 {
 	ServerChangeMovementState(EMovementState::Walk);
+}
+
+void APlayerCharacter::ToggleCrouch()
+{
+	if (bDoOnceCrouch)
+	{
+		if (MovementState != EMovementState::Crouch)
+		{
+			ServerChangeMovementState(EMovementState::Crouch);
+		}
+		else
+		{
+			ServerChangeMovementState(EMovementState::Walk);
+		}
+
+		bDoOnceCrouch = false;
+		// Resetting crouch by a delay to stop the player from spamming the crouch.
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlayerCharacter::ResetCrouch, 0.3f);
+	}
+}
+
+void APlayerCharacter::ResetCrouch()
+{
+	bDoOnceCrouch = true;
 }
 
 void APlayerCharacter::Interact()

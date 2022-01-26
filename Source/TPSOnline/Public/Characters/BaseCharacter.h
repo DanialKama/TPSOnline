@@ -86,6 +86,9 @@ private:
 	
 	void ServerChangeMovementState_Implementation(EMovementState NewMovementState);
 
+	UFUNCTION()
+	void OnRep_MovementState();
+	
 	void ServerInteractWithWeapon_Implementation();
 
 	bool ServerInteractWithAmmo_Validate();
@@ -127,7 +130,7 @@ private:
 	
 // Variables
 protected:
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
+	UPROPERTY(ReplicatedUsing = OnRep_MovementState, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
 	EMovementState MovementState;
 
 	UPROPERTY(Replicated)

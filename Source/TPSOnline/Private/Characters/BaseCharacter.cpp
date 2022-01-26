@@ -14,10 +14,23 @@
 ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetCapsuleComponent()->InitCapsuleSize(34.0f, 90.0f);
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 600.0f;
+	GetCharacterMovement()->JumpZVelocity = 300.0f;
+	GetCharacterMovement()->CrouchedHalfHeight = 60.0f;
+	GetCharacterMovement()->AirControl = 0.2f;
+	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	StaminaComponent = CreateDefaultSubobject<UStaminaComponent>(TEXT("Stamina Component"));
-
+	
 	// Initialize variables
 	CurrentWeapon = nullptr;
 	PlayerStateRef = nullptr;
@@ -37,13 +50,13 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	DOREPLIFETIME(ABaseCharacter, PlayerStateRef);
 	DOREPLIFETIME(ABaseCharacter, MovementState);
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
-	DOREPLIFETIME(ABaseCharacter, RespawnDelay);
-	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
-	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
-	DOREPLIFETIME(ABaseCharacter, bDoOnceDeath);
 	DOREPLIFETIME(ABaseCharacter, bIsArmed);
 	DOREPLIFETIME(ABaseCharacter, bIsAimed);
+	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
+	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponType);
+	DOREPLIFETIME(ABaseCharacter, bDoOnceDeath);
+	DOREPLIFETIME(ABaseCharacter, RespawnDelay);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -128,6 +141,7 @@ void ABaseCharacter::ServerCheckMovementMode_Implementation(EMovementMode PrevMo
 void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState NewMovementState)
 {
 	MovementState = NewMovementState;
+	OnRep_MovementState();
 	switch (NewMovementState)
 	{
 	case 0:
@@ -156,15 +170,6 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 		break;
 	case 3:
 		// Crouch
-		if (GetCharacterMovement()->IsFalling())
-		{
-			UnCrouch();
-		}
-		else
-		{
-			Crouch();
-		}
-			
 		MovementScale = 0.25f;	// MaxWalkSpeed = 150.0f
 		StaminaComponent->ServerStopStaminaDrain(true);
 		GetCharacterMovement()->JumpZVelocity = 0.0f;
@@ -175,6 +180,18 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 		StaminaComponent->ServerStopStaminaDrain(true);
 		GetCharacterMovement()->JumpZVelocity = 0.0f;
 		break;
+	}
+}
+
+void ABaseCharacter::OnRep_MovementState()
+{
+	if (MovementState != EMovementState::Crouch && GetCharacterMovement()->IsCrouching())
+	{
+		UnCrouch();
+	}
+	else if (MovementState == EMovementState::Crouch)
+	{
+		Crouch();
 	}
 }
 
@@ -201,7 +218,7 @@ void ABaseCharacter::ServerAddWeapon_Implementation(AWeaponPickupActor* NewWeapo
 	// Update state of the new weapon
 	NewWeapon->SetOwner(this);
 	NewWeapon->PickupState = EPickupState::PickedUp;
-	NewWeapon->OnRep_UpdatePickupState();
+	NewWeapon->OnRep_PickupState();
 		
 	const FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, true);
 	switch (NewWeapon->WeaponType)
@@ -349,7 +366,7 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 		{
 			PlayerStateRef->PrimaryWeapon->DetachFromActor(DetachmentRules);
 			PlayerStateRef->PrimaryWeapon->PickupState = EPickupState::Dropped;
-			PlayerStateRef->PrimaryWeapon->OnRep_UpdatePickupState();
+			PlayerStateRef->PrimaryWeapon->OnRep_PickupState();
 			DroppedWeapon = PlayerStateRef->PrimaryWeapon;
 			PlayerStateRef->PrimaryWeapon = nullptr;
 		}
@@ -360,7 +377,7 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 		{
 			PlayerStateRef->SecondaryWeapon->DetachFromActor(DetachmentRules);
 			PlayerStateRef->SecondaryWeapon->PickupState = EPickupState::Dropped;
-			PlayerStateRef->SecondaryWeapon->OnRep_UpdatePickupState();
+			PlayerStateRef->SecondaryWeapon->OnRep_PickupState();
 			DroppedWeapon = PlayerStateRef->SecondaryWeapon;
 			PlayerStateRef->SecondaryWeapon = nullptr;
 		}
@@ -371,7 +388,7 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 		{
 			PlayerStateRef->SidearmWeapon->DetachFromActor(DetachmentRules);
 			PlayerStateRef->SidearmWeapon->PickupState = EPickupState::Dropped;
-			PlayerStateRef->SidearmWeapon->OnRep_UpdatePickupState();
+			PlayerStateRef->SidearmWeapon->OnRep_PickupState();
 			DroppedWeapon = PlayerStateRef->SidearmWeapon;
 			PlayerStateRef->SidearmWeapon = nullptr;
 		}
@@ -411,7 +428,7 @@ void ABaseCharacter::ServerInteractWithHealth_Implementation()
 	{
 		HealthComponent->ServerIncreaseHealth(HealthPickup->IncreaseAmount);
 		HealthPickup->PickupState = EPickupState::Used;
-		HealthPickup->OnRep_UpdatePickupState();
+		HealthPickup->OnRep_PickupState();
 	}
 }
 

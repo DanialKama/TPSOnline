@@ -53,6 +53,11 @@ private:
 
 	void AttemptJump();
 
+	void ToggleCrouch();
+
+	/** Stop player from spamming the crouch */
+	void ResetCrouch();
+
 	void Interact();
 
 	/** Attempt to drop the current weapon */
@@ -61,7 +66,7 @@ private:
 	virtual void ClientUpdateHealth_Implementation(float NewHealth) override;
 	virtual void ClientUpdateStamina_Implementation(float NewStamina) override;
 
-	void AddLookUp(float Value);
+	void UpdateControllerPitch(float Value);
 
 	/** Update Look Up Pitch on server and replicate it */
 	UFUNCTION(Server, Reliable)
@@ -87,4 +92,6 @@ private:
 	/** Using for aim offset */
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float LookUpPitch;
+
+	uint8 bDoOnceCrouch : 1;
 };

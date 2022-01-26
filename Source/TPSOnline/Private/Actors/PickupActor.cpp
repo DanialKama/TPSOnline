@@ -27,7 +27,7 @@ void APickupActor::BeginPlay()
 	}
 }
 
-void APickupActor::OnRep_UpdatePickupState()
+void APickupActor::OnRep_PickupState()
 {
 	switch (PickupState)
 	{

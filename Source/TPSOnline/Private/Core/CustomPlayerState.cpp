@@ -27,7 +27,7 @@ void ACustomPlayerState::ServerPlayerDied_Implementation()
 	{
 		PrimaryWeapon->DetachFromActor(DetachmentRules);
 		PrimaryWeapon->PickupState = EPickupState::Dropped;
-		PrimaryWeapon->OnRep_UpdatePickupState();
+		PrimaryWeapon->OnRep_PickupState();
 		PrimaryWeapon = nullptr;
 	}
 
@@ -35,7 +35,7 @@ void ACustomPlayerState::ServerPlayerDied_Implementation()
 	{
 		SecondaryWeapon->DetachFromActor(DetachmentRules);
 		SecondaryWeapon->PickupState = EPickupState::Dropped;
-		SecondaryWeapon->OnRep_UpdatePickupState();
+		SecondaryWeapon->OnRep_PickupState();
 		SecondaryWeapon = nullptr;
 	}
 
@@ -43,7 +43,7 @@ void ACustomPlayerState::ServerPlayerDied_Implementation()
 	{
 		SidearmWeapon->DetachFromActor(DetachmentRules);
 		SidearmWeapon->PickupState = EPickupState::Dropped;
-		SidearmWeapon->OnRep_UpdatePickupState();
+		SidearmWeapon->OnRep_PickupState();
 		SidearmWeapon = nullptr;
 	}
 }

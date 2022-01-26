@@ -33,7 +33,7 @@ public:
 	APickupActor();
 
 	UFUNCTION()
-	virtual void OnRep_UpdatePickupState();
+	virtual void OnRep_PickupState();
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,6 +42,6 @@ protected:
 public:
 	EPickupType PickupType;
 
-	UPROPERTY(ReplicatedUsing = OnRep_UpdatePickupState)
+	UPROPERTY(ReplicatedUsing = OnRep_PickupState)
 	EPickupState PickupState;
 };

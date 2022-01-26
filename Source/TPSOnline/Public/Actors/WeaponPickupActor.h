@@ -31,7 +31,7 @@ public:
 	/** Sets default values for this actor's properties */
 	AWeaponPickupActor();
 
-	virtual void OnRep_UpdatePickupState() override;
+	virtual void OnRep_PickupState() override;
 	
 // Variables
 public:

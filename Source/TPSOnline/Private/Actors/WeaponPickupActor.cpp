@@ -18,7 +18,7 @@ AWeaponPickupActor::AWeaponPickupActor()
 	WeaponType = EWeaponType::Pistol;
 }
 
-void AWeaponPickupActor::OnRep_UpdatePickupState()
+void AWeaponPickupActor::OnRep_PickupState()
 {
 	switch (PickupState)
 	{

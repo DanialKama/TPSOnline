@@ -27,7 +27,7 @@ void AHealthPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &O
 	DOREPLIFETIME(AHealthPickupActor, IncreaseAmount);
 }
 
-void AHealthPickupActor::OnRep_UpdatePickupState()
+void AHealthPickupActor::OnRep_PickupState()
 {
 	switch (PickupState)
 	{
