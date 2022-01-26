@@ -74,6 +74,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APlayerCharacter::Interact);
 
+	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APlayerCharacter::DropCurrentWeapon);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 	
@@ -186,6 +188,31 @@ void APlayerCharacter::Interact()
 			{
 				ServerInteractWithHealth();
 			}
+			break;
+		}
+	}
+}
+
+void APlayerCharacter::DropCurrentWeapon()
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		switch (CurrentWeaponSlot)
+		{
+		case 0:
+			// No Weapon = Nothing to drop
+			break;
+		case 1:
+			// Primary Weapon
+			ServerDropWeapon(EWeaponToDo::Primary);
+			break;
+		case 2:
+			// Secondary Weapon
+			ServerDropWeapon(EWeaponToDo::Secondary);
+			break;
+		case 3:
+			// Sidearm Weapon
+			ServerDropWeapon(EWeaponToDo::Sidearm);
 			break;
 		}
 	}

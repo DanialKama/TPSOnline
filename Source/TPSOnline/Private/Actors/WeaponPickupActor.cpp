@@ -10,7 +10,6 @@ AWeaponPickupActor::AWeaponPickupActor()
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeletal Mesh"));
 	SetRootComponent(SkeletalMesh);
 	SkeletalMesh->SetComponentTickEnabled(false);
-	SkeletalMesh->SetSimulatePhysics(true);
 	SkeletalMesh->bApplyImpulseOnDamage = false;
 	SkeletalMesh->CanCharacterStepUpOn = ECB_No;
 	SkeletalMesh->SetCollisionProfileName("Pickup");

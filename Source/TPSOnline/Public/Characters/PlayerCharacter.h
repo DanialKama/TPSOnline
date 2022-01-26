@@ -55,6 +55,9 @@ private:
 
 	void Interact();
 
+	/** Attempt to drop the current weapon */
+	void DropCurrentWeapon();
+
 	virtual void ClientUpdateHealth_Implementation(float NewHealth) override;
 	virtual void ClientUpdateStamina_Implementation(float NewStamina) override;
 

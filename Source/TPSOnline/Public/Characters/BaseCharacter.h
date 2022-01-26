@@ -73,6 +73,9 @@ protected:
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerInteractWithHealth();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
 	
 	virtual void ClientUpdateHealth_Implementation(float NewHealth);
 	virtual void ClientUpdateStamina_Implementation(float NewStamina);
@@ -101,8 +104,6 @@ private:
 	void ServerUpdateCurrentWeapon(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip);
 	void ServerUpdateCurrentWeapon_Implementation(AWeaponPickupActor* NewWeapon, EWeaponToDo WeaponToEquip);
 	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
 	bool ServerDropWeapon_Validate(EWeaponToDo WeaponToDrop);
 	void ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop);
 	
@@ -136,6 +137,13 @@ protected:
 	UPROPERTY(Replicated)
 	class ACustomPlayerState* PlayerStateRef;
 
+	/** The weapon that is currently in the player's hand */
+	UPROPERTY(Replicated)
+	AWeaponPickupActor* CurrentWeapon;
+
+	UPROPERTY(Replicated)
+	EWeaponToDo CurrentWeaponSlot;
+
 	/** To call Multicast Death only once */
 	UPROPERTY(Replicated)
 	uint8 bDoOnceDeath : 1;
@@ -146,11 +154,4 @@ protected:
 private:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RespawnDelay;
-	
-	/** The weapon that is currently in the player's hand */
-	UPROPERTY(Replicated)
-	AWeaponPickupActor* CurrentWeapon;
-
-	UPROPERTY(Replicated)
-	EWeaponToDo CurrentWeaponSlot;
 };
