@@ -6,7 +6,7 @@
 #include "Actors/PickupActor.h"
 #include "WeaponPickupActor.generated.h"
 
-UENUM()
+UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Pistol,

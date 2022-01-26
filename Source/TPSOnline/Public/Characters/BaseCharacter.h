@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Actors/PickupActor.h"
+#include "Actors/WeaponPickupActor.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
-
-class AWeaponPickupActor;
 
 UENUM(BlueprintType)
 enum class EMovementState : uint8
@@ -128,7 +127,7 @@ private:
 	
 // Variables
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
 	EMovementState MovementState;
 
 	UPROPERTY(Replicated)
@@ -138,7 +137,7 @@ protected:
 	class ACustomPlayerState* PlayerStateRef;
 
 	/** The weapon that is currently in the player's hand */
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
 	AWeaponPickupActor* CurrentWeapon;
 
 	UPROPERTY(Replicated)
@@ -154,4 +153,13 @@ protected:
 private:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RespawnDelay;
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	uint8 bIsArmed : 1;
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	uint8 bIsAimed : 1;
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	EWeaponType CurrentWeaponType;
 };

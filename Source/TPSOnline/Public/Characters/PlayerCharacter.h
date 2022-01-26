@@ -61,6 +61,13 @@ private:
 	virtual void ClientUpdateHealth_Implementation(float NewHealth) override;
 	virtual void ClientUpdateStamina_Implementation(float NewStamina) override;
 
+	void AddLookUp(float Value);
+
+	/** Update Look Up Pitch on server and replicate it */
+	UFUNCTION(Server, Reliable)
+	void ServerUpdateLookUp(float Pitch);
+	void ServerUpdateLookUp_Implementation(float Pitch);
+
 // Variables
 private:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -76,4 +83,8 @@ private:
 
 	UPROPERTY()
 	class APlayerHUD* PlayerHUD;
+
+	/** Using for aim offset */
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	float LookUpPitch;
 };

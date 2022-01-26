@@ -14,6 +14,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/PlayerHUD.h"
 
@@ -50,6 +51,7 @@ APlayerCharacter::APlayerCharacter()
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Initialize variables
+	LookUpPitch = 0.0f;
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
 }
@@ -60,6 +62,7 @@ void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 
 	// Replicate to everyone
 	DOREPLIFETIME(APlayerCharacter, PlayerControllerRef);
+	DOREPLIFETIME(APlayerCharacter, LookUpPitch);
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -84,7 +87,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// "TurnRate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddLookUp);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 }
 
@@ -131,6 +134,16 @@ void APlayerCharacter::MoveRight(float Value)
 	}
 }
 
+void APlayerCharacter::AddLookUp(float Value)
+{
+	AddControllerPitchInput(Value);
+	if (Value != 0.0f)
+	{
+		const float NewPitch = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation()).Pitch;
+		ServerUpdateLookUp(NewPitch);
+	}
+}
+
 void APlayerCharacter::TurnAtRate(float Rate)
 {
 	// Calculate delta for this frame from the rate information
@@ -141,6 +154,16 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 {
 	// Calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	if (Rate != 0.0f)
+	{
+		const float NewPitch = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation()).Pitch;
+		ServerUpdateLookUp(NewPitch);
+	}
+}
+
+void APlayerCharacter::ServerUpdateLookUp_Implementation(float Pitch)
+{
+	LookUpPitch = Pitch;
 }
 
 void APlayerCharacter::AttemptJump()

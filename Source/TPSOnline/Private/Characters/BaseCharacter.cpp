@@ -7,7 +7,6 @@
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Core/CustomPlayerState.h"
-#include "Actors/WeaponPickupActor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -22,11 +21,12 @@ ABaseCharacter::ABaseCharacter()
 	// Initialize variables
 	CurrentWeapon = nullptr;
 	PlayerStateRef = nullptr;
-	CurrentWeaponSlot = EWeaponToDo::NoWeapon;	
+	CurrentWeaponSlot = EWeaponToDo::NoWeapon;
+	CurrentWeaponType = EWeaponType::Pistol;
 	RespawnDelay = 5.0f;
-	bDoOnceMoving = true;
-	bDoOnceStopped = true;
+	bDoOnceMoving = bDoOnceStopped = true;
 	bDoOnceDeath = true;
+	bIsAimed = bIsArmed = false;
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -41,6 +41,9 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
 	DOREPLIFETIME(ABaseCharacter, bDoOnceDeath);
+	DOREPLIFETIME(ABaseCharacter, bIsArmed);
+	DOREPLIFETIME(ABaseCharacter, bIsAimed);
+	DOREPLIFETIME(ABaseCharacter, CurrentWeaponType);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -293,23 +296,32 @@ void ABaseCharacter::ServerUpdateCurrentWeapon_Implementation(AWeaponPickupActor
 	{
 	case 0:
 		// No Weapon = Nothing to equip
+		bIsArmed = false;
 		CurrentWeaponSlot = EWeaponToDo::NoWeapon;
 		break;
 	case 1:
 		// Primary weapon
+		bIsArmed = true;
 		PlayerStateRef->PrimaryWeapon = NewWeapon;
 		CurrentWeaponSlot = EWeaponToDo::Primary;
 		break;
 	case 2:
 		// Secondary weapon
+		bIsArmed = true;
 		PlayerStateRef->SecondaryWeapon = NewWeapon;
 		CurrentWeaponSlot = EWeaponToDo::Secondary;
 		break;
 	case 3:
 		// Sidearm weapon
+		bIsArmed = true;
 		PlayerStateRef->SidearmWeapon = NewWeapon;
 		CurrentWeaponSlot = EWeaponToDo::Sidearm;
 		break;
+	}
+
+	if (CurrentWeapon)
+	{
+		CurrentWeaponType = CurrentWeapon->WeaponType;
 	}
 }
 
@@ -369,8 +381,7 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 	// If the dropped weapon was the current weapon, update the current weapon
 	if (DroppedWeapon == CurrentWeapon && WeaponToDrop == CurrentWeaponSlot)
 	{
-		CurrentWeapon = nullptr;
-		CurrentWeaponSlot = EWeaponToDo::NoWeapon;
+		ServerUpdateCurrentWeapon(nullptr, EWeaponToDo::NoWeapon);
 	}
 }
 
@@ -471,7 +482,8 @@ void ABaseCharacter::MulticastDeath_Implementation()
 	{
 		PlayerStateRef->ServerPlayerDied();
 	}
-	
+
+	GetMesh()->bPauseAnims = true;
 	GetCharacterMovement()->DisableMovement();
 	GetMesh()->SetConstraintProfileForAll(FName("Ragdoll"), true);
 	GetMesh()->SetCollisionProfileName(FName("Ragdoll"));
