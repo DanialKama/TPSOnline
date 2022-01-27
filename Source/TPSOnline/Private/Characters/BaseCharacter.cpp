@@ -429,6 +429,35 @@ void ABaseCharacter::OnRep_IsAiming()
 	}
 }
 
+bool ABaseCharacter::ServerStartFireWeapon_Validate()
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerStartFireWeapon_Implementation()
+{
+	// GetWorld()->GetTimerManager().SetTimer(FireWeaponTimer, this, &ABaseCharacter::, CurrentWeapon.)
+	CurrentWeapon->ServerSpawnProjectile();
+}
+
+bool ABaseCharacter::ServerStopFireWeapon_Validate()
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerStopFireWeapon_Implementation()
+{
+	
+}
+
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 {
 	AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(FindPickup());

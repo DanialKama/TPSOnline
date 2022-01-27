@@ -59,6 +59,12 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerUpdateAimState(bool bAim);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStartFireWeapon();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStopFireWeapon();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
@@ -87,6 +93,12 @@ private:
 	void ServerInteractWithHealth_Implementation();
 
 	void ServerUpdateAimState_Implementation(bool bAim);
+
+	bool ServerStartFireWeapon_Validate();
+	void ServerStartFireWeapon_Implementation();
+
+	bool ServerStopFireWeapon_Validate();
+	void ServerStopFireWeapon_Implementation();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
@@ -156,4 +168,6 @@ private:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	EWeaponType CurrentWeaponType;
+
+	FTimerHandle FireWeaponTimer;
 };

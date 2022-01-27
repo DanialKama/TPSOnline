@@ -361,7 +361,10 @@ void APlayerCharacter::StartFireWeapon()
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
-		AddRecoil(CurrentWeapon->RotationIntensity, CurrentWeapon->ControllerPitch, CurrentWeapon->ControlTime, CurrentWeapon->CrosshairRecoil);
+		AddRecoil(CurrentWeapon->RecoilData.RotationIntensity, CurrentWeapon->RecoilData.ControllerPitch, CurrentWeapon->RecoilData.ControlTime, CurrentWeapon->RecoilData.CrosshairRecoil);
+		PlayerControllerRef->ClientStartCameraShake(CurrentWeapon->Effects.CameraShake);
+		
+		ServerStartFireWeapon();
 	}
 }
 
@@ -369,7 +372,7 @@ void APlayerCharacter::StopFireWeapon()
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
-		// TODO
+		ServerStopFireWeapon();
 	}
 }
 
