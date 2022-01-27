@@ -1,18 +1,19 @@
 // All Rights Reserved.
 
 #include "Characters/PlayerCharacter.h"
-#include "Actors/AmmoPickupActor.h"
-#include "Actors/PickupActor.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/InputComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/InputComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Core/CustomPlayerController.h"
 #include "Core/CustomPlayerState.h"
 #include "Core/DeathmatchGameMode.h"
+#include "Actors/PickupActor.h"
+#include "Actors/AmmoPickupActor.h"
 #include "GameFramework/Controller.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -39,10 +40,13 @@ APlayerCharacter::APlayerCharacter()
 	Camera->SetComponentTickEnabled(false);
 	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	AimTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Aim Timeline"));
+	
 	// Initialize variables
 	LookUpPitch = 0.0f;
 	BaseTurnRate = 45.0f;
 	BaseLookUpRate = 45.0f;
+	TimeLineDirection = ETimelineDirection::Forward;
 	bDoOnceCrouch = true;
 }
 
@@ -71,7 +75,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APlayerCharacter::DropCurrentWeapon);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AttemptAim);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::StartAim);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::StopAim);
 	
 	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &APlayerCharacter::StartFireWeapon);
 	PlayerInputComponent->BindAction("FireWeapon", IE_Released, this, &APlayerCharacter::StopFireWeapon);
@@ -96,6 +101,16 @@ void APlayerCharacter::BeginPlay()
 	{
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
+
+		if (AimFloatCurve)
+		{
+			FOnTimelineFloat AimTimeLineProgress{};
+			AimTimeLineProgress.BindUFunction(this, FName("AimTimeLineUpdate"));
+			AimTimeline->AddInterpFloat(AimFloatCurve, AimTimeLineProgress, FName("Alpha"));
+			FOnTimelineEvent AimTimelineFinishEvent{};
+			AimTimelineFinishEvent.BindUFunction(this, FName("AimTimeLineFinished"));
+			AimTimeline->SetTimelineFinishedFunc(AimTimelineFinishEvent);
+		}
 	}
 }
 
@@ -113,8 +128,8 @@ void APlayerCharacter::MoveForward(float Value)
 		// Zero out pitch and roll, only move on plane, find out which way is forward
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 		// Get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value * MovementScale);
+		const FVector NewDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(NewDirection, Value * MovementScale);
 	}
 }
 
@@ -125,9 +140,9 @@ void APlayerCharacter::MoveRight(float Value)
 		// Zero out pitch and roll, only move on plane, find out which way is right
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 		// Get right vector 
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		const FVector NewDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// Add movement in that direction
-		AddMovementInput(Direction, Value * MovementScale);
+		AddMovementInput(NewDirection, Value * MovementScale);
 	}
 }
 
@@ -267,11 +282,50 @@ void APlayerCharacter::Interact()
 	}
 }
 
-void APlayerCharacter::AttemptAim()
+void APlayerCharacter::StartAim()
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
-		// TODO
+		ServerUpdateAimState(true);
+		
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -50.0f;
+
+		AimTimeline->Play();
+		TimeLineDirection = ETimelineDirection::Forward;
+	}
+}
+
+void APlayerCharacter::StopAim()
+{
+	ServerUpdateAimState(false);
+
+	AimTimeline->Reverse();
+	TimeLineDirection = ETimelineDirection::Backward;
+}
+
+void APlayerCharacter::AimTimeLineUpdate(float Value)
+{
+	if (TimeLineDirection == ETimelineDirection::Forward)
+	{
+		Camera->SetFieldOfView(FMath::Lerp(Camera->FieldOfView, 50.0f, Value));
+		SpringArm->SocketOffset.Y = FMath::Lerp(SpringArm->SocketOffset.Y, 50.0f, Value);
+		SpringArm->TargetArmLength = FMath::Lerp(SpringArm->TargetArmLength, 150.0f, Value);
+	}
+	else
+	{
+		Camera->SetFieldOfView(FMath::Lerp(90.0f, Camera->FieldOfView, Value));
+		SpringArm->SocketOffset.Y = FMath::Lerp(0.0f, SpringArm->SocketOffset.Y, Value);
+		SpringArm->TargetArmLength = FMath::Lerp(300.0f, SpringArm->TargetArmLength, Value);
+	}
+}
+
+void APlayerCharacter::AimTimeLineFinished()
+{
+	if (TimeLineDirection == ETimelineDirection::Backward)
+	{
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
 	}
 }
 

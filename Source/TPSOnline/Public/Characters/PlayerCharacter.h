@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
+#include "Components/TimelineComponent.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -16,6 +17,9 @@ class TPSONLINE_API APlayerCharacter : public ABaseCharacter
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* Camera;
+	
+	// ReSharper disable once CppUE4ProbableMemoryIssuesWithUObject
+	UTimelineComponent* AimTimeline;
 
 // Functions
 public:
@@ -60,7 +64,14 @@ private:
 
 	void Interact();
 
-	void AttemptAim();
+	void StartAim();
+	void StopAim();
+
+	UFUNCTION()
+	void AimTimeLineUpdate(float Value);
+	
+	UFUNCTION()
+	void AimTimeLineFinished();
 
 	void StartFireWeapon();
 	void StopFireWeapon();
@@ -80,6 +91,9 @@ private:
 
 // Variables
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = "true"))
+	UCurveFloat* AimFloatCurve;
+	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float BaseTurnRate;
@@ -99,4 +113,7 @@ private:
 	float LookUpPitch;
 
 	uint8 bDoOnceCrouch : 1;
+
+	/** Enum data indicating the direction the Timeline is playing */
+	TEnumAsByte<ETimelineDirection::Type> TimeLineDirection;
 };

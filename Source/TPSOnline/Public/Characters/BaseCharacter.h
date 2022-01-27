@@ -57,6 +57,9 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerInteractWithHealth();
 
+	UFUNCTION(Server, Reliable)
+	void ServerUpdateAimState(bool bAim);
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
 	
@@ -72,6 +75,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_MovementState();
+
+	UFUNCTION()
+	void OnRep_IsAiming();
 	
 	void ServerInteractWithWeapon_Implementation();
 
@@ -80,6 +86,8 @@ private:
 	bool ServerInteractWithHealth_Validate();
 	void ServerInteractWithHealth_Implementation();
 
+	void ServerUpdateAimState_Implementation(bool bAim);
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
 	bool ServerAddWeapon_Validate(AWeaponPickupActor* NewWeapon);
@@ -143,8 +151,8 @@ private:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	uint8 bIsArmed : 1;
 
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	uint8 bIsAimed : 1;
+	UPROPERTY(ReplicatedUsing = OnRep_IsAiming, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	uint8 bIsAiming : 1;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	EWeaponType CurrentWeaponType;

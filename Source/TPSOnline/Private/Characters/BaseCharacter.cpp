@@ -42,7 +42,7 @@ ABaseCharacter::ABaseCharacter()
 	RespawnDelay = 5.0f;
 	bDoOnceMoving = bDoOnceStopped = true;
 	bDoOnceDeath = true;
-	bIsAimed = bIsArmed = false;
+	bIsAiming = bIsArmed = false;
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -54,7 +54,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	DOREPLIFETIME(ABaseCharacter, MovementState);
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
 	DOREPLIFETIME(ABaseCharacter, bIsArmed);
-	DOREPLIFETIME(ABaseCharacter, bIsAimed);
+	DOREPLIFETIME(ABaseCharacter, bIsAiming);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponType);
@@ -155,7 +155,7 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 		break;
 	case 1:
 		// Run
-		if (StaminaComponent->CurrentStamina > 0.0f)
+		if (StaminaComponent->CurrentStamina > 0.0f && bIsAiming == false)
 		{
 			UnCrouch();
 			MovementScale = 0.75f;	// MaxWalkSpeed = 300.0f
@@ -164,7 +164,7 @@ void ABaseCharacter::ServerChangeMovementState_Implementation(EMovementState New
 		break;
 	case 2:
 		// Sprint
-		if (StaminaComponent->CurrentStamina > 0.0f)
+		if (StaminaComponent->CurrentStamina > 0.0f && bIsAiming == false)
 		{
 			UnCrouch();
 			MovementScale = 1.0f;	// MaxWalkSpeed = 600.0f
@@ -402,6 +402,30 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 	if (DroppedWeapon == CurrentWeapon && WeaponToDrop == CurrentWeaponSlot)
 	{
 		ServerUpdateCurrentWeapon(nullptr, EWeaponToDo::NoWeapon);
+	}
+}
+
+void ABaseCharacter::ServerUpdateAimState_Implementation(bool bAim)
+{
+	bIsAiming = bAim;
+	OnRep_IsAiming();
+	if (bIsAiming)
+	{
+		ServerChangeMovementState(EMovementState::Walk);
+	}
+}
+
+void ABaseCharacter::OnRep_IsAiming()
+{
+	if (bIsAiming)
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+	}
+	else
+	{
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
 	}
 }
 
