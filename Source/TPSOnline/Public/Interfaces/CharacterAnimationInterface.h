@@ -19,6 +19,10 @@ class TPSONLINE_API ICharacterAnimationInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	/** Add recoil to character's spine
+	* @param RotationIntensity	To rotate the character's spine
+	* @param ControlTime		Use as alpha in lerp
+	*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "CharacterAnimationInterface")
 	void AddRecoil(FRotator RotationIntensity, float ControlTime);
 };

@@ -65,6 +65,9 @@ protected:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerStopFireWeapon();
+
+	/** Checking if there is any ammo for this weapon. */
+	bool CanFireWeapon() const;
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
@@ -83,7 +86,7 @@ private:
 	void OnRep_MovementState();
 
 	UFUNCTION()
-	void OnRep_IsAiming();
+	void OnRep_IsAiming() const;
 	
 	void ServerInteractWithWeapon_Implementation();
 
@@ -99,6 +102,11 @@ private:
 
 	bool ServerStopFireWeapon_Validate();
 	void ServerStopFireWeapon_Implementation();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFireWeapon();
+	bool ServerFireWeapon_Validate();
+	void ServerFireWeapon_Implementation();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);

@@ -101,7 +101,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetLocalRole() < ROLE_Authority)
+	if (GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UCharacterAnimationInterface::StaticClass()))
@@ -359,11 +359,16 @@ void APlayerCharacter::AimTimeLineFinished()
 
 void APlayerCharacter::StartFireWeapon()
 {
-	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	if (CanFireWeapon())
 	{
-		AddRecoil(CurrentWeapon->RecoilData.RotationIntensity, CurrentWeapon->RecoilData.ControllerPitch, CurrentWeapon->RecoilData.ControlTime, CurrentWeapon->RecoilData.CrosshairRecoil);
+		AddRecoil();
 		PlayerControllerRef->ClientStartCameraShake(CurrentWeapon->Effects.CameraShake);
-		
+
+		if (CurrentWeapon->bIsAutomatic)
+		{
+			GetWorld()->GetTimerManager().SetTimer(RecoilTimer, this, &APlayerCharacter::AddRecoil, CurrentWeapon->TimeBetweenShots, true);
+		}
+
 		ServerStartFireWeapon();
 	}
 }
@@ -372,22 +377,34 @@ void APlayerCharacter::StopFireWeapon()
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
+		GetWorld()->GetTimerManager().ClearTimer(RecoilTimer);
 		ServerStopFireWeapon();
 	}
 }
 
-void APlayerCharacter::AddRecoil(FRotator RotationIntensity, float ControllerPitch, float ControlTime, float CrosshairRecoil)
+void APlayerCharacter::AddRecoil()
 {
-	AddControllerPitchInput(ControllerPitch);
-
-	if (bCharacterAnimationInterface)
+	if (CanFireWeapon())
 	{
-		ICharacterAnimationInterface::Execute_AddRecoil(AnimInstance, RotationIntensity, ControlTime);
+		AddControllerPitchInput(CurrentWeapon->RecoilData.ControllerPitch);
+		const float NewPitch = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation()).Pitch;
+		ServerUpdateLookUp(NewPitch);
+		
+		PlayerControllerRef->ClientStartCameraShake(CurrentWeapon->Effects.CameraShake);
+
+		if (bCharacterAnimationInterface)
+		{
+			ICharacterAnimationInterface::Execute_AddRecoil(AnimInstance, CurrentWeapon->RecoilData.RotationIntensity, CurrentWeapon->RecoilData.ControlTime);
+		}
+
+		if (PlayerHUD)
+		{
+			PlayerHUD->AddRecoil(CurrentWeapon->RecoilData.CrosshairRecoil, CurrentWeapon->RecoilData.ControlTime);
+		}
 	}
-
-	if (PlayerHUD)
+	else
 	{
-		PlayerHUD->AddRecoil(CrosshairRecoil, ControlTime);
+		GetWorld()->GetTimerManager().ClearTimer(RecoilTimer);
 	}
 }
 

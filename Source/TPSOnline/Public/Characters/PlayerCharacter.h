@@ -76,13 +76,8 @@ private:
 	void StartFireWeapon();
 	void StopFireWeapon();
 
-	/** Add recoil to character's spine and player crosshair
-		 * @param RotationIntensity	To rotate the character's spine
-		 * @param ControllerPitch	Add to controller pitch input
-		 * @param ControlTime		Use as alpha in lerp for recoil
-		 * @param CrosshairRecoil	Simulate recoil on the player crosshair
-		 */
-	void AddRecoil(FRotator RotationIntensity, float ControllerPitch, float ControlTime, float CrosshairRecoil);
+	/** Add recoil to character's spine and player crosshair */
+	void AddRecoil();
 	
 	/** Attempt to drop the current weapon */
 	void DropCurrentWeapon();
@@ -127,4 +122,6 @@ private:
 	
 	/** Enum data indicating the direction the Timeline is playing */
 	TEnumAsByte<ETimelineDirection::Type> TimeLineDirection;
+
+	FTimerHandle RecoilTimer;
 };

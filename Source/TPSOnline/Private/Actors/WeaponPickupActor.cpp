@@ -1,6 +1,7 @@
 // All Rights Reserved.
 
 #include "Actors/WeaponPickupActor.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 
 AWeaponPickupActor::AWeaponPickupActor()
@@ -17,11 +18,19 @@ AWeaponPickupActor::AWeaponPickupActor()
 	// Initialize variables
 	WeaponType = EWeaponType::Pistol;
 	AmmoType = EAmmoType::FortyFive;
+	bIsAutomatic = false;
+	TimeBetweenShots = 0.2;
 }
 
 void AWeaponPickupActor::ServerSpawnProjectile_Implementation()
 {
-	
+	// TODO - Spawn projectile
+	MulticastWeaponEffects();
+}
+
+void AWeaponPickupActor::MulticastWeaponEffects_Implementation()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effects.MuzzleFlash, SkeletalMesh->GetSocketLocation(FName("MuzzleSocket")), SkeletalMesh->GetSocketRotation(FName("MuzzleSocket")), Effects.MuzzleFlashScale);
 }
 
 void AWeaponPickupActor::OnRep_PickupState()

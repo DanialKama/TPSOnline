@@ -415,7 +415,7 @@ void ABaseCharacter::ServerUpdateAimState_Implementation(bool bAim)
 	}
 }
 
-void ABaseCharacter::OnRep_IsAiming()
+void ABaseCharacter::OnRep_IsAiming() const
 {
 	if (bIsAiming)
 	{
@@ -431,7 +431,7 @@ void ABaseCharacter::OnRep_IsAiming()
 
 bool ABaseCharacter::ServerStartFireWeapon_Validate()
 {
-	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	if (CanFireWeapon())
 	{
 		return true;
 	}
@@ -440,8 +440,11 @@ bool ABaseCharacter::ServerStartFireWeapon_Validate()
 
 void ABaseCharacter::ServerStartFireWeapon_Implementation()
 {
-	// GetWorld()->GetTimerManager().SetTimer(FireWeaponTimer, this, &ABaseCharacter::, CurrentWeapon.)
-	CurrentWeapon->ServerSpawnProjectile();
+	ServerFireWeapon();
+	if (CurrentWeapon->bIsAutomatic)
+	{
+		GetWorld()->GetTimerManager().SetTimer(FireWeaponTimer, this, &ABaseCharacter::ServerFireWeapon, CurrentWeapon->TimeBetweenShots, true);
+	}
 }
 
 bool ABaseCharacter::ServerStopFireWeapon_Validate()
@@ -455,7 +458,55 @@ bool ABaseCharacter::ServerStopFireWeapon_Validate()
 
 void ABaseCharacter::ServerStopFireWeapon_Implementation()
 {
-	
+	GetWorld()->GetTimerManager().ClearTimer(FireWeaponTimer);
+}
+
+bool ABaseCharacter::ServerFireWeapon_Validate()
+{
+	// Checking if there is any ammo for this weapon, and if not, stop firing the weapon
+	if (CanFireWeapon())
+	{
+		return true;
+	}
+	GetWorld()->GetTimerManager().ClearTimer(FireWeaponTimer);
+	return false;
+}
+
+void ABaseCharacter::ServerFireWeapon_Implementation()
+{
+	CurrentWeapon->ServerSpawnProjectile();
+}
+
+bool ABaseCharacter::CanFireWeapon() const
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	{
+		switch (CurrentWeapon->AmmoType)
+		{
+		case 0:
+			// 5.56
+			if (PlayerStateRef->FiveFiveSixAmmo > 0)
+			{
+				return true;
+			}
+			return false;
+		case 1:
+			// 7.62
+			if (PlayerStateRef->SevenSixTwoAmmo > 0)
+			{
+				return true;
+			}
+			return false;
+		case 2:
+			// .45
+			if (PlayerStateRef->FortyFiveAmmo > 0)
+			{
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
 }
 
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()

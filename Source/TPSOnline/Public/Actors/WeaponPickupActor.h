@@ -76,6 +76,10 @@ public:
 private:
 	void ServerSpawnProjectile_Implementation();
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastWeaponEffects();
+	void MulticastWeaponEffects_Implementation();
+
 // Variables
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
@@ -84,6 +88,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	EAmmoType AmmoType;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	uint8 bIsAutomatic : 1;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	float TimeBetweenShots;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	FEffects Effects;
 	
