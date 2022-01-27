@@ -17,6 +17,10 @@ AWeaponPickupActor::AWeaponPickupActor()
 	// Initialize variables
 	WeaponType = EWeaponType::Pistol;
 	AmmoType = EAmmoType::FortyFive;
+	RotationIntensity = FRotator(0.0f, 0.0f, -5.0f);
+	ControlTime = 0.25f;
+	CrosshairRecoil = 10.0f;
+	ControllerPitch = -0.5f;
 }
 
 void AWeaponPickupActor::OnRep_PickupState()

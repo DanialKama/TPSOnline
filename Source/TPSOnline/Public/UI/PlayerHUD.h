@@ -15,6 +15,12 @@ class TPSONLINE_API APlayerHUD : public AHUD
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
 	void Initialize();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
+	void SetCrosshairVisibility(ESlateVisibility Visibility);
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
+	void AddRecoil(float Recoil, float ControlTime);
 	
 	/** Update health level on player UI */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")

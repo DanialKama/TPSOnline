@@ -76,6 +76,14 @@ private:
 	void StartFireWeapon();
 	void StopFireWeapon();
 
+	/** Add recoil to character's spine and player crosshair
+		 * @param RotationIntensity	To rotate the character's spine
+		 * @param ControllerPitch	Add to controller pitch input
+		 * @param ControlTime		Use as alpha in lerp for recoil
+		 * @param CrosshairRecoil	Simulate recoil on the player crosshair
+		 */
+	void AddRecoil(FRotator RotationIntensity, float ControllerPitch, float ControlTime, float CrosshairRecoil);
+	
 	/** Attempt to drop the current weapon */
 	void DropCurrentWeapon();
 
@@ -112,8 +120,11 @@ private:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float LookUpPitch;
 
-	uint8 bDoOnceCrouch : 1;
+	uint8 bDoOnceCrouch : 1, bCharacterAnimationInterface : 1;
 
+	UPROPERTY()
+	UAnimInstance* AnimInstance;
+	
 	/** Enum data indicating the direction the Timeline is playing */
 	TEnumAsByte<ETimelineDirection::Type> TimeLineDirection;
 };

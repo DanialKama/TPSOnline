@@ -4,6 +4,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Components/SlateWrapperTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/HealthComponent.h"
@@ -13,7 +14,9 @@
 #include "Core/DeathmatchGameMode.h"
 #include "Actors/PickupActor.h"
 #include "Actors/AmmoPickupActor.h"
+#include "Actors/WeaponPickupActor.h"
 #include "GameFramework/Controller.h"
+#include "Interfaces/CharacterAnimationInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -48,6 +51,7 @@ APlayerCharacter::APlayerCharacter()
 	BaseLookUpRate = 45.0f;
 	TimeLineDirection = ETimelineDirection::Forward;
 	bDoOnceCrouch = true;
+	bCharacterAnimationInterface = false;
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -99,8 +103,20 @@ void APlayerCharacter::BeginPlay()
 
 	if (GetLocalRole() < ROLE_Authority)
 	{
+		AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && AnimInstance->GetClass()->ImplementsInterface(UCharacterAnimationInterface::StaticClass()))
+		{
+			bCharacterAnimationInterface = true;
+		}
+		
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
+
+		PlayerHUD = Cast<APlayerHUD>(PlayerControllerRef->GetHUD());
+		if (PlayerHUD)
+		{
+			PlayerHUD->Initialize();
+		}
 
 		if (AimFloatCurve)
 		{
@@ -302,6 +318,11 @@ void APlayerCharacter::StopAim()
 
 	AimTimeline->Reverse();
 	TimeLineDirection = ETimelineDirection::Backward;
+
+	if (PlayerHUD)
+	{
+		PlayerHUD->SetCrosshairVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void APlayerCharacter::AimTimeLineUpdate(float Value)
@@ -322,7 +343,14 @@ void APlayerCharacter::AimTimeLineUpdate(float Value)
 
 void APlayerCharacter::AimTimeLineFinished()
 {
-	if (TimeLineDirection == ETimelineDirection::Backward)
+	if (TimeLineDirection == ETimelineDirection::Forward)
+	{
+		if (PlayerHUD)
+		{
+			PlayerHUD->SetCrosshairVisibility(ESlateVisibility::HitTestInvisible);
+		}
+	}
+	else
 	{
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
@@ -333,7 +361,7 @@ void APlayerCharacter::StartFireWeapon()
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
-		// TODO
+		AddRecoil(CurrentWeapon->RotationIntensity, CurrentWeapon->ControllerPitch, CurrentWeapon->ControlTime, CurrentWeapon->CrosshairRecoil);
 	}
 }
 
@@ -342,6 +370,21 @@ void APlayerCharacter::StopFireWeapon()
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
 		// TODO
+	}
+}
+
+void APlayerCharacter::AddRecoil(FRotator RotationIntensity, float ControllerPitch, float ControlTime, float CrosshairRecoil)
+{
+	AddControllerPitchInput(ControllerPitch);
+
+	if (bCharacterAnimationInterface)
+	{
+		ICharacterAnimationInterface::Execute_AddRecoil(AnimInstance, RotationIntensity, ControlTime);
+	}
+
+	if (PlayerHUD)
+	{
+		PlayerHUD->AddRecoil(CrosshairRecoil, ControlTime);
 	}
 }
 
@@ -372,41 +415,17 @@ void APlayerCharacter::DropCurrentWeapon()
 
 void APlayerCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
-	if (GetLocalRole() < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority && PlayerHUD)
 	{
-		if (PlayerHUD)
-		{
-			PlayerHUD->UpdateHealth(NewHealth);
-		}
-		else
-		{
-			PlayerHUD = Cast<APlayerHUD>(PlayerControllerRef->GetHUD());
-			if (PlayerHUD)
-			{
-				PlayerHUD->Initialize();
-				PlayerHUD->UpdateHealth(NewHealth);
-			}
-		}
+		PlayerHUD->UpdateHealth(NewHealth);
 	}
 }
 
 void APlayerCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 {
-	if (GetLocalRole() < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority && PlayerHUD)
 	{
-		if (PlayerHUD)
-		{
-			PlayerHUD->UpdateStamina(NewStamina);
-		}
-		else
-		{
-			PlayerHUD = Cast<APlayerHUD>(PlayerControllerRef->GetHUD());
-			if (PlayerHUD)
-			{
-				PlayerHUD->Initialize();
-				PlayerHUD->UpdateStamina(NewStamina);
-			}
-		}
+		PlayerHUD->UpdateStamina(NewStamina);
 	}
 }
 

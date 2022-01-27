@@ -28,4 +28,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	EAmmoType AmmoType;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	FRotator RotationIntensity;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	float ControlTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	float CrosshairRecoil;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	float ControllerPitch;
 };
