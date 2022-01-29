@@ -1,14 +1,15 @@
 // All Rights Reserved.
 
 #include "Characters/BaseCharacter.h"
-
 #include "Actors/AmmoPickupActor.h"
 #include "Components/CapsuleComponent.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Core/CustomPlayerState.h"
 #include "Actors/PickupActor.h"
 #include "Actors/HealthPickupActor.h"
 #include "ACtors/WeaponPickupActor.h"
+#include "Actors/ProjectileActor.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -474,14 +475,14 @@ bool ABaseCharacter::ServerFireWeapon_Validate()
 
 void ABaseCharacter::ServerFireWeapon_Implementation()
 {
-	CurrentWeapon->ServerSpawnProjectile();
+	CurrentWeapon->ServerSpawnProjectile(CurrentCamera->GetComponentTransform());
 }
 
 bool ABaseCharacter::CanFireWeapon() const
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
-		switch (CurrentWeapon->AmmoType)
+		switch (CurrentWeapon->AmmoType) // TODO - Update
 		{
 		case 0:
 			// 5.56
@@ -514,7 +515,7 @@ void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 	AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(FindPickup());
 	if (AmmoPickup)
 	{
-		switch (AmmoPickup->AmmoType)
+		switch (AmmoPickup->AmmoType)	// TODO - Update
 		{
 		case 0:
 			// 5.56

@@ -8,7 +8,8 @@ ACustomPlayerState::ACustomPlayerState()
 {
 	// Initialize variables
 	PrimaryWeapon = SecondaryWeapon = SidearmWeapon = nullptr;
-	FortyFiveAmmo = SevenSixTwoAmmo = FiveFiveSixAmmo = 0;
+	SevenSixTwoAmmo = FiveFiveSixAmmo = 60;
+	FortyFiveAmmo = 36;
 }
 
 void ACustomPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const

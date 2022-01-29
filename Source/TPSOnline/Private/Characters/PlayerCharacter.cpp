@@ -24,6 +24,8 @@
 
 APlayerCharacter::APlayerCharacter()
 {
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -52,6 +54,7 @@ APlayerCharacter::APlayerCharacter()
 	TimeLineDirection = ETimelineDirection::Forward;
 	bDoOnceCrouch = true;
 	bCharacterAnimationInterface = false;
+	CurrentCamera = Camera;
 }
 
 void APlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -260,7 +263,7 @@ void APlayerCharacter::Interact()
 				AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(Pickup);
 				if (AmmoPickup)
 				{
-					switch (AmmoPickup->AmmoType)
+					switch (AmmoPickup->AmmoType) // TODO - Update
 					{
 					case 0:
 						// 5.56

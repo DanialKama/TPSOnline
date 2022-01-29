@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Enumerations/CharacterEnums.h"
-#include "Enumerations/PickupEnums.h"
+#include "Enumerations/ActorEnums.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -34,7 +34,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetStaminaLevel(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
-
+	
 	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
 
@@ -138,7 +138,7 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerStartDestroy();
 	void ServerStartDestroy_Implementation();
-	
+
 // Variables
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_MovementState, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
@@ -163,6 +163,9 @@ protected:
 	
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;
+
+	UPROPERTY()
+	class UCameraComponent* CurrentCamera;
 
 private:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))

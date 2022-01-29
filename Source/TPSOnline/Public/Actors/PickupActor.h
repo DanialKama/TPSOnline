@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Enumerations/PickupEnums.h"
+#include "Enumerations/ActorEnums.h"
 #include "PickupActor.generated.h"
 
 UCLASS()

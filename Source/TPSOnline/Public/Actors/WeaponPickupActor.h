@@ -6,6 +6,8 @@
 #include "Actors/PickupActor.h"
 #include "WeaponPickupActor.generated.h"
 
+class AProjectileActor;
+
 USTRUCT(BlueprintType)
 struct FEffects
 {
@@ -68,13 +70,28 @@ public:
 	/** Sets default values for this actor's properties */
 	AWeaponPickupActor();
 
-	UFUNCTION(Server, Reliable)
-	void ServerSpawnProjectile();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSpawnProjectile(FTransform NewTransform);
 	
 	virtual void OnRep_PickupState() override;
 
+protected:
+	virtual void BeginPlay() override;
+	
 private:
-	void ServerSpawnProjectile_Implementation();
+	bool ServerSpawnProjectile_Validate(FTransform NewTransform);
+	void ServerSpawnProjectile_Implementation(FTransform NewTransform);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnProjectile(TSubclassOf<AProjectileActor> ProjectileToSpawn, FVector Location, FRotator Rotation, AActor* OwnerRef);
+	void MulticastSpawnProjectile_Implementation(TSubclassOf<AProjectileActor> ProjectileToSpawn, FVector Location, FRotator Rotation, AActor* OwnerRef);
+
+	/** Calculate spawn location and rotation for the projectile. */
+	FTransform ProjectileLineTrace() const;
+	
+	void CalculateLineTrace(FVector &Start, FVector &End) const;
+
+	FRotator RandomPointInCircle(float Radius, bool bIncludesNegative) const;
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastWeaponEffects();
@@ -93,10 +110,23 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	float TimeBetweenShots;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	float Range;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	FEffects Effects;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	FRecoilData RecoilData;
+
+	/** Current transform of the owner for calculating the Start and End points of projectile line trace */
+	FTransform ReferenceTransform;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	TSubclassOf<AProjectileActor> Projectile;
+
+	UPROPERTY()
+	AProjectileActor* ProjectileRef;
 };

@@ -26,7 +26,6 @@ void APickupActor::BeginPlay()
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		SetReplicates(true);
-		SetReplicateMovement(true);
 	}
 }
 

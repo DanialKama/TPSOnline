@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "PickupEnums.generated.h"
+#include "ActorEnums.generated.h"
 
 UENUM()
 enum class EPickupType : uint8
@@ -32,10 +32,11 @@ enum class EWeaponType : uint8
 	Launcher
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum class EAmmoType : uint8
 {
-	FiveFiveSix	UMETA(DisplayName = "5.56"),
-	SevenSixTwo	UMETA(DisplayName = "7.62"),
-	FortyFive	UMETA(DisplayName = ".45")
+	FiveFiveSix		UMETA(DisplayName = "5.56"),	// 5.56 mm
+	SevenSixTwo		UMETA(DisplayName = "7.62"),	// 7.62 mm
+	FortyFive		UMETA(DisplayName = ".45"),		// .45 ACP
+	HighExplosive	UMETA(DisplayName = "40 mm HE")	// 40 mm HE Grenade
 };
