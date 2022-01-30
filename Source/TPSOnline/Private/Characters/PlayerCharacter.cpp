@@ -111,9 +111,9 @@ void APlayerCharacter::BeginPlay()
 		{
 			bCharacterAnimationInterface = true;
 		}
-		
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
+
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 
 		PlayerHUD = Cast<APlayerHUD>(PlayerControllerRef->GetHUD());
 		if (PlayerHUD)
@@ -314,8 +314,8 @@ void APlayerCharacter::StartAim()
 	{
 		ServerUpdateAimState(true);
 		
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -50.0f;
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -35.0f;
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 55.0f;
 
 		AimTimeline->Play();
 		TimeLineDirection = ETimelineDirection::Forward;
@@ -362,8 +362,8 @@ void APlayerCharacter::AimTimeLineFinished()
 	}
 	else
 	{
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMin = -80.0f;
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->ViewPitchMax = 50.0f;
 	}
 }
 
