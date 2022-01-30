@@ -83,8 +83,8 @@ private:
 	void ServerSpawnProjectile_Implementation(FTransform NewTransform);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSpawnProjectile(TSubclassOf<AProjectileActor> ProjectileToSpawn, FVector Location, FRotator Rotation, AActor* OwnerRef);
-	void MulticastSpawnProjectile_Implementation(TSubclassOf<AProjectileActor> ProjectileToSpawn, FVector Location, FRotator Rotation, AActor* OwnerRef);
+	void MulticastSpawnProjectile(TSubclassOf<AProjectileActor> ProjectileToSpawn, int32 NumberOfPellets, FVector Location, FRotator Rotation, AActor* OwnerRef);
+	void MulticastSpawnProjectile_Implementation(TSubclassOf<AProjectileActor> ProjectileToSpawn, int32 NumberOfPellets, FVector Location, FRotator Rotation, AActor* OwnerRef);
 
 	/** Calculate spawn location and rotation for the projectile. */
 	FTransform ProjectileLineTrace() const;
@@ -125,7 +125,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	TSubclassOf<AProjectileActor> Projectile;
+	TSubclassOf<AProjectileActor> ProjectileClass;
 
 	UPROPERTY()
 	AProjectileActor* ProjectileRef;

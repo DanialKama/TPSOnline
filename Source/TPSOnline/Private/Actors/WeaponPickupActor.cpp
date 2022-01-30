@@ -19,6 +19,7 @@ AWeaponPickupActor::AWeaponPickupActor()
 	SkeletalMesh->SetCollisionProfileName("Pickup");
 
 	// Initialize variables
+	ProjectileRef = nullptr;
 	WeaponType = EWeaponType::Pistol;
 	AmmoType = EAmmoType::FortyFive;
 	bIsAutomatic = false;
@@ -32,7 +33,7 @@ void AWeaponPickupActor::BeginPlay()
 
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		ProjectileRef = Projectile.GetDefaultObject();
+		ProjectileRef = ProjectileClass.GetDefaultObject();
 	}
 }
 
@@ -49,22 +50,20 @@ void AWeaponPickupActor::ServerSpawnProjectile_Implementation(FTransform NewTran
 {
 	ReferenceTransform = NewTransform;
 	const FTransform Transform = ProjectileLineTrace();
-	
-	for(uint8 i = 0; i < ProjectileRef->NumberOfPellets; ++i)
-	{
-		MulticastSpawnProjectile(Projectile, Transform.GetLocation(), Transform.Rotator(), Owner);
-	}
-	
+	MulticastSpawnProjectile(ProjectileClass, ProjectileRef->NumberOfPellets, Transform.GetLocation(), Transform.Rotator(), Owner);
 	MulticastWeaponEffects();
 }
 
-void AWeaponPickupActor::MulticastSpawnProjectile_Implementation(TSubclassOf<AProjectileActor> ProjectileToSpawn, FVector Location, FRotator Rotation, AActor* OwnerRef)
+void AWeaponPickupActor::MulticastSpawnProjectile_Implementation(TSubclassOf<AProjectileActor> ProjectileToSpawn, int32 NumberOfPellets, FVector Location, FRotator Rotation, AActor* OwnerRef)
 {
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Owner = OwnerRef;
 	SpawnParameters.Instigator = OwnerRef->GetInstigator();
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	GetWorld()->SpawnActor<AProjectileActor>(ProjectileToSpawn, Location, Rotation, SpawnParameters);
+	for(uint8 i = 0; i < NumberOfPellets; ++i)
+	{
+		GetWorld()->SpawnActor<AProjectileActor>(ProjectileToSpawn, Location, Rotation, SpawnParameters);
+	}
 }
 
 FTransform AWeaponPickupActor::ProjectileLineTrace() const
