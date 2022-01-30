@@ -107,6 +107,11 @@ private:
 	void ServerFireWeapon();
 	bool ServerFireWeapon_Validate();
 	void ServerFireWeapon_Implementation();
+
+	/** Add a delay to stop the player from firing faster than the weapon's fire rate */
+	UFUNCTION(Server, Reliable)
+	void ServerResetFireWeapon();
+	void ServerResetFireWeapon_Implementation();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
@@ -160,6 +165,9 @@ protected:
 	/** To call Multicast Death only once */
 	UPROPERTY(Replicated)
 	uint8 bDoOnceDeath : 1;
+
+	UPROPERTY(Replicated)
+	uint8 bCanFireWeapon : 1;
 	
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;
@@ -179,6 +187,6 @@ private:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	EWeaponType CurrentWeaponType;
-
-	FTimerHandle FireWeaponTimer;
+	
+	FTimerHandle FireWeaponTimer, ResetFireWeaponTimer;
 };

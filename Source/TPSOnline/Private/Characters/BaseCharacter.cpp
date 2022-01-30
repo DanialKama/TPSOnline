@@ -44,6 +44,7 @@ ABaseCharacter::ABaseCharacter()
 	bDoOnceMoving = bDoOnceStopped = true;
 	bDoOnceDeath = true;
 	bIsAiming = bIsArmed = false;
+	bCanFireWeapon = true;
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -56,6 +57,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
 	DOREPLIFETIME(ABaseCharacter, bIsArmed);
 	DOREPLIFETIME(ABaseCharacter, bIsAiming);
+	DOREPLIFETIME(ABaseCharacter, bCanFireWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponType);
@@ -432,7 +434,7 @@ void ABaseCharacter::OnRep_IsAiming() const
 
 bool ABaseCharacter::ServerStartFireWeapon_Validate()
 {
-	if (CanFireWeapon())
+	if (bCanFireWeapon && CanFireWeapon())
 	{
 		return true;
 	}
@@ -446,6 +448,9 @@ void ABaseCharacter::ServerStartFireWeapon_Implementation()
 	{
 		GetWorld()->GetTimerManager().SetTimer(FireWeaponTimer, this, &ABaseCharacter::ServerFireWeapon, CurrentWeapon->TimeBetweenShots, true);
 	}
+
+	bCanFireWeapon = false;
+	GetWorld()->GetTimerManager().SetTimer(ResetFireWeaponTimer, this, &ABaseCharacter::ServerResetFireWeapon, CurrentWeapon->TimeBetweenShots);
 }
 
 bool ABaseCharacter::ServerStopFireWeapon_Validate()
@@ -515,6 +520,11 @@ bool ABaseCharacter::CanFireWeapon() const
 		}
 	}
 	return false;
+}
+
+void ABaseCharacter::ServerResetFireWeapon_Implementation()
+{
+	bCanFireWeapon = true;
 }
 
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()
