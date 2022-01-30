@@ -369,7 +369,7 @@ void APlayerCharacter::AimTimeLineFinished()
 
 void APlayerCharacter::StartFireWeapon()
 {
-	if (bCanFireWeapon && CanFireWeapon())
+	if (bIsAiming && bCanFireWeapon && CanFireWeapon())
 	{
 		AddRecoil();
 		PlayerControllerRef->ClientStartCameraShake(CurrentWeapon->Effects.CameraShake);

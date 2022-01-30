@@ -162,6 +162,9 @@ protected:
 	UPROPERTY(Replicated)
 	EWeaponToDo CurrentWeaponSlot;
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsAiming, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	uint8 bIsAiming : 1;
+
 	/** To call Multicast Death only once */
 	UPROPERTY(Replicated)
 	uint8 bDoOnceDeath : 1;
@@ -181,9 +184,6 @@ private:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	uint8 bIsArmed : 1;
-
-	UPROPERTY(ReplicatedUsing = OnRep_IsAiming, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	uint8 bIsAiming : 1;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	EWeaponType CurrentWeaponType;

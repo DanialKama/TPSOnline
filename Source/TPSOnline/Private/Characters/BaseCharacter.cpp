@@ -434,7 +434,7 @@ void ABaseCharacter::OnRep_IsAiming() const
 
 bool ABaseCharacter::ServerStartFireWeapon_Validate()
 {
-	if (bCanFireWeapon && CanFireWeapon())
+	if (bIsAiming && bCanFireWeapon && CanFireWeapon())
 	{
 		return true;
 	}
