@@ -263,7 +263,7 @@ void APlayerCharacter::Interact()
 				AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(Pickup);
 				if (AmmoPickup)
 				{
-					switch (AmmoPickup->AmmoType) // TODO - Update
+					switch (AmmoPickup->AmmoType)
 					{
 					case 0:
 						// 5.56
@@ -282,6 +282,13 @@ void APlayerCharacter::Interact()
 					case 2:
 						// .45
 						if (PlayerStateRef->FortyFiveAmmo < 90)
+						{
+							ServerInteractWithAmmo();
+						}
+						break;
+					case 3:
+						// 40 mm HE Grenade
+						if (PlayerStateRef->HighExplosive < 90)
 						{
 							ServerInteractWithAmmo();
 						}

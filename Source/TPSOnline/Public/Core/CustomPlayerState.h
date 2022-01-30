@@ -33,12 +33,19 @@ public:
 	UPROPERTY(Replicated)
 	AWeaponPickupActor* SidearmWeapon;
 
+	/** 5.56 mm */
 	UPROPERTY(Replicated)
 	int32 FiveFiveSixAmmo;
 
+	/** 7.62 mm */
 	UPROPERTY(Replicated)
 	int32 SevenSixTwoAmmo;
 
+	/** .45 ACP */
 	UPROPERTY(Replicated)
 	int32 FortyFiveAmmo;
+
+	/** 40 mm HE Grenade */
+	UPROPERTY(Replicated)
+	int32 HighExplosive;
 };

@@ -482,25 +482,32 @@ bool ABaseCharacter::CanFireWeapon() const
 {
 	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
 	{
-		switch (CurrentWeapon->AmmoType) // TODO - Update
+		switch (CurrentWeapon->AmmoType)
 		{
 		case 0:
-			// 5.56
+			// 5.56 mm
 			if (PlayerStateRef->FiveFiveSixAmmo > 0)
 			{
 				return true;
 			}
 			return false;
 		case 1:
-			// 7.62
+			// 7.62 mm
 			if (PlayerStateRef->SevenSixTwoAmmo > 0)
 			{
 				return true;
 			}
 			return false;
 		case 2:
-			// .45
+			// .45 ACP
 			if (PlayerStateRef->FortyFiveAmmo > 0)
+			{
+				return true;
+			}
+			return false;
+		case 3:
+			// 40 mm HE Grenade
+			if (PlayerStateRef->HighExplosive > 0)
 			{
 				return true;
 			}
@@ -515,10 +522,10 @@ void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 	AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(FindPickup());
 	if (AmmoPickup)
 	{
-		switch (AmmoPickup->AmmoType)	// TODO - Update
+		switch (AmmoPickup->AmmoType)
 		{
 		case 0:
-			// 5.56
+			// 5.56 mm
 			if (PlayerStateRef->FiveFiveSixAmmo < 120)
 			{
 				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->FiveFiveSixAmmo);
@@ -527,7 +534,7 @@ void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 			}
 			break;
 		case 1:
-			// 7.62
+			// 7.62 mm
 			if (PlayerStateRef->SevenSixTwoAmmo < 120)
 			{
 				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->SevenSixTwoAmmo);
@@ -536,11 +543,20 @@ void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 			}
 			break;
 		case 2:
-			// .45
+			// .45 ACP
 			if (PlayerStateRef->FortyFiveAmmo < 90)
 			{
 				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->FortyFiveAmmo);
 				PlayerStateRef->FortyFiveAmmo += AddedAmount;
+				AmmoPickup->Amount -= AddedAmount;
+			}
+			break;
+		case 3:
+			// 40 mm HE Grenade
+			if (PlayerStateRef->HighExplosive < 90)
+			{
+				const int32 AddedAmount = FMath::Clamp(AmmoPickup->Amount, 0, 120 - PlayerStateRef->HighExplosive);
+				PlayerStateRef->HighExplosive += AddedAmount;
 				AmmoPickup->Amount -= AddedAmount;
 			}
 			break;
