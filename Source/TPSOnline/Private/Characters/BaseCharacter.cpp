@@ -1,4 +1,4 @@
-// All Rights Reserved.
+// Copyright 2022 Danial Kamali. All Rights Reserved.
 
 #include "Characters/BaseCharacter.h"
 #include "Actors/AmmoPickupActor.h"
@@ -434,7 +434,7 @@ void ABaseCharacter::OnRep_IsAiming() const
 
 bool ABaseCharacter::ServerStartFireWeapon_Validate()
 {
-	if (bIsAiming && bCanFireWeapon && CanFireWeapon())
+	if (bCanFireWeapon && CanFireWeapon())
 	{
 		return true;
 	}
@@ -480,7 +480,7 @@ bool ABaseCharacter::ServerFireWeapon_Validate()
 
 void ABaseCharacter::ServerFireWeapon_Implementation()
 {
-	CurrentWeapon->ServerSpawnProjectile(CurrentCamera->GetComponentTransform());
+	CurrentWeapon->ServerSpawnProjectile(bIsAiming, CurrentCamera->GetComponentTransform());
 }
 
 bool ABaseCharacter::CanFireWeapon() const

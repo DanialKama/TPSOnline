@@ -1,4 +1,4 @@
-// All Rights Reserved.
+// Copyright 2022 Danial Kamali. All Rights Reserved.
 
 #include "Characters/PlayerCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -369,10 +369,9 @@ void APlayerCharacter::AimTimeLineFinished()
 
 void APlayerCharacter::StartFireWeapon()
 {
-	if (bIsAiming && bCanFireWeapon && CanFireWeapon())
+	if (bCanFireWeapon && CanFireWeapon())
 	{
 		AddRecoil();
-		PlayerControllerRef->ClientStartCameraShake(CurrentWeapon->Effects.CameraShake);
 
 		if (CurrentWeapon->bIsAutomatic)
 		{
@@ -396,9 +395,12 @@ void APlayerCharacter::AddRecoil()
 {
 	if (CanFireWeapon())
 	{
-		AddControllerPitchInput(CurrentWeapon->RecoilData.ControllerPitch);
-		const float NewPitch = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation()).Pitch;
-		ServerUpdateLookUp(NewPitch);
+		if (bIsAiming)
+		{
+			AddControllerPitchInput(CurrentWeapon->RecoilData.ControllerPitch);
+			const float NewPitch = UKismetMathLibrary::NormalizedDeltaRotator(GetControlRotation(), GetActorRotation()).Pitch;
+			ServerUpdateLookUp(NewPitch);
+		}
 		
 		PlayerControllerRef->ClientStartCameraShake(CurrentWeapon->Effects.CameraShake);
 

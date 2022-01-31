@@ -1,4 +1,4 @@
-// All Rights Reserved.
+// Copyright 2022 Danial Kamali. All Rights Reserved.
 
 #include "Actors/WeaponPickupActor.h"
 #include "Actors/ProjectileActor.h"
@@ -37,7 +37,7 @@ void AWeaponPickupActor::BeginPlay()
 	}
 }
 
-bool AWeaponPickupActor::ServerSpawnProjectile_Validate(FTransform NewTransform)
+bool AWeaponPickupActor::ServerSpawnProjectile_Validate(bool bIsAimed, FTransform NewTransform)
 {
 	if (ProjectileRef)
 	{
@@ -46,11 +46,19 @@ bool AWeaponPickupActor::ServerSpawnProjectile_Validate(FTransform NewTransform)
 	return false;
 }
 
-void AWeaponPickupActor::ServerSpawnProjectile_Implementation(FTransform NewTransform)
+void AWeaponPickupActor::ServerSpawnProjectile_Implementation(bool bIsAimed, FTransform NewTransform)
 {
-	ReferenceTransform = NewTransform;
-	const FTransform Transform = ProjectileLineTrace();
-	MulticastSpawnProjectile(ProjectileClass, ProjectileRef->NumberOfPellets, Transform.GetLocation(), Transform.Rotator(), Owner);
+	if (bIsAimed)
+	{
+		ReferenceTransform = NewTransform;
+		const FTransform Transform = ProjectileLineTrace();
+		MulticastSpawnProjectile(ProjectileClass, ProjectileRef->NumberOfPellets, Transform.GetLocation(), Transform.Rotator(), Owner);
+	}
+	else
+	{
+		MulticastSpawnProjectile(ProjectileClass, ProjectileRef->NumberOfPellets, SkeletalMesh->GetSocketLocation(FName("MuzzleSocket")), SkeletalMesh->GetSocketRotation(FName("MuzzleSocket")), Owner);
+	}
+	
 	MulticastWeaponEffects();
 }
 

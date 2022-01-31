@@ -1,4 +1,4 @@
-// All Rights Reserved.
+// Copyright 2022 Danial Kamali. All Rights Reserved.
 
 #pragma once
 
@@ -71,7 +71,7 @@ public:
 	AWeaponPickupActor();
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerSpawnProjectile(FTransform NewTransform);
+	void ServerSpawnProjectile(bool bIsAimed, FTransform NewTransform);
 	
 	virtual void OnRep_PickupState() override;
 
@@ -79,8 +79,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
-	bool ServerSpawnProjectile_Validate(FTransform NewTransform);
-	void ServerSpawnProjectile_Implementation(FTransform NewTransform);
+	bool ServerSpawnProjectile_Validate(bool bIsAimed, FTransform NewTransform);
+	void ServerSpawnProjectile_Implementation(bool bIsAimed, FTransform NewTransform);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpawnProjectile(TSubclassOf<AProjectileActor> ProjectileToSpawn, int32 NumberOfPellets, FVector Location, FRotator Rotation, AActor* OwnerRef);
