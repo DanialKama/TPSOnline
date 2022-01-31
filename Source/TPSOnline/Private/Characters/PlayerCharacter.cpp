@@ -35,6 +35,7 @@ APlayerCharacter::APlayerCharacter()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
 	SpringArm->SetupAttachment(RootComponent);
 	SpringArm->SetComponentTickEnabled(false);
+	SpringArm->SocketOffset.Y = 50.0f;
 	SpringArm->ProbeSize = 5.0;
 	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	SpringArm->bEnableCameraLag = true;
@@ -346,7 +347,7 @@ void APlayerCharacter::AimTimeLineUpdate(float Value)
 	else
 	{
 		Camera->SetFieldOfView(FMath::Lerp(90.0f, Camera->FieldOfView, Value));
-		SpringArm->SocketOffset.Y = FMath::Lerp(0.0f, SpringArm->SocketOffset.Y, Value);
+		SpringArm->SocketOffset.Y = FMath::Lerp(50.0f, SpringArm->SocketOffset.Y, Value);
 		SpringArm->TargetArmLength = FMath::Lerp(300.0f, SpringArm->TargetArmLength, Value);
 	}
 }

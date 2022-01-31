@@ -175,6 +175,7 @@ protected:
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;
 
+	/** Use as a reference for projectile line trace. */
 	UPROPERTY()
 	class UCameraComponent* CurrentCamera;
 
