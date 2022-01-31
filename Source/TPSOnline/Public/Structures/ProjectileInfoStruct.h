@@ -25,7 +25,7 @@ struct FProjectileInfo : public FTableRowBase
 	float DamageToBody = 50.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Structs")
-	float DamageToHand = 25.0f;
+	float DamageToArm = 25.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Structs")
 	float DamageToLeg = 25.0f;
@@ -37,6 +37,6 @@ FORCEINLINE FProjectileInfo::FProjectileInfo()
 
 FORCEINLINE FProjectileInfo::FProjectileInfo(const float InDefaultDamage, const float InDamageToHead, const float InDamageToBody,
 	const float InDamageToHand, const float InDamageToLeg) : DefaultDamage(InDefaultDamage) ,DamageToHead(InDamageToHead), DamageToBody(InDamageToBody),
-	DamageToHand(InDamageToHand), DamageToLeg(InDamageToLeg)
+	DamageToArm(InDamageToHand), DamageToLeg(InDamageToLeg)
 {
 }
