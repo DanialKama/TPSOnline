@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Enumerations/CharacterEnums.h"
-#include "Enumerations/ActorEnums.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -68,9 +67,18 @@ protected:
 
 	/** Checking if there is any ammo for this weapon. */
 	bool CanFireWeapon() const;
+
+	/** Checking if there is any ammo in inventory. */
+	bool CanReloadWeapon() const;
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerReloadWeapon();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerDropWeapon(EWeaponToDo WeaponToDrop);
+
+	UFUNCTION()
+	virtual void OnRep_CurrentWeapon();
 	
 	virtual void ClientUpdateHealth_Implementation(float NewHealth);
 	virtual void ClientUpdateStamina_Implementation(float NewStamina);
@@ -112,6 +120,9 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerResetFireWeapon();
 	void ServerResetFireWeapon_Implementation();
+
+	bool ServerReloadWeapon_Validate();
+	void ServerReloadWeapon_Implementation();
 	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerAddWeapon(AWeaponPickupActor* NewWeapon);
@@ -146,7 +157,7 @@ private:
 
 // Variables
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_MovementState, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
+	UPROPERTY(ReplicatedUsing = OnRep_MovementState, BlueprintReadOnly, Category = "Defaults")
 	EMovementState MovementState;
 
 	UPROPERTY(Replicated)
@@ -156,13 +167,13 @@ protected:
 	class ACustomPlayerState* PlayerStateRef;
 
 	/** The weapon that is currently in the player's hand */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults")
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Defaults")
 	AWeaponPickupActor* CurrentWeapon;
 
 	UPROPERTY(Replicated)
 	EWeaponToDo CurrentWeaponSlot;
 
-	UPROPERTY(ReplicatedUsing = OnRep_IsAiming, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(ReplicatedUsing = OnRep_IsAiming, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	uint8 bIsAiming : 1;
 
 	/** To call Multicast Death only once */
@@ -171,6 +182,9 @@ protected:
 
 	UPROPERTY(Replicated)
 	uint8 bCanFireWeapon : 1;
+
+	UPROPERTY(Replicated)
+	uint8 bDoOnceReload : 1;
 	
 	/** To check only once if character is moving or not */
 	uint8 bDoOnceMoving : 1, bDoOnceStopped : 1;
@@ -183,11 +197,8 @@ private:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))
 	float RespawnDelay;
 
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	uint8 bIsArmed : 1;
-
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	EWeaponType CurrentWeaponType;
 	
 	FTimerHandle FireWeaponTimer, ResetFireWeaponTimer;
 };

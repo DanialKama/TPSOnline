@@ -10,7 +10,7 @@ void APlayerHUD::SetCrosshairVisibility_Implementation(ESlateVisibility Visibili
 {
 }
 
-void APlayerHUD::AddRecoil_Implementation(float Recoil, float ControlTime)
+void APlayerHUD::AddCrosshairRecoil_Implementation(float Recoil, float ControlTime)
 {
 }
 
@@ -19,5 +19,17 @@ void APlayerHUD::UpdateHealth_Implementation(float NewHealth)
 }
 
 void APlayerHUD::UpdateStamina_Implementation(float NewStamina)
+{
+}
+
+void APlayerHUD::SetWeaponInfoVisibility_Implementation(ESlateVisibility Visibility)
+{
+}
+
+void APlayerHUD::UpdateWeaponInfo_Implementation(EWeaponName WeaponName, int32 CurrentAmmo)
+{
+}
+
+void APlayerHUD::UpdateCurrentMagAmmo_Implementation(int32 CurrentMagAmmo)
 {
 }

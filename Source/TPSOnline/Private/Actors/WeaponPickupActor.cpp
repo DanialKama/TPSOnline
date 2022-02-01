@@ -22,9 +22,21 @@ AWeaponPickupActor::AWeaponPickupActor()
 	ProjectileRef = nullptr;
 	WeaponType = EWeaponType::Pistol;
 	AmmoType = EAmmoType::FortyFive;
+	WeaponName = EWeaponName::Default;
 	bIsAutomatic = false;
 	TimeBetweenShots = 0.2;
 	Range = 4000.0f;
+	ReloadAmount = CurrentMagazineAmmo = MagazineSize = 30;
+}
+
+void AWeaponPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to everyone
+	DOREPLIFETIME(AWeaponPickupActor, MagazineSize);
+	DOREPLIFETIME(AWeaponPickupActor, CurrentMagazineAmmo);
+	DOREPLIFETIME(AWeaponPickupActor, ReloadAmount);
 }
 
 void AWeaponPickupActor::BeginPlay()

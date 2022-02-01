@@ -99,11 +99,14 @@ private:
 
 // Variables
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Defaults")
 	EWeaponType WeaponType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	EAmmoType AmmoType;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	EWeaponName WeaponName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	uint8 bIsAutomatic : 1;
@@ -113,12 +116,21 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	float Range;
+
+	UPROPERTY(Replicated, EditDefaultsOnly, meta = (ClampMin = "0", UIMin = "0"))
+	int32 MagazineSize;
+	
+	UPROPERTY(Replicated, EditAnywhere, meta = (ToolTip = "If value set to something greater than zero then in initial value dose not change"))
+	int32 CurrentMagazineAmmo;
+
+	UPROPERTY(Replicated, EditDefaultsOnly, meta = (ClampMin = "0", ClampMax = "999", UIMin = "0", UIMax = "999"))
+	int32 ReloadAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
+	FRecoilData RecoilData;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
 	FEffects Effects;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Defaults")
-	FRecoilData RecoilData;
 
 	/** Current transform of the owner for calculating the Start and End points of projectile line trace */
 	FTransform ReferenceTransform;

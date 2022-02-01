@@ -78,9 +78,17 @@ private:
 
 	/** Add recoil to character's spine and player crosshair */
 	void AddRecoil();
+
+	/** Reload the current weapon */
+	void ReloadWeapon();
 	
 	/** Attempt to drop the current weapon */
 	void DropCurrentWeapon();
+
+	virtual void OnRep_CurrentWeapon() override;
+
+	/** Find remained ammo in inventory based on the current weapon's ammo type. */
+	int32 FindCurrentAmmo() const;
 
 	virtual void ClientUpdateHealth_Implementation(float NewHealth) override;
 	virtual void ClientUpdateStamina_Implementation(float NewStamina) override;
@@ -112,7 +120,7 @@ private:
 	class APlayerHUD* PlayerHUD;
 
 	/** Using for aim offset */
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	float LookUpPitch;
 
 	uint8 bDoOnceCrouch : 1, bCharacterAnimationInterface : 1;

@@ -40,3 +40,12 @@ enum class EAmmoType : uint8
 	FortyFive		UMETA(DisplayName = ".45"),		// .45 ACP
 	HighExplosive	UMETA(DisplayName = "40 mm HE")	// 40 mm HE Grenade
 };
+
+/** To use in player UI */
+UENUM(BlueprintType)
+enum class EWeaponName : uint8
+{
+	Default			UMETA(DisplayName = "Default"),
+	AssaultRifle	UMETA(DisplayName = "Assault Rifle"),
+	Pistol			UMETA(DisplayName = "Pistol")
+};

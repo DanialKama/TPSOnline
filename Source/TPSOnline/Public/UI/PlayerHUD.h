@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Enumerations/ActorEnums.h"
 #include "GameFramework/HUD.h"
 #include "PlayerHUD.generated.h"
 
@@ -20,7 +21,7 @@ public:
 	void SetCrosshairVisibility(ESlateVisibility Visibility);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
-	void AddRecoil(float Recoil, float ControlTime);
+	void AddCrosshairRecoil(float Recoil, float ControlTime);
 	
 	/** Update health level on player UI */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
@@ -29,4 +30,14 @@ public:
 	/** Update stamina level on player UI */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
 	void UpdateStamina(float NewStamina);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
+	void SetWeaponInfoVisibility(ESlateVisibility Visibility);
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
+	void UpdateWeaponInfo(EWeaponName WeaponName, int32 CurrentAmmo);
+
+	/** Updating Current ammo inside the weapon's magazine */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlayerHUD")
+	void UpdateCurrentMagAmmo(int32 CurrentMagAmmo);
 };

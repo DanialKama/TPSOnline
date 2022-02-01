@@ -39,12 +39,12 @@ ABaseCharacter::ABaseCharacter()
 	CurrentWeapon = nullptr;
 	PlayerStateRef = nullptr;
 	CurrentWeaponSlot = EWeaponToDo::NoWeapon;
-	CurrentWeaponType = EWeaponType::Pistol;
 	RespawnDelay = 5.0f;
 	bDoOnceMoving = bDoOnceStopped = true;
 	bDoOnceDeath = true;
 	bIsAiming = bIsArmed = false;
 	bCanFireWeapon = true;
+	bDoOnceReload = true;
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
@@ -57,10 +57,10 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLi
 	DOREPLIFETIME(ABaseCharacter, MovementScale);
 	DOREPLIFETIME(ABaseCharacter, bIsArmed);
 	DOREPLIFETIME(ABaseCharacter, bIsAiming);
+	DOREPLIFETIME(ABaseCharacter, bDoOnceReload);
 	DOREPLIFETIME(ABaseCharacter, bCanFireWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
 	DOREPLIFETIME(ABaseCharacter, CurrentWeaponSlot);
-	DOREPLIFETIME(ABaseCharacter, CurrentWeaponType);
 	DOREPLIFETIME(ABaseCharacter, bDoOnceDeath);
 	DOREPLIFETIME(ABaseCharacter, RespawnDelay);
 }
@@ -341,11 +341,6 @@ void ABaseCharacter::ServerUpdateCurrentWeapon_Implementation(AWeaponPickupActor
 		CurrentWeaponSlot = EWeaponToDo::Sidearm;
 		break;
 	}
-
-	if (CurrentWeapon)
-	{
-		CurrentWeaponType = CurrentWeapon->WeaponType;
-	}
 }
 
 bool ABaseCharacter::ServerDropWeapon_Validate(EWeaponToDo WeaponToDrop)
@@ -406,6 +401,11 @@ void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 	{
 		ServerUpdateCurrentWeapon(nullptr, EWeaponToDo::NoWeapon);
 	}
+}
+
+void ABaseCharacter::OnRep_CurrentWeapon()
+{
+	// Override in the player character class
 }
 
 void ABaseCharacter::ServerUpdateAimState_Implementation(bool bAim)
@@ -480,12 +480,41 @@ bool ABaseCharacter::ServerFireWeapon_Validate()
 
 void ABaseCharacter::ServerFireWeapon_Implementation()
 {
+	CurrentWeapon->CurrentMagazineAmmo = --CurrentWeapon->CurrentMagazineAmmo;
 	CurrentWeapon->ServerSpawnProjectile(bIsAiming, CurrentCamera->GetComponentTransform());
 }
 
 bool ABaseCharacter::CanFireWeapon() const
 {
-	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon)
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon && CurrentWeapon->CurrentMagazineAmmo > 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerResetFireWeapon_Implementation()
+{
+	bCanFireWeapon = true;
+}
+
+bool ABaseCharacter::ServerReloadWeapon_Validate()
+{
+	if (bDoOnceReload && CanReloadWeapon())
+	{
+		return true;
+	}
+	return false;
+}
+
+void ABaseCharacter::ServerReloadWeapon_Implementation()
+{
+	bDoOnceReload = false;
+}
+
+bool ABaseCharacter::CanReloadWeapon() const
+{
+	if (CurrentWeapon && CurrentWeaponSlot != EWeaponToDo::NoWeapon && CurrentWeapon->CurrentMagazineAmmo < CurrentWeapon->MagazineSize)
 	{
 		switch (CurrentWeapon->AmmoType)
 		{
@@ -520,11 +549,6 @@ bool ABaseCharacter::CanFireWeapon() const
 		}
 	}
 	return false;
-}
-
-void ABaseCharacter::ServerResetFireWeapon_Implementation()
-{
-	bCanFireWeapon = true;
 }
 
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()
@@ -634,6 +658,7 @@ void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* Compone
 
 void ABaseCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 {
+	// Override in the player character class
 }
 
 void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina)
@@ -656,6 +681,7 @@ void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* Compon
 
 void ABaseCharacter::ClientUpdateStamina_Implementation(float NewStamina)
 {
+	// Override in the player character class
 }
 
 void ABaseCharacter::MulticastDeath_Implementation()

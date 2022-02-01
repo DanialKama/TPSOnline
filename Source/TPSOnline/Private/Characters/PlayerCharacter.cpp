@@ -83,6 +83,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &APlayerCharacter::DropCurrentWeapon);
 
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &APlayerCharacter::ReloadWeapon);
+
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::StartAim);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::StopAim);
 	
@@ -412,12 +414,20 @@ void APlayerCharacter::AddRecoil()
 
 		if (PlayerHUD)
 		{
-			PlayerHUD->AddRecoil(CurrentWeapon->RecoilData.CrosshairRecoil, CurrentWeapon->RecoilData.ControlTime);
+			PlayerHUD->AddCrosshairRecoil(CurrentWeapon->RecoilData.CrosshairRecoil, CurrentWeapon->RecoilData.ControlTime);
 		}
 	}
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(RecoilTimer);
+	}
+}
+
+void APlayerCharacter::ReloadWeapon()
+{
+	if (bDoOnceReload && CanReloadWeapon())
+	{
+		ServerReloadWeapon();
 	}
 }
 
@@ -444,6 +454,46 @@ void APlayerCharacter::DropCurrentWeapon()
 			break;
 		}
 	}
+}
+
+void APlayerCharacter::OnRep_CurrentWeapon()
+{
+	if (GetLocalRole() == ROLE_AutonomousProxy && PlayerHUD)
+	{
+		if (CurrentWeapon)
+		{
+			PlayerHUD->SetWeaponInfoVisibility(ESlateVisibility::HitTestInvisible);
+			PlayerHUD->UpdateWeaponInfo(CurrentWeapon->WeaponName, FindCurrentAmmo());
+			PlayerHUD->UpdateCurrentMagAmmo(CurrentWeapon->CurrentMagazineAmmo);
+		}
+		else
+		{
+			PlayerHUD->SetWeaponInfoVisibility(ESlateVisibility::Hidden);
+		}
+	}
+}
+
+int32 APlayerCharacter::FindCurrentAmmo() const
+{
+	if (PlayerStateRef)
+	{
+		switch (CurrentWeapon->AmmoType)
+		{
+		case 0:
+			// 5.56 mm
+			return PlayerStateRef->FiveFiveSixAmmo;
+		case 1:
+			// 7.62 mm
+			return PlayerStateRef->SevenSixTwoAmmo;
+		case 2:
+			// .45 ACP
+			return PlayerStateRef->FortyFiveAmmo;
+		case 3:
+			// 40 mm HE Grenade
+			return PlayerStateRef->HighExplosive;
+		}
+	}
+	return 0;
 }
 
 void APlayerCharacter::ClientUpdateHealth_Implementation(float NewHealth)
