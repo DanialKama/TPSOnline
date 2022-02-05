@@ -29,10 +29,10 @@ public:
 	APickupActor* FindPickup() const;
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetHealthLevel(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
+	void ServerSetHealthLevel(float CurrentHealth, float MaxHealth);
 
 	UFUNCTION(Server, Reliable)
-	void ServerSetStaminaLevel(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
+	void ServerSetStaminaLevel(float CurrentStamina, float MaxStamina);
 	
 	FORCEINLINE UStaminaComponent* GetStaminaComponent() const { return StaminaComponent; }
 	FORCEINLINE UHealthComponent* GetHealthComponent() const { return HealthComponent; }
@@ -136,8 +136,8 @@ private:
 	bool ServerDropWeapon_Validate(EWeaponToDo WeaponToDrop);
 	void ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop);
 	
-	void ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth);
-	void ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina);
+	void ServerSetHealthLevel_Implementation(float CurrentHealth, float MaxHealth);
+	void ServerSetStaminaLevel_Implementation(float CurrentStamina, float MaxStamina);
 	
 	/** Update health on player UI */
 	UFUNCTION(Client, Unreliable)

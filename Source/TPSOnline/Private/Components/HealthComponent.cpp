@@ -33,7 +33,7 @@ void UHealthComponent::ServerInitialize_Implementation()
 	Super::ServerInitialize_Implementation();
 
 	CurrentHealth = MaxHealth;
-	ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
+	ComponentOwner->ServerSetHealthLevel(CurrentHealth, MaxHealth);
 	ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponent::TakeAnyDamage);
 }
 
@@ -43,14 +43,14 @@ void UHealthComponent::TakeAnyDamage(AActor* DamagedActor, float Damage, const U
 	{
 		GetWorld()->GetTimerManager().ClearTimer(RestoreHealthTimer);
 		CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
-		ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
+		ComponentOwner->ServerSetHealthLevel(CurrentHealth, MaxHealth);
 	}
 }
 
 void UHealthComponent::ServerIncreaseHealth_Implementation(float IncreaseAmount)
 {
 	CurrentHealth = FMath::Clamp(CurrentHealth + IncreaseAmount, 0.0f, MaxHealth);
-	ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
+	ComponentOwner->ServerSetHealthLevel(CurrentHealth, MaxHealth);
 }
 
 void UHealthComponent::ServerStartRestoreHealth_Implementation()
@@ -79,7 +79,7 @@ void UHealthComponent::ServerRestoreHealth_Implementation()
 	else
 	{
 		CurrentHealth = FMath::Clamp(CurrentHealth + RestoreAmount, 0.0f, MaxHealth);
-		ComponentOwner->ServerSetHealthLevel(ComponentOwner, CurrentHealth, MaxHealth);
+		ComponentOwner->ServerSetHealthLevel(CurrentHealth, MaxHealth);
 	}
 }
 

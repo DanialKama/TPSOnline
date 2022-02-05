@@ -37,7 +37,7 @@ void UStaminaComponent::ServerInitialize_Implementation()
 	Super::ServerInitialize_Implementation();
 
 	CurrentStamina = MaxStamina;
-	ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
+	ComponentOwner->ServerSetStaminaLevel(CurrentStamina, MaxStamina);
 }
 
 void UStaminaComponent::ServerStartStaminaDrain_Implementation(EMovementState MovementState)
@@ -74,7 +74,7 @@ void UStaminaComponent::ServerRunningDrainStamina_Implementation()
 	else
 	{
 		CurrentStamina = FMath::Clamp(CurrentStamina - RunningDrainAmount, 0.0f, MaxStamina);
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina, MaxStamina);
 	}
 }
 
@@ -97,7 +97,7 @@ void UStaminaComponent::ServerSprintingDrainStamina_Implementation()
 	else
 	{
 		CurrentStamina = FMath::Clamp(CurrentStamina - SprintingDrainAmount, 0.0f, MaxStamina);
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina, MaxStamina);
 	}
 }
 
@@ -121,7 +121,7 @@ void UStaminaComponent::ServerRestoreStamina_Implementation()
 	else
 	{
 		CurrentStamina = FMath::Clamp(CurrentStamina + RestoreStaminaAmount, 0.0f, MaxStamina);
-		ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
+		ComponentOwner->ServerSetStaminaLevel(CurrentStamina, MaxStamina);
 	}
 }
 
@@ -130,5 +130,5 @@ void UStaminaComponent::ServerJumpDrainStamina_Implementation()
 	GetWorld()->GetTimerManager().ClearTimer(RestoreStaminaTimer);
 	GetWorld()->GetTimerManager().ClearTimer(DrainStaminaTimer);
 	CurrentStamina = FMath::Clamp(CurrentStamina - JumpingDrainAmount, 0.0f, MaxStamina);
-	ComponentOwner->ServerSetStaminaLevel(ComponentOwner, CurrentStamina, MaxStamina);
+	ComponentOwner->ServerSetStaminaLevel(CurrentStamina, MaxStamina);
 }

@@ -637,12 +637,12 @@ APickupActor* ABaseCharacter::FindPickup() const
 	return Pickup;
 }
 
-void ABaseCharacter::ServerSetHealthLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentHealth, float MaxHealth)
+void ABaseCharacter::ServerSetHealthLevel_Implementation(float CurrentHealth, float MaxHealth)
 {
 	// Start restoring health if 0 < Current Health < Max Health and restoring health is not started yet.
 	if (CurrentHealth > 0.0f && CurrentHealth < MaxHealth && HealthComponent->bRestoreHealth != true)
 	{
-		ComponentOwner->HealthComponent->ServerStartRestoreHealth();
+		HealthComponent->ServerStartRestoreHealth();
 	}
 	if (CurrentHealth <= 0.0f && bDoOnceDeath)
 	{
@@ -661,15 +661,15 @@ void ABaseCharacter::ClientUpdateHealth_Implementation(float NewHealth)
 	// Override in the player character class
 }
 
-void ABaseCharacter::ServerSetStaminaLevel_Implementation(ABaseCharacter* ComponentOwner, float CurrentStamina, float MaxStamina)
+void ABaseCharacter::ServerSetStaminaLevel_Implementation(float CurrentStamina, float MaxStamina)
 {
-	if (CurrentStamina >= MaxStamina && ComponentOwner->HealthComponent->CurrentHealth < ComponentOwner->HealthComponent->MaxHealth)
+	if (CurrentStamina >= MaxStamina && HealthComponent->CurrentHealth < HealthComponent->MaxHealth)
 	{
-		ComponentOwner->HealthComponent->ServerStartRestoreHealth();
+		HealthComponent->ServerStartRestoreHealth();
 	}
 	else if (CurrentStamina > 0.0f && CurrentStamina < MaxStamina)
 	{
-		ComponentOwner->HealthComponent->ServerStopRestoreHealth();
+		HealthComponent->ServerStopRestoreHealth();
 	}
 	else if (CurrentStamina <= 0.0f)
 	{
