@@ -1,16 +1,16 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Animations/AnimNotify_Ragdoll.h"
-#include "Characters/BaseCharacter.h"
+#include "AnimNotify_Ragdoll.h"
+
+// #include "Characters/BaseCharacter.h"
 
 void UAnimNotify_Ragdoll::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	if (MeshComp && MeshComp->GetOwner())
-	{
-		ABaseCharacter* Character = Cast<ABaseCharacter>(MeshComp->GetOwner());
-		if (Character)
-		{
-			// Character->DeathMontageHandler(nullptr, false);
-		}
-	}
+	// if (MeshComp && MeshComp->GetOwner())
+	// {
+	// 	if (ABaseCharacter* Character = Cast<ABaseCharacter>(MeshComp->GetOwner()))
+	// 	{
+	// 		Character->DeathMontageHandler(nullptr, false);
+	// 	}
+	// }
 }
