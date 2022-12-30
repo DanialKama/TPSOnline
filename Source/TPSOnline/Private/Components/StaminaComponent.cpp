@@ -18,7 +18,7 @@ UStaminaComponent::UStaminaComponent()
 	RestoreStaminaDelay = 2.0f;
 }
 
-void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+void UStaminaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 

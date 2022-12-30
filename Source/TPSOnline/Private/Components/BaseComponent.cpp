@@ -9,7 +9,7 @@ UBaseComponent::UBaseComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UBaseComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+void UBaseComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
