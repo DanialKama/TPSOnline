@@ -4,6 +4,8 @@
 
 #include "ActorEnums.generated.h"
 
+// TODO: Don't use UENUM() macro if these enums are not used by blueprints
+
 UENUM()
 enum class EPickupType : uint8
 {

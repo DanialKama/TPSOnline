@@ -13,7 +13,8 @@ struct FExplosiveProjectileInfo : public FTableRowBase
 
 	FORCEINLINE FExplosiveProjectileInfo();
 
-	explicit FORCEINLINE FExplosiveProjectileInfo(float InBaseDamage, float InMinimumDamage, float InDamageInnerRadius, float InDamageOuterRadius);
+	explicit FORCEINLINE FExplosiveProjectileInfo(float InBaseDamage, float InMinimumDamage, float InDamageInnerRadius,
+		float InDamageOuterRadius);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Structs")
 	float BaseDamage = 200.0f;

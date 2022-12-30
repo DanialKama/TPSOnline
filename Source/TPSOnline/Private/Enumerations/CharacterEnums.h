@@ -4,6 +4,8 @@
 
 #include "CharacterEnums.generated.h"
 
+// TODO: Don't use UENUM() macro if these enums are not used by blueprints
+
 UENUM(BlueprintType)
 enum class EMovementState : uint8
 {

@@ -13,7 +13,8 @@ struct FProjectileInfo : public FTableRowBase
 
 	FORCEINLINE FProjectileInfo();
 
-	explicit FORCEINLINE FProjectileInfo(float InDefaultDamage, float InDamageToHead, float InDamageToBody, float InDamageToHand, float InDamageToLeg);
+	explicit FORCEINLINE FProjectileInfo(float InDefaultDamage, float InDamageToHead, float InDamageToBody,
+		float InDamageToHand, float InDamageToLeg);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Structs")
 	float DefaultDamage = 75.0f;
