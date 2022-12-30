@@ -11,7 +11,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
 #include "Core/CustomPlayerState.h"
-#include "Core/DeathmatchGameMode.h"
+#include "Core/DeathMatchGameMode.h"
 #include "Actors/PickupActor.h"
 #include "Actors/AmmoPickupActor.h"
 #include "Actors/WeaponPickupActor.h"
@@ -527,7 +527,7 @@ void APlayerCharacter::Destroyed()
 		Super::Destroyed();
 
 		// Get the World and GameMode in the world to invoke its restart player function.
-		if (ADeathmatchGameMode* GameMode = Cast<ADeathmatchGameMode>(GetWorld()->GetAuthGameMode()))
+		if (ADeathMatchGameMode* GameMode = Cast<ADeathMatchGameMode>(GetWorld()->GetAuthGameMode()))
 		{
 			GameMode->ServerStartRespawn(RespawnControllerRef);
 		}

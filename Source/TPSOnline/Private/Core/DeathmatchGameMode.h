@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "DeathmatchGameMode.generated.h"
+#include "DeathMatchGameMode.generated.h"
 
 UCLASS()
-class ADeathmatchGameMode : public AGameModeBase
+class ADeathMatchGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 

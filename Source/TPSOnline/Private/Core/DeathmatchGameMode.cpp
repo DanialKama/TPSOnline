@@ -1,21 +1,20 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Core/DeathmatchGameMode.h"
-#include "Characters/PlayerCharacter.h"
+#include "DeathMatchGameMode.h"
 
-void ADeathmatchGameMode::ServerStartRespawn_Implementation(AController* Controller)
+void ADeathMatchGameMode::ServerStartRespawn_Implementation(AController* Controller)
 {
 	if (Controller)
 	{
 		ControllersToRespawn.Add(Controller);
 
 		FTimerDelegate TimerDelegate;
-		TimerDelegate.BindUObject(this, &ADeathmatchGameMode::ServerRespawn);
+		TimerDelegate.BindUObject(this, &ADeathMatchGameMode::ServerRespawn);
 		GetWorld()->GetTimerManager().SetTimerForNextTick(TimerDelegate);
 	}
 }
 
-void ADeathmatchGameMode::ServerRespawn_Implementation()
+void ADeathMatchGameMode::ServerRespawn_Implementation()
 {
 	// Check if the player is still in the session
 	if (ExitedControllers.Num() > 0)
@@ -42,12 +41,14 @@ void ADeathmatchGameMode::ServerRespawn_Implementation()
 		for (uint8 k = 0; k < ControllersToRespawn.Num(); ++k)
 		{
 			const AActor* RespawnActor = ChoosePlayerStart(ControllersToRespawn[k]);
+			
 			const FVector Location = RespawnActor->GetActorLocation();
 			const FRotator Rotation = RespawnActor->GetActorRotation();
+			
 			FActorSpawnParameters SpawnParameters;
 			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-			APawn* Player = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, Location, Rotation, SpawnParameters);
-			if (Player)
+			
+			if (APawn* Player = GetWorld()->SpawnActor<APawn>(DefaultPawnClass, Location, Rotation, SpawnParameters))
 			{
 				ControllersToRespawn[k]->Possess(Player);
 			}
@@ -57,7 +58,7 @@ void ADeathmatchGameMode::ServerRespawn_Implementation()
 	}
 }
 
-void ADeathmatchGameMode::Logout(AController* Exiting)
+void ADeathMatchGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
 
