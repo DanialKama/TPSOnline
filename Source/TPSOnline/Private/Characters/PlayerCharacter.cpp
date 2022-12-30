@@ -1,6 +1,7 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Characters/PlayerCharacter.h"
+#include "PlayerCharacter.h"
+
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
@@ -9,7 +10,6 @@
 #include "Components/InputComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/StaminaComponent.h"
-#include "Core/CustomPlayerController.h"
 #include "Core/CustomPlayerState.h"
 #include "Core/DeathmatchGameMode.h"
 #include "Actors/PickupActor.h"
@@ -251,8 +251,7 @@ void APlayerCharacter::ResetCrouch()
 
 void APlayerCharacter::Interact()
 {
-	APickupActor* Pickup = FindPickup();
-	if (Pickup)
+	if (APickupActor* Pickup = FindPickup())
 	{
 		switch (Pickup->PickupType)
 		{
@@ -263,8 +262,7 @@ void APlayerCharacter::Interact()
 		case 1:
 			// Ammo
 			{
-				AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(Pickup);
-				if (AmmoPickup)
+				if (const AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(Pickup))
 				{
 					switch (AmmoPickup->AmmoType)
 					{
@@ -529,8 +527,7 @@ void APlayerCharacter::Destroyed()
 		Super::Destroyed();
 
 		// Get the World and GameMode in the world to invoke its restart player function.
-		ADeathmatchGameMode* GameMode = Cast<ADeathmatchGameMode>(GetWorld()->GetAuthGameMode());
-		if (GameMode)
+		if (ADeathmatchGameMode* GameMode = Cast<ADeathmatchGameMode>(GetWorld()->GetAuthGameMode()))
 		{
 			GameMode->ServerStartRespawn(RespawnControllerRef);
 		}

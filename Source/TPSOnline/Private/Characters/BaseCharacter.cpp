@@ -1,6 +1,7 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Characters/BaseCharacter.h"
+#include "BaseCharacter.h"
+
 #include "Actors/AmmoPickupActor.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -203,8 +204,7 @@ void ABaseCharacter::OnRep_MovementState()
 
 void ABaseCharacter::ServerInteractWithWeapon_Implementation()
 {
-	AWeaponPickupActor* NewWeapon = Cast<AWeaponPickupActor>(FindPickup());
-	if (NewWeapon)
+	if (AWeaponPickupActor* NewWeapon = Cast<AWeaponPickupActor>(FindPickup()))
 	{
 		ServerAddWeapon(NewWeapon);
 	}
@@ -354,8 +354,10 @@ bool ABaseCharacter::ServerDropWeapon_Validate(EWeaponToDo WeaponToDrop)
 
 void ABaseCharacter::ServerDropWeapon_Implementation(EWeaponToDo WeaponToDrop)
 {
-	AWeaponPickupActor* DroppedWeapon = nullptr;
 	const FDetachmentTransformRules DetachmentRules = FDetachmentTransformRules(EDetachmentRule::KeepWorld, EDetachmentRule::KeepWorld, EDetachmentRule::KeepRelative, false);
+
+	AWeaponPickupActor* DroppedWeapon = nullptr;
+	
 	switch (WeaponToDrop)
 	{
 	case 0:
@@ -553,8 +555,7 @@ bool ABaseCharacter::CanReloadWeapon() const
 
 void ABaseCharacter::ServerInteractWithAmmo_Implementation()
 {
-	AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(FindPickup());
-	if (AmmoPickup)
+	if (AAmmoPickupActor* AmmoPickup = Cast<AAmmoPickupActor>(FindPickup()))
 	{
 		switch (AmmoPickup->AmmoType)
 		{
@@ -627,9 +628,8 @@ APickupActor* ABaseCharacter::FindPickup() const
 	FHitResult HitResult;
 	const FVector End = GetActorLocation() + (GetActorUpVector() * FVector(0.0f, 0.0f, -1.0f) * 100.0f);
 	const TArray<AActor*> Actors;
-	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(GetCapsuleComponent()->GetScaledCapsuleRadius()),
-		FRotator::ZeroRotator, TraceTypeQuery3, false, Actors, EDrawDebugTrace::None, HitResult, true);
-	if (bHit)
+	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), End, FVector(GetCapsuleComponent()->GetScaledCapsuleRadius()),
+		FRotator::ZeroRotator, TraceTypeQuery3, false, Actors, EDrawDebugTrace::None, HitResult, true))
 	{
 		Pickup = Cast<APickupActor>(HitResult.GetActor());
 	}

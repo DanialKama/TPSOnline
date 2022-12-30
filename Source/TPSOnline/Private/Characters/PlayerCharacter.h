@@ -16,9 +16,9 @@ class APlayerCharacter : public ABaseCharacter
 	class USpringArmComponent* SpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* Camera;
-	
-	// ReSharper disable once CppUE4ProbableMemoryIssuesWithUObject
+	UCameraComponent* Camera;
+
+	UPROPERTY()
 	UTimelineComponent* AimTimeline;
 
 // Functions
@@ -26,7 +26,6 @@ public:
 	APlayerCharacter();
 	
 protected:
-	/** Called to bind functionality to input */
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual void BeginPlay() override;
