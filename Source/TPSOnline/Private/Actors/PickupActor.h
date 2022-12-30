@@ -26,6 +26,6 @@ protected:
 public:
 	EPickupType PickupType;
 
-	UPROPERTY(ReplicatedUsing = OnRep_PickupState)
+	UPROPERTY(ReplicatedUsing = "OnRep_PickupState")
 	EPickupState PickupState;
 };

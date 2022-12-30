@@ -16,10 +16,10 @@ class ABaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UHealthComponent* HealthComponent;
+	TObjectPtr<class UHealthComponent> HealthComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UStaminaComponent* StaminaComponent;
+	TObjectPtr<class UStaminaComponent> StaminaComponent;
 
 // Functions
 public:
@@ -157,7 +157,7 @@ private:
 
 // Variables
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_MovementState, BlueprintReadOnly, Category = "Defaults")
+	UPROPERTY(ReplicatedUsing = "OnRep_MovementState", BlueprintReadOnly, Category = "Defaults")
 	EMovementState MovementState;
 
 	UPROPERTY(Replicated)
@@ -167,13 +167,13 @@ protected:
 	class ACustomPlayerState* PlayerStateRef;
 
 	/** The weapon that is currently in the player's hand */
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, Category = "Defaults")
-	AWeaponPickupActor* CurrentWeapon;
+	UPROPERTY(ReplicatedUsing = "OnRep_CurrentWeapon", BlueprintReadOnly, Category = "Defaults")
+	TObjectPtr<AWeaponPickupActor> CurrentWeapon;
 
 	UPROPERTY(Replicated)
 	EWeaponToDo CurrentWeaponSlot;
 
-	UPROPERTY(ReplicatedUsing = OnRep_IsAiming, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
+	UPROPERTY(ReplicatedUsing = "OnRep_IsAiming", BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
 	uint8 bIsAiming : 1;
 
 	/** To call Multicast Death only once */
@@ -191,7 +191,7 @@ protected:
 
 	/** Use as a reference for projectile line trace. */
 	UPROPERTY()
-	class UCameraComponent* CurrentCamera;
+	TObjectPtr<class UCameraComponent> CurrentCamera;
 
 private:
 	UPROPERTY(Replicated, EditDefaultsOnly, Category = "Defaults", meta = (ClampMin = "0.0", UIMin = "0.0", AllowPrivateAccess = true))

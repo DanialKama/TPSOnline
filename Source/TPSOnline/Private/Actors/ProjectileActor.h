@@ -16,28 +16,28 @@ struct FHitEffects
 	GENERATED_BODY()
 	
 	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* FleshHitEmitter;
+	TObjectPtr<UParticleSystem> FleshHitEmitter;
 
 	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* StoneHitEmitter;
+	TObjectPtr<UParticleSystem> StoneHitEmitter;
 	
 	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* MetalHitEmitter;
+	TObjectPtr<UParticleSystem> MetalHitEmitter;
 		
 	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* WoodHitEmitter;
+	TObjectPtr<UParticleSystem> WoodHitEmitter;
 	
 	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* ExplosiveEmitter;
+	TObjectPtr<UParticleSystem> ExplosiveEmitter;
 	
 	UPROPERTY(EditDefaultsOnly)
-	USoundCue* FleshHitSound;
+	TObjectPtr<USoundCue> FleshHitSound;
 	
 	UPROPERTY(EditDefaultsOnly)
-	USoundCue* ObjectHitSound;
+	TObjectPtr<USoundCue> ObjectHitSound;
 	
 	UPROPERTY(EditDefaultsOnly)
-	UMaterialInterface* FleshDecal;
+	TObjectPtr<UMaterialInterface> FleshDecal;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FVector FleshDecalSize;
@@ -46,13 +46,13 @@ struct FHitEffects
 	float FleshDecalLifeSpan;
 	
 	UPROPERTY(EditDefaultsOnly)
-	UMaterialInterface* StoneDecal;
+	TObjectPtr<UMaterialInterface> StoneDecal;
 
 	UPROPERTY(EditDefaultsOnly)
-	UMaterialInterface* MetalDecal;
+	TObjectPtr<UMaterialInterface> MetalDecal;
 
 	UPROPERTY(EditDefaultsOnly)
-	UMaterialInterface* WoodDecal;
+	TObjectPtr<UMaterialInterface> WoodDecal;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FVector ObjectDecalSize;
@@ -87,13 +87,13 @@ class AProjectileActor : public AActor
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* StaticMesh;
+	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UParticleSystemComponent* TrailParticle;
+	TObjectPtr<UParticleSystemComponent> TrailParticle;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UProjectileMovementComponent* ProjectileMovement;
+	TObjectPtr<class UProjectileMovementComponent> ProjectileMovement;
 
 // Functions
 public:
@@ -138,10 +138,10 @@ private:
 	float LifeSpan;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (ToolTip = "Non-explosive projectiles", AllowPrivateAccess = true))
-	UDataTable* ProjectileDataTable;
+	TObjectPtr<UDataTable> ProjectileDataTable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
-	UDataTable* ExplosiveProjectileDataTable;
+	TObjectPtr<UDataTable> ExplosiveProjectileDataTable;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = "true"))
 	FHitEffects HitEffects;

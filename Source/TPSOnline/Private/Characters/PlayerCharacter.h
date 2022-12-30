@@ -13,13 +13,13 @@ class APlayerCharacter : public ABaseCharacter
 	GENERATED_BODY()
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* SpringArm;
+	TObjectPtr<class USpringArmComponent> SpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* Camera;
+	TObjectPtr<UCameraComponent> Camera;
 
 	UPROPERTY()
-	UTimelineComponent* AimTimeline;
+	TObjectPtr<UTimelineComponent> AimTimeline;
 
 // Functions
 public:
@@ -102,7 +102,7 @@ private:
 // Variables
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = "true"))
-	UCurveFloat* AimFloatCurve;
+	TObjectPtr<UCurveFloat> AimFloatCurve;
 	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
@@ -113,10 +113,10 @@ private:
 	float BaseLookUpRate;
 
 	UPROPERTY(Replicated)
-	APlayerController* PlayerControllerRef;
+	TObjectPtr<APlayerController> PlayerControllerRef;
 
 	UPROPERTY()
-	class APlayerHUD* PlayerHUD;
+	TObjectPtr<class APlayerHUD> PlayerHUD;
 
 	/** Using for aim offset */
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Defaults", meta = (AllowPrivateAccess = true))
@@ -125,7 +125,7 @@ private:
 	uint8 bDoOnceCrouch : 1, bCharacterAnimationInterface : 1;
 
 	UPROPERTY()
-	UAnimInstance* AnimInstance;
+	TObjectPtr<UAnimInstance> AnimInstance;
 	
 	/** Enum data indicating the direction the Timeline is playing */
 	TEnumAsByte<ETimelineDirection::Type> TimeLineDirection;

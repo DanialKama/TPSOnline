@@ -25,13 +25,13 @@ public:
 // Variables
 public:
 	UPROPERTY(Replicated)
-	AWeaponPickupActor* PrimaryWeapon;
+	TObjectPtr<AWeaponPickupActor> PrimaryWeapon;
 
 	UPROPERTY(Replicated)
-	AWeaponPickupActor* SecondaryWeapon;
+	TObjectPtr<AWeaponPickupActor> SecondaryWeapon;
 
 	UPROPERTY(Replicated)
-	AWeaponPickupActor* SidearmWeapon;
+	TObjectPtr<AWeaponPickupActor> SidearmWeapon;
 
 	/** 5.56 mm */
 	UPROPERTY(Replicated)

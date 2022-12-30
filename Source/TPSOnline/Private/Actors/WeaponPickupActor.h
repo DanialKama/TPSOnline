@@ -17,7 +17,7 @@ struct FEffects
 	FVector MuzzleFlashScale;
 
 	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* MuzzleFlash;
+	TObjectPtr<UParticleSystem> MuzzleFlash;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UCameraShakeBase> CameraShake;
@@ -63,7 +63,7 @@ class AWeaponPickupActor : public APickupActor
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* SkeletalMesh;
+	TObjectPtr<USkeletalMeshComponent> SkeletalMesh;
 	
 // Functions
 public:
@@ -139,5 +139,5 @@ private:
 	TSubclassOf<AProjectileActor> ProjectileClass;
 
 	UPROPERTY()
-	AProjectileActor* ProjectileRef;
+	TObjectPtr<AProjectileActor> ProjectileRef;
 };

@@ -30,5 +30,5 @@ protected:
 protected:
 	/** Owner of this component */
 	UPROPERTY(Replicated)
-	ABaseCharacter* ComponentOwner;
+	TObjectPtr<ABaseCharacter> ComponentOwner;
 };

@@ -64,6 +64,7 @@ void AProjectileActor::BeginPlay()
 		StaticMesh->OnComponentHit.AddDynamic(this, &AProjectileActor::OnHit);
 	}
 
+	// TODO: don't set the life span like this
 	SetLifeSpan(LifeSpan);
 }
 
