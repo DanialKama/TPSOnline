@@ -78,8 +78,8 @@ void AProjectileActor::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	const FName AmmoName = StaticEnum<EAmmoType>()->GetValueAsName(AmmoType);
 	if (bIsExplosive && ExplosiveProjectileDataTable)
 	{
-		const FExplosiveProjectileInfo* ExplosiveProjectileInfo = ExplosiveProjectileDataTable->FindRow<FExplosiveProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true);
-		if (ExplosiveProjectileInfo)
+		if (const FExplosiveProjectileInfo* ExplosiveProjectileInfo =
+			ExplosiveProjectileDataTable->FindRow<FExplosiveProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true))
 		{
 			// Apply radial damage with fall off for explosive projectiles
 			const TArray<AActor*> IgnoreActors;
@@ -88,8 +88,8 @@ void AProjectileActor::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 	}
 	else if (ProjectileDataTable)
 	{
-		const FProjectileInfo* ProjectileInfo = ProjectileDataTable->FindRow<FProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true);
-		if (ProjectileInfo)
+		if (const FProjectileInfo* ProjectileInfo =
+			ProjectileDataTable->FindRow<FProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true))
 		{
 			// Apply point damage for nonexplosive projectiles based on surface type
 			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), CalculatePointDamage(ProjectileInfo), Hit.TraceStart, Hit, GetInstigatorController(), GetOwner(), DamageType);

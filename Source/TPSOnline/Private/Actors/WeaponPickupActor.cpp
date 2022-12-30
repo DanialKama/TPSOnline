@@ -130,9 +130,8 @@ void AWeaponPickupActor::CalculateLineTrace(FVector& Start, FVector& End) const
 FRotator AWeaponPickupActor::RandomPointInCircle(const float Radius, const bool bIncludesNegative) const
 {
 	// Distance From Center can be a random value from 0 to Radius or just Radius
-	float DistanceFromCenter;
-	// DistanceFromCenter = FMath::FRandRange(0.0f, Radius); // Option 1
-	DistanceFromCenter = Radius; // Option 2
+	// const float DistanceFromCenter = FMath::FRandRange(0.0f, Radius); // Option 1
+	const float DistanceFromCenter = Radius; // Option 2
 	const float Angle = FMath::FRandRange(0.0f, 360.0f);
 
 	FRotator Points;
