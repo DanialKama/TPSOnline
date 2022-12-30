@@ -7,7 +7,7 @@
 #include "AnimNotify_Ragdoll.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotify_Ragdoll : public UAnimNotify
+class UAnimNotify_Ragdoll : public UAnimNotify
 {
 	GENERATED_BODY()
 

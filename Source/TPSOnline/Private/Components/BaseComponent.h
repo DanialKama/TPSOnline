@@ -9,7 +9,7 @@
 class ABaseCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TPSONLINE_API UBaseComponent : public UActorComponent
+class UBaseComponent : public UActorComponent
 {
 	GENERATED_BODY()
 

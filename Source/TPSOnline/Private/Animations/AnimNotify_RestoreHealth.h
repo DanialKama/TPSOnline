@@ -7,7 +7,7 @@
 #include "AnimNotify_RestoreHealth.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotify_RestoreHealth : public UAnimNotify
+class UAnimNotify_RestoreHealth : public UAnimNotify
 {
 	GENERATED_BODY()
 

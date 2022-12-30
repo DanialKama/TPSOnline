@@ -7,7 +7,7 @@
 #include "AnimNotifyState_Reload.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotifyState_Reload : public UAnimNotifyState
+class UAnimNotifyState_Reload : public UAnimNotifyState
 {
 	GENERATED_BODY()
 

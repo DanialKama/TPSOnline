@@ -13,7 +13,7 @@ class UCharacterAnimationInterface : public UInterface
 	GENERATED_BODY()
 };
 
-class TPSONLINE_API ICharacterAnimationInterface
+class ICharacterAnimationInterface
 {
 	GENERATED_BODY()
 

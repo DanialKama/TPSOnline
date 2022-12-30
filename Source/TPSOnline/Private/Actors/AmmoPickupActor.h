@@ -7,7 +7,7 @@
 #include "AmmoPickupActor.generated.h"
 
 UCLASS()
-class TPSONLINE_API AAmmoPickupActor : public APickupActor
+class AAmmoPickupActor : public APickupActor
 {
 	GENERATED_BODY()
 

@@ -58,7 +58,7 @@ struct FRecoilData
 };
 
 UCLASS()
-class TPSONLINE_API AWeaponPickupActor : public APickupActor
+class AWeaponPickupActor : public APickupActor
 {
 	GENERATED_BODY()
 

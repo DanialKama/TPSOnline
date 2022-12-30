@@ -8,7 +8,7 @@
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class TPSONLINE_API APlayerCharacter : public ABaseCharacter
+class APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 	

@@ -8,7 +8,7 @@
 #include "StaminaComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TPSONLINE_API UStaminaComponent : public UBaseComponent
+class UStaminaComponent : public UBaseComponent
 {
 	GENERATED_BODY()
 

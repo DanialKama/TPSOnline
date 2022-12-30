@@ -11,7 +11,7 @@ class APickupActor;
 class AWeaponPickupActor;
 
 UCLASS()
-class TPSONLINE_API ABaseCharacter : public ACharacter
+class ABaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 

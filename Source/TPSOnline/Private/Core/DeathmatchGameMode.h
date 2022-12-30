@@ -7,7 +7,7 @@
 #include "DeathmatchGameMode.generated.h"
 
 UCLASS()
-class TPSONLINE_API ADeathmatchGameMode : public AGameModeBase
+class ADeathmatchGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 

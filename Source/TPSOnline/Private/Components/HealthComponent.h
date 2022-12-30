@@ -7,7 +7,7 @@
 #include "HealthComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TPSONLINE_API UHealthComponent : public UBaseComponent
+class UHealthComponent : public UBaseComponent
 {
 	GENERATED_BODY()
 

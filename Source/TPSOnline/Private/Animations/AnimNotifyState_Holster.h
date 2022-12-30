@@ -7,7 +7,7 @@
 #include "AnimNotifyState_Holster.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotifyState_Holster : public UAnimNotifyState
+class UAnimNotifyState_Holster : public UAnimNotifyState
 {
 	GENERATED_BODY()
 

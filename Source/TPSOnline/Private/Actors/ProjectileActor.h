@@ -82,7 +82,7 @@ struct FHitEffects
 };
 
 UCLASS()
-class TPSONLINE_API AProjectileActor : public AActor
+class AProjectileActor : public AActor
 {
 	GENERATED_BODY()
 

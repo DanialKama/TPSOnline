@@ -7,7 +7,7 @@
 #include "AnimNotifyState_GrabWeapon.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotifyState_GrabWeapon : public UAnimNotifyState
+class UAnimNotifyState_GrabWeapon : public UAnimNotifyState
 {
 	GENERATED_BODY()
 	

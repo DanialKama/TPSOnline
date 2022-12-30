@@ -7,7 +7,7 @@
 #include "CustomPlayerController.generated.h"
 
 UCLASS()
-class TPSONLINE_API ACustomPlayerController : public APlayerController
+class ACustomPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 };

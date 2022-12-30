@@ -8,7 +8,7 @@
 #include "PlayerHUD.generated.h"
 
 UCLASS()
-class TPSONLINE_API APlayerHUD : public AHUD
+class APlayerHUD : public AHUD
 {
 	GENERATED_BODY()
 

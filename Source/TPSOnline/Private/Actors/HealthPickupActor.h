@@ -7,7 +7,7 @@
 #include "HealthPickupActor.generated.h"
 
 UCLASS()
-class TPSONLINE_API AHealthPickupActor : public APickupActor
+class AHealthPickupActor : public APickupActor
 {
 	GENERATED_BODY()
 	

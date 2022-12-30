@@ -7,7 +7,7 @@
 #include "AnimNotify_StandUp.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotify_StandUp : public UAnimNotify
+class UAnimNotify_StandUp : public UAnimNotify
 {
 	GENERATED_BODY()
 

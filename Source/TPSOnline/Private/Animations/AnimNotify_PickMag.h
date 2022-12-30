@@ -7,7 +7,7 @@
 #include "AnimNotify_PickMag.generated.h"
 
 UCLASS()
-class TPSONLINE_API UAnimNotify_PickMag : public UAnimNotify
+class UAnimNotify_PickMag : public UAnimNotify
 {
 	GENERATED_BODY()
 
