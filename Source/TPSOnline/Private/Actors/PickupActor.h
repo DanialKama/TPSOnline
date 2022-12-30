@@ -13,8 +13,7 @@ class APickupActor : public AActor
 	GENERATED_BODY()
 
 // Functions
-public:	
-	/** Sets default values for this actor's properties */
+public:
 	APickupActor();
 
 	UFUNCTION()

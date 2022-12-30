@@ -1,13 +1,11 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Actors/AmmoPickupActor.h"
+#include "AmmoPickupActor.h"
 
 AAmmoPickupActor::AAmmoPickupActor()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SetRootComponent(MeshComponent);
+	RootComponent = MeshComponent;
 	MeshComponent->SetComponentTickEnabled(false);
 	MeshComponent->CanCharacterStepUpOn = ECB_No;
 	MeshComponent->SetGenerateOverlapEvents(false);

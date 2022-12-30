@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Actors/PickupActor.h"
+#include "PickupActor.h"
 #include "HealthPickupActor.generated.h"
 
 UCLASS()
@@ -16,7 +16,6 @@ class AHealthPickupActor : public APickupActor
 
 // Functions
 public:
-	/** Sets default values for this actor's properties */
 	AHealthPickupActor();
 
 	virtual void OnRep_PickupState() override;

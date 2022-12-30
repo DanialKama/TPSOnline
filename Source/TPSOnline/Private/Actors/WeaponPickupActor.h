@@ -67,7 +67,6 @@ class AWeaponPickupActor : public APickupActor
 	
 // Functions
 public:
-	/** Sets default values for this actor's properties */
 	AWeaponPickupActor();
 
 	UFUNCTION(Server, Reliable, WithValidation)

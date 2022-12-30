@@ -96,12 +96,10 @@ class AProjectileActor : public AActor
 	class UProjectileMovementComponent* ProjectileMovement;
 
 // Functions
-public:	
-	/** Sets default values for this actor's properties */
+public:
 	AProjectileActor();
 
 protected:
-	/** Called when the game starts or when spawned */
 	virtual void BeginPlay() override;
 
 private:

@@ -1,14 +1,13 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Actors/HealthPickupActor.h"
+#include "HealthPickupActor.h"
+
 #include "Net/UnrealNetwork.h"
 
 AHealthPickupActor::AHealthPickupActor()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SetRootComponent(MeshComponent);
+	RootComponent = MeshComponent;
 	MeshComponent->SetComponentTickEnabled(false);
 	MeshComponent->CanCharacterStepUpOn = ECB_No;
 	MeshComponent->SetGenerateOverlapEvents(false);
@@ -19,7 +18,7 @@ AHealthPickupActor::AHealthPickupActor()
 	IncreaseAmount = 50.0;
 }
 
-void AHealthPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+void AHealthPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 

@@ -1,6 +1,7 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Actors/ProjectileActor.h"
+#include "ProjectileActor.h"
+
 #include "Engine/DataTable.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,16 +14,16 @@
 AProjectileActor::AProjectileActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Static Mesh"));
-	SetRootComponent(StaticMesh);
+	RootComponent = StaticMesh;
 	StaticMesh->SetComponentTickEnabled(false);
 	StaticMesh->SetNotifyRigidBodyCollision(true);
 	StaticMesh->CanCharacterStepUpOn = ECB_No;
 	StaticMesh->SetCollisionProfileName("Projectile");
 	StaticMesh->SetGenerateOverlapEvents(false);
 	StaticMesh->bReturnMaterialOnMove = true;
-	StaticMesh->OnComponentHit.AddDynamic(this, &AProjectileActor::OnHit);
 
 	TrailParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Trail Particle"));
 	TrailParticle->SetupAttachment(StaticMesh, TEXT("TrailSocket"));
@@ -58,43 +59,45 @@ void AProjectileActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		StaticMesh->OnComponentHit.AddDynamic(this, &AProjectileActor::OnHit);
+	}
+
 	SetLifeSpan(LifeSpan);
 }
 
 void AProjectileActor::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (GetLocalRole() == ROLE_Authority)
+	if (Hit.PhysMaterial.IsValid())
 	{
-		if (Hit.PhysMaterial.IsValid())
-		{
-			// Calculating it once and using it many times
-			SwitchExpression = StaticEnum<EPhysicalSurface>()->GetIndexByValue(UGameplayStatics::GetSurfaceType(Hit));
-		}
-		
-		const FName AmmoName = StaticEnum<EAmmoType>()->GetValueAsName(AmmoType);
-		if (bIsExplosive && ExplosiveProjectileDataTable)
-		{
-			const FExplosiveProjectileInfo* ExplosiveProjectileInfo = ExplosiveProjectileDataTable->FindRow<FExplosiveProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true);
-			if (ExplosiveProjectileInfo)
-			{
-				// Apply radial damage with fall off for explosive projectiles
-				const TArray<AActor*> IgnoreActors;
-				UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), ExplosiveProjectileInfo->BaseDamage, ExplosiveProjectileInfo->MinimumDamage, Hit.ImpactPoint, ExplosiveProjectileInfo->DamageInnerRadius, ExplosiveProjectileInfo->DamageOuterRadius, 2.0f, DamageType, IgnoreActors, GetOwner(), GetInstigatorController(), ECollisionChannel::ECC_Visibility);
-			}
-		}
-		else if (ProjectileDataTable)
-		{
-			const FProjectileInfo* ProjectileInfo = ProjectileDataTable->FindRow<FProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true);
-			if (ProjectileInfo)
-			{
-				// Apply point damage for nonexplosive projectiles based on surface type
-				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), CalculatePointDamage(ProjectileInfo), Hit.TraceStart, Hit, GetInstigatorController(), GetOwner(), DamageType);
-			}
-		}
-
-		MulticastHitEffects(SwitchExpression, Hit);
-		Destroy();
+		// Calculating it once and using it many times
+		SwitchExpression = StaticEnum<EPhysicalSurface>()->GetIndexByValue(UGameplayStatics::GetSurfaceType(Hit));
 	}
+	
+	const FName AmmoName = StaticEnum<EAmmoType>()->GetValueAsName(AmmoType);
+	if (bIsExplosive && ExplosiveProjectileDataTable)
+	{
+		const FExplosiveProjectileInfo* ExplosiveProjectileInfo = ExplosiveProjectileDataTable->FindRow<FExplosiveProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true);
+		if (ExplosiveProjectileInfo)
+		{
+			// Apply radial damage with fall off for explosive projectiles
+			const TArray<AActor*> IgnoreActors;
+			UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(), ExplosiveProjectileInfo->BaseDamage, ExplosiveProjectileInfo->MinimumDamage, Hit.ImpactPoint, ExplosiveProjectileInfo->DamageInnerRadius, ExplosiveProjectileInfo->DamageOuterRadius, 2.0f, DamageType, IgnoreActors, GetOwner(), GetInstigatorController(), ECollisionChannel::ECC_Visibility);
+		}
+	}
+	else if (ProjectileDataTable)
+	{
+		const FProjectileInfo* ProjectileInfo = ProjectileDataTable->FindRow<FProjectileInfo>(AmmoName, TEXT("Projectile Info Context"), true);
+		if (ProjectileInfo)
+		{
+			// Apply point damage for nonexplosive projectiles based on surface type
+			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), CalculatePointDamage(ProjectileInfo), Hit.TraceStart, Hit, GetInstigatorController(), GetOwner(), DamageType);
+		}
+	}
+	
+	MulticastHitEffects(SwitchExpression, Hit);
+	Destroy();
 }
 
 float AProjectileActor::CalculatePointDamage(const FProjectileInfo* ProjectileInfo) const

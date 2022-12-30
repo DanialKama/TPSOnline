@@ -1,18 +1,16 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Actors/WeaponPickupActor.h"
-#include "Actors/ProjectileActor.h"
+#include "WeaponPickupActor.h"
+
+#include "ProjectileActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Camera/CameraComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AWeaponPickupActor::AWeaponPickupActor()
 {
-	PrimaryActorTick.bCanEverTick = false;
-
 	SkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skeletal Mesh"));
-	SetRootComponent(SkeletalMesh);
+	RootComponent = SkeletalMesh;
 	SkeletalMesh->SetComponentTickEnabled(false);
 	SkeletalMesh->bApplyImpulseOnDamage = false;
 	SkeletalMesh->CanCharacterStepUpOn = ECB_No;
@@ -29,7 +27,7 @@ AWeaponPickupActor::AWeaponPickupActor()
 	ReloadAmount = CurrentMagazineAmmo = MagazineSize = 30;
 }
 
-void AWeaponPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+void AWeaponPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
