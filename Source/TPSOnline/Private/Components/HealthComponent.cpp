@@ -1,14 +1,13 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Components/HealthComponent.h"
+#include "HealthComponent.h"
+
 #include "Characters/BaseCharacter.h"
-#include "Components/StaminaComponent.h"
+#include "StaminaComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
-
 	// Initialize variables
 	CurrentHealth = MaxHealth = 100.0f;
 	RestoreAmount = 5.0f;

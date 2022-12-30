@@ -14,8 +14,7 @@ class UBaseComponent : public UActorComponent
 	GENERATED_BODY()
 
 // Functions
-public:	
-	/** Sets default values for this component's properties */
+public:
 	UBaseComponent();
 
 	/** Initialize this component */

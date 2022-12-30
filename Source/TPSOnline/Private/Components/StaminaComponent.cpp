@@ -1,14 +1,13 @@
 // Copyright 2022 Danial Kamali. All Rights Reserved.
 
-#include "Components/StaminaComponent.h"
-#include "Components/HealthComponent.h"
+#include "StaminaComponent.h"
+
+#include "HealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UStaminaComponent::UStaminaComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
-
 	// Initialize variables
 	CurrentStamina = MaxStamina = 100.0f;
 	RunningDrainAmount = 1.5f;

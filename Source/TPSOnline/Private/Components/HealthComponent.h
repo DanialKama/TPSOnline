@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BaseComponent.h"
+#include "BaseComponent.h"
 #include "HealthComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -12,8 +12,7 @@ class UHealthComponent : public UBaseComponent
 	GENERATED_BODY()
 
 // Functions
-public:	
-	/** Sets default values for this component's properties */
+public:
 	UHealthComponent();
 	
 	UFUNCTION(Server, Reliable)

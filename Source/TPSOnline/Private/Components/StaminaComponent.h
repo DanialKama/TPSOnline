@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BaseComponent.h"
+#include "BaseComponent.h"
 #include "Characters/BaseCharacter.h"
 #include "StaminaComponent.generated.h"
 
@@ -13,8 +13,7 @@ class UStaminaComponent : public UBaseComponent
 	GENERATED_BODY()
 
 // Functions
-public:	
-	/** Sets default values for this component's properties */
+public:
 	UStaminaComponent();
 	
 	UFUNCTION(Server, Reliable)
