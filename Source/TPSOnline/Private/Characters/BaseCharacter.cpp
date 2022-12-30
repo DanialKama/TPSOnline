@@ -28,7 +28,7 @@ ABaseCharacter::ABaseCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 600.0f;
 	GetCharacterMovement()->JumpZVelocity = 300.0f;
-	GetCharacterMovement()->CrouchedHalfHeight = 60.0f;
+	GetCharacterMovement()->SetCrouchedHalfHeight(60.0f);
 	GetCharacterMovement()->AirControl = 0.2f;
 	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	
